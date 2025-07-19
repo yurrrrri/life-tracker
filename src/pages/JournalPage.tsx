@@ -1,127 +1,133 @@
-import React, { useState } from 'react'
 import {
+  FEELING_ICONS,
+  FEELING_LABELS,
+  ROUTES,
+  WEATHER_ICONS,
+  WEATHER_LABELS,
+} from "@/constants";
+import api from "@/services/api";
+import { journalsAtom } from "@/stores";
+import { Feeling, Journal, Weather } from "@/types";
+import { formatDate } from "@/utils";
+import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  Badge,
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  SimpleGrid,
   Card,
   CardBody,
   CardHeader,
-  Badge,
-  IconButton,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Input,
-  Select,
-  useToast,
-  Spinner,
   Center,
   Flex,
   Heading,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useNavigate } from 'react-router-dom'
-import { AddIcon } from '@chakra-ui/icons'
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons'
-import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { journalsAtom } from '@/stores'
-import { ROUTES } from '@/constants'
-import { Journal, Weather, Feeling } from '@/types'
-import { WEATHER_ICONS, WEATHER_LABELS, FEELING_ICONS, FEELING_LABELS } from '@/constants'
-import api from '@/services/api'
+  HStack,
+  IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  SimpleGrid,
+  Spinner,
+  Text,
+  useDisclosure,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const JournalPage: React.FC = () => {
-  const navigate = useNavigate()
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  
-  const [journals, setJournals] = useAtom(journalsAtom)
+  const navigate = useNavigate();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterWeather, setFilterWeather] = useState<Weather | ''>('')
-  const [filterFeeling, setFilterFeeling] = useState<Feeling | ''>('')
-  const [sortBy, setSortBy] = useState<'date' | 'feeling'>('date')
+  const [journals, setJournals] = useAtom(journalsAtom);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterWeather, setFilterWeather] = useState<Weather | "">("");
+  const [filterFeeling, setFilterFeeling] = useState<Feeling | "">("");
+  const [sortBy, setSortBy] = useState<"date" | "feeling">("date");
 
   // Fetch journals
   const { data: journalsData, isLoading } = useQuery({
-    queryKey: ['journals'],
-    queryFn: () => api.get('/journals'),
-  })
+    queryKey: ["journals"],
+    queryFn: () => api.get("/journals"),
+  });
 
   React.useEffect(() => {
     if (journalsData?.data) {
-      setJournals(journalsData.data)
+      setJournals(journalsData.data);
     }
-  }, [journalsData])
+  }, [journalsData]);
 
   // Delete journal mutation
   const deleteMutation = useMutation({
     mutationFn: (journalId: string) => api.delete(`/journals/${journalId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['journals'] })
+      queryClient.invalidateQueries({ queryKey: ["journals"] });
       toast({
-        title: '일기가 삭제되었습니다.',
-        status: 'success',
+        title: "일기가 삭제되었습니다.",
+        status: "success",
         duration: 3000,
-      })
+      });
     },
     onError: () => {
       toast({
-        title: '일기 삭제에 실패했습니다.',
-        status: 'error',
+        title: "일기 삭제에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   // Filter and sort journals
   const filteredJournals = journals
-    .filter(journal => {
-      const matchesSearch = journal.contents?.includes(searchTerm) || 
-                           journal.memo?.includes(searchTerm)
-      const matchesWeather = !filterWeather || journal.weather === filterWeather
-      const matchesFeeling = !filterFeeling || journal.feeling === filterFeeling
-      
-      return matchesSearch && matchesWeather && matchesFeeling
+    .filter((journal) => {
+      const matchesSearch =
+        journal.contents?.includes(searchTerm) ||
+        journal.memo?.includes(searchTerm);
+      const matchesWeather =
+        !filterWeather || journal.weather === filterWeather;
+      const matchesFeeling =
+        !filterFeeling || journal.feeling === filterFeeling;
+
+      return matchesSearch && matchesWeather && matchesFeeling;
     })
     .sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime()
+      if (sortBy === "date") {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       } else {
-        return a.feeling.localeCompare(b.feeling)
+        return a.feeling.localeCompare(b.feeling);
       }
-    })
+    });
 
   const handleDelete = (journalId: string) => {
-    if (window.confirm('정말로 이 일기를 삭제하시겠습니까?')) {
-      deleteMutation.mutate(journalId)
+    if (window.confirm("정말로 이 일기를 삭제하시겠습니까?")) {
+      deleteMutation.mutate(journalId);
     }
-  }
+  };
 
   const handleView = (journal: Journal) => {
-    navigate(ROUTES.JOURNAL_VIEW.replace(':id', journal.id))
-  }
+    navigate(ROUTES.JOURNAL_VIEW.replace(":id", journal.id));
+  };
 
   const handleEdit = (journal: Journal) => {
-    navigate(ROUTES.JOURNAL_WRITE, { state: { journal } })
-  }
+    navigate(ROUTES.JOURNAL_WRITE, { state: { journal } });
+  };
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -149,18 +155,17 @@ const JournalPage: React.FC = () => {
                     placeholder="일기 내용이나 메모로 검색..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-
                   />
                 </Box>
-                <Button onClick={onOpen}>
-                  필터
-                </Button>
+                <Button onClick={onOpen}>필터</Button>
               </HStack>
-              
+
               <HStack w="full" spacing={4}>
                 <Select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'date' | 'feeling')}
+                  onChange={(e) =>
+                    setSortBy(e.target.value as "date" | "feeling")
+                  }
                 >
                   <option value="date">날짜순</option>
                   <option value="feeling">감정순</option>
@@ -173,23 +178,31 @@ const JournalPage: React.FC = () => {
         {/* Journals Grid */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
           {filteredJournals.map((journal) => {
-            const WeatherIcon = journal.weather ? WEATHER_ICONS[journal.weather] : null
-            const FeelingIcon = FEELING_ICONS[journal.feeling]
-            
+            const WeatherIcon = journal.weather
+              ? WEATHER_ICONS[journal.weather]
+              : null;
+            const FeelingIcon = FEELING_ICONS[journal.feeling];
+
             return (
-              <Card key={journal.id} cursor="pointer" onClick={() => handleView(journal)}>
+              <Card
+                key={journal.id}
+                cursor="pointer"
+                onClick={() => handleView(journal)}
+              >
                 <CardHeader>
                   <HStack justify="space-between">
                     <Text fontWeight="bold" fontSize="lg">
-                      {format(new Date(journal.date), 'yyyy년 MM월 dd일', { locale: ko })}
+                      {formatDate(new Date(journal.date))}
                     </Text>
                     <HStack spacing={2}>
                       {journal.locked && <Badge colorScheme="red">잠금</Badge>}
-                      {journal.saved && <Badge colorScheme="green">저장됨</Badge>}
+                      {journal.saved && (
+                        <Badge colorScheme="green">저장됨</Badge>
+                      )}
                     </HStack>
                   </HStack>
                 </CardHeader>
-                
+
                 <CardBody>
                   <VStack align="stretch" spacing={3}>
                     {/* Weather and Feeling */}
@@ -197,12 +210,16 @@ const JournalPage: React.FC = () => {
                       {WeatherIcon && (
                         <HStack>
                           <WeatherIcon />
-                          <Text fontSize="sm">{WEATHER_LABELS[journal.weather!]}</Text>
+                          <Text fontSize="sm">
+                            {WEATHER_LABELS[journal.weather!]}
+                          </Text>
                         </HStack>
                       )}
                       <HStack>
                         <FeelingIcon />
-                        <Text fontSize="sm">{FEELING_LABELS[journal.feeling]}</Text>
+                        <Text fontSize="sm">
+                          {FEELING_LABELS[journal.feeling]}
+                        </Text>
                       </HStack>
                     </HStack>
 
@@ -227,8 +244,8 @@ const JournalPage: React.FC = () => {
                         aria-label="편집"
                         icon={<EditIcon />}
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleEdit(journal)
+                          e.stopPropagation();
+                          handleEdit(journal);
                         }}
                       />
                       <IconButton
@@ -237,15 +254,15 @@ const JournalPage: React.FC = () => {
                         icon={<DeleteIcon />}
                         colorScheme="red"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleDelete(journal.id)
+                          e.stopPropagation();
+                          handleDelete(journal.id);
                         }}
                       />
                     </HStack>
                   </VStack>
                 </CardBody>
               </Card>
-            )
+            );
           })}
         </SimpleGrid>
 
@@ -268,24 +285,32 @@ const JournalPage: React.FC = () => {
                 <Text mb={2}>날씨</Text>
                 <Select
                   value={filterWeather}
-                  onChange={(e) => setFilterWeather(e.target.value as Weather | '')}
+                  onChange={(e) =>
+                    setFilterWeather(e.target.value as Weather | "")
+                  }
                 >
                   <option value="">전체</option>
                   {Object.entries(WEATHER_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
                   ))}
                 </Select>
               </Box>
-              
+
               <Box w="full">
                 <Text mb={2}>감정</Text>
                 <Select
                   value={filterFeeling}
-                  onChange={(e) => setFilterFeeling(e.target.value as Feeling | '')}
+                  onChange={(e) =>
+                    setFilterFeeling(e.target.value as Feeling | "")
+                  }
                 >
                   <option value="">전체</option>
                   {Object.entries(FEELING_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
                   ))}
                 </Select>
               </Box>
@@ -294,7 +319,7 @@ const JournalPage: React.FC = () => {
         </ModalContent>
       </Modal>
     </Box>
-  )
-}
+  );
+};
 
-export default JournalPage 
+export default JournalPage;

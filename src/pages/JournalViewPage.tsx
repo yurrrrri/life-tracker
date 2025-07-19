@@ -1,48 +1,55 @@
-import React from 'react'
 import {
+  FEELING_ICONS,
+  FEELING_LABELS,
+  ROUTES,
+  WEATHER_ICONS,
+  WEATHER_LABELS,
+} from "@/constants";
+import api from "@/services/api";
+import { Journal } from "@/types";
+import { formatDate, formatDateTime } from "@/utils";
+import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  Badge,
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
   Card,
   CardBody,
   CardHeader,
-  Badge,
-  Image,
-  Spinner,
   Center,
+  Divider,
   Flex,
   Heading,
-  Divider,
-} from '@chakra-ui/react'
-
-import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
-import { EditIcon, ArrowBackIcon } from '@chakra-ui/icons'
-import { ROUTES } from '@/constants'
-import { Journal } from '@/types'
-import { WEATHER_ICONS, WEATHER_LABELS, FEELING_ICONS, FEELING_LABELS } from '@/constants'
-import api from '@/services/api'
+  HStack,
+  Image,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const JournalViewPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
 
-  const { data: journal, isLoading, error } = useQuery({
-    queryKey: ['journal', id],
+  const {
+    data: journal,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["journal", id],
     queryFn: () => api.get(`/journals/${id}`),
     enabled: !!id,
-  })
+  });
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   if (error || !journal?.data) {
@@ -50,12 +57,14 @@ const JournalViewPage: React.FC = () => {
       <Center h="50vh">
         <Text>일기를 찾을 수 없습니다.</Text>
       </Center>
-    )
+    );
   }
 
-  const journalData: Journal = journal.data
-  const WeatherIcon = journalData.weather ? WEATHER_ICONS[journalData.weather] : null
-  const FeelingIcon = FEELING_ICONS[journalData.feeling]
+  const journalData: Journal = journal.data;
+  const WeatherIcon = journalData.weather
+    ? WEATHER_ICONS[journalData.weather]
+    : null;
+  const FeelingIcon = FEELING_ICONS[journalData.feeling];
 
   return (
     <Box p={6}>
@@ -75,7 +84,11 @@ const JournalViewPage: React.FC = () => {
           <Button
             leftIcon={<EditIcon />}
             colorScheme="blue"
-            onClick={() => navigate(ROUTES.JOURNAL_WRITE, { state: { journal: journalData } })}
+            onClick={() =>
+              navigate(ROUTES.JOURNAL_WRITE, {
+                state: { journal: journalData },
+              })
+            }
           >
             수정
           </Button>
@@ -87,11 +100,15 @@ const JournalViewPage: React.FC = () => {
             <VStack align="stretch" spacing={3}>
               <HStack justify="space-between">
                 <Text fontWeight="bold" fontSize="xl">
-                  {format(new Date(journalData.date), 'yyyy년 MM월 dd일', { locale: ko })}
+                  {formatDate(new Date(journalData.date))}
                 </Text>
                 <HStack spacing={2}>
-                  {journalData.locked && <Badge colorScheme="red">비공개</Badge>}
-                  {journalData.saved && <Badge colorScheme="green">저장됨</Badge>}
+                  {journalData.locked && (
+                    <Badge colorScheme="red">비공개</Badge>
+                  )}
+                  {journalData.saved && (
+                    <Badge colorScheme="green">저장됨</Badge>
+                  )}
                 </HStack>
               </HStack>
 
@@ -126,7 +143,9 @@ const JournalViewPage: React.FC = () => {
               {/* Contents */}
               {journalData.contents && (
                 <Box>
-                  <Text fontWeight="bold" mb={3}>일기 내용</Text>
+                  <Text fontWeight="bold" mb={3}>
+                    일기 내용
+                  </Text>
                   <Text whiteSpace="pre-wrap">{journalData.contents}</Text>
                 </Box>
               )}
@@ -134,7 +153,9 @@ const JournalViewPage: React.FC = () => {
               {/* Images */}
               {(journalData.imageId1 || journalData.imageId2) && (
                 <Box>
-                  <Text fontWeight="bold" mb={3}>첨부된 사진</Text>
+                  <Text fontWeight="bold" mb={3}>
+                    첨부된 사진
+                  </Text>
                   <HStack spacing={4}>
                     {journalData.imageId1 && (
                       <Image
@@ -161,7 +182,9 @@ const JournalViewPage: React.FC = () => {
               {/* Memo */}
               {journalData.memo && (
                 <Box>
-                  <Text fontWeight="bold" mb={3}>메모</Text>
+                  <Text fontWeight="bold" mb={3}>
+                    메모
+                  </Text>
                   <Text fontSize="sm" color="gray.600" fontStyle="italic">
                     {journalData.memo}
                   </Text>
@@ -172,9 +195,13 @@ const JournalViewPage: React.FC = () => {
 
               {/* Metadata */}
               <HStack justify="space-between" fontSize="sm" color="gray.500">
-                <Text>작성일: {format(new Date(journalData.registeredOn), 'yyyy-MM-dd HH:mm')}</Text>
+                <Text>
+                  작성일: {formatDateTime(new Date(journalData.registeredOn))}
+                </Text>
                 {journalData.modifiedOn !== journalData.registeredOn && (
-                  <Text>수정일: {format(new Date(journalData.modifiedOn), 'yyyy-MM-dd HH:mm')}</Text>
+                  <Text>
+                    수정일: {formatDateTime(new Date(journalData.modifiedOn))}
+                  </Text>
                 )}
               </HStack>
             </VStack>
@@ -182,7 +209,7 @@ const JournalViewPage: React.FC = () => {
         </Card>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default JournalViewPage 
+export default JournalViewPage;

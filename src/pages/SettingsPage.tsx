@@ -1,66 +1,64 @@
-import React, { useState } from 'react'
+import api from "@/services/api";
+import { fontTypeAtom, isDarkModeAtom, settingsAtom } from "@/stores";
+import { FontType } from "@/types";
 import {
+  Alert,
+  AlertIcon,
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
   Card,
   CardBody,
   CardHeader,
-  Switch,
-  useToast,
-  Spinner,
   Center,
-
+  FormControl,
+  FormLabel,
   Heading,
-
-  Alert,
-  AlertIcon,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { settingsAtom, isDarkModeAtom, fontTypeAtom } from '@/stores'
-import { FontType } from '@/types'
-import api from '@/services/api'
+  HStack,
+  Input,
+  Select,
+  Spinner,
+  Switch,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const settingsSchema = z.object({
-  password: z.string().min(4, '비밀번호는 최소 4자 이상이어야 합니다'),
+  password: z.string().min(4, "비밀번호는 최소 4자 이상이어야 합니다"),
   notificationTime: z.string(),
   isDark: z.boolean(),
   fontType: z.nativeEnum(FontType),
-})
+});
 
-type SettingsFormData = z.infer<typeof settingsSchema>
+type SettingsFormData = z.infer<typeof settingsSchema>;
 
 const SettingsPage: React.FC = () => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  
-  const [settings, setSettings] = useAtom(settingsAtom)
-  const [, setIsDarkMode] = useAtom(isDarkModeAtom)
-  const [, setFontType] = useAtom(fontTypeAtom)
+  const toast = useToast();
+  const queryClient = useQueryClient();
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [settings, setSettings] = useAtom(settingsAtom);
+  const [, setIsDarkMode] = useAtom(isDarkModeAtom);
+  const [, setFontType] = useAtom(fontTypeAtom);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch settings
   const { data: settingsData, isLoading } = useQuery({
-    queryKey: ['settings'],
-    queryFn: () => api.get('/settings'),
-  })
+    queryKey: ["settings"],
+    queryFn: () => api.get("/settings"),
+  });
 
   React.useEffect(() => {
     if (settingsData?.data) {
-      setSettings(settingsData.data)
+      setSettings(settingsData.data);
     }
-  }, [settingsData])
+  }, [settingsData]);
 
   const {
     control,
@@ -68,65 +66,71 @@ const SettingsPage: React.FC = () => {
     formState: { errors, isDirty },
   } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
-    defaultValues: settings ? {
-      password: settings.password,
-      notificationTime: settings.notificationTime,
-      isDark: settings.isDark,
-      fontType: settings.fontType,
-    } : {
-      password: '',
-      notificationTime: '09:00',
-      isDark: false,
-      fontType: 'DEFAULT' as FontType,
-    },
-  })
+    defaultValues: settings
+      ? {
+          password: settings.password,
+          notificationTime: settings.notificationTime,
+          isDark: settings.isDark,
+          fontType: settings.fontType,
+        }
+      : {
+          password: "",
+          notificationTime: "09:00",
+          isDark: false,
+          fontType: "DEFAULT" as FontType,
+        },
+  });
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: SettingsFormData) => api.put('/settings', data),
+    mutationFn: (data: SettingsFormData) => api.put("/settings", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings'] })
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
       toast({
-        title: '설정이 저장되었습니다.',
-        status: 'success',
+        title: "설정이 저장되었습니다.",
+        status: "success",
         duration: 3000,
-      })
+      });
     },
     onError: () => {
       toast({
-        title: '설정 저장에 실패했습니다.',
-        status: 'error',
+        title: "설정 저장에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   const onSubmit = async (data: SettingsFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await updateSettingsMutation.mutateAsync(data)
-      setIsDarkMode(data.isDark)
-      setFontType(data.fontType)
+      await updateSettingsMutation.mutateAsync(data);
+      setIsDarkMode(data.isDark);
+      setFontType(data.fontType);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const getFontTypeLabel = (fontType: FontType) => {
     switch (fontType) {
-      case 'DEFAULT': return '기본'
-      case 'SERIF': return '명조체'
-      case 'MONOSPACE': return '고정폭'
-      default: return fontType
+      case "DEFAULT":
+        return "기본";
+      case "SERIF":
+        return "명조체";
+      case "MONOSPACE":
+        return "고정폭";
+      default:
+        return fontType;
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -159,7 +163,9 @@ const SettingsPage: React.FC = () => {
                       )}
                     />
                     {errors.password && (
-                      <Text color="red.500" fontSize="sm">{errors.password.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.password.message}
+                      </Text>
                     )}
                   </FormControl>
                 </VStack>
@@ -178,12 +184,7 @@ const SettingsPage: React.FC = () => {
                     <Controller
                       name="notificationTime"
                       control={control}
-                      render={({ field }) => (
-                        <Input
-                          type="time"
-                          {...field}
-                        />
-                      )}
+                      render={({ field }) => <Input type="time" {...field} />}
                     />
                   </FormControl>
                 </VStack>
@@ -221,7 +222,7 @@ const SettingsPage: React.FC = () => {
                       control={control}
                       render={({ field }) => (
                         <Select {...field}>
-                          {Object.values(FontType).map(fontType => (
+                          {Object.values(FontType).map((fontType) => (
                             <option key={fontType} value={fontType}>
                               {getFontTypeLabel(fontType)}
                             </option>
@@ -247,7 +248,7 @@ const SettingsPage: React.FC = () => {
                       데이터 백업 및 복원 기능은 추후 업데이트 예정입니다.
                     </Text>
                   </Alert>
-                  
+
                   <HStack spacing={4}>
                     <Button variant="outline" isDisabled>
                       데이터 내보내기
@@ -280,7 +281,7 @@ const SettingsPage: React.FC = () => {
         </form>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default SettingsPage 
+export default SettingsPage;

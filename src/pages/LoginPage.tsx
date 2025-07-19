@@ -1,35 +1,35 @@
-import React, { useState } from "react";
+import { APP_CONSTANTS, ROUTES } from "@/constants";
+import apiService from "@/services/api";
+import {
+  authTokenAtom,
+  isAuthenticatedAtom,
+  lastPasswordAttemptAtom,
+  passwordAttemptsAtom,
+} from "@/stores";
+import { handleError } from "@/utils";
 import {
   Box,
-  VStack,
-  HStack,
-  Text,
-  Input,
   Button,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  useToast,
   Container,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   Heading,
+  HStack,
   Icon,
+  Input,
+  Text,
   useColorModeValue,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { FiEye, FiEyeOff, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {
-  isAuthenticatedAtom,
-  authTokenAtom,
-  passwordAttemptsAtom,
-  lastPasswordAttemptAtom,
-} from "@/stores";
-import apiService from "@/services/api";
-import { handleError } from "@/utils";
-import { APP_CONSTANTS, ROUTES } from "@/constants";
+import { z } from "zod";
 
 const loginSchema = z.object({
   password: z.string().min(4, "비밀번호는 최소 4자 이상이어야 합니다."),

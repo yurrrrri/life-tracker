@@ -1,71 +1,71 @@
-import React, { useState } from 'react'
+import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  SimpleGrid,
   Card,
-
   CardHeader,
-  IconButton,
-  useToast,
-  Spinner,
   Center,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
-
-  useDisclosure,
+  HStack,
+  IconButton,
+  Input,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
   ModalCloseButton,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { EditIcon, DeleteIcon, AddIcon } from '@chakra-ui/icons'
-
-import { categoriesAtom } from '@/stores'
-import { Category } from '@/types'
-import { CATEGORY_COLORS, APP_CONSTANTS } from '@/constants'
-import api from '@/services/api'
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  SimpleGrid,
+  Spinner,
+  Text,
+  useDisclosure,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants";
+import api from "@/services/api";
+import { categoriesAtom } from "@/stores";
+import { Category } from "@/types";
 
 const categorySchema = z.object({
-  name: z.string().min(1, '카테고리명을 입력해주세요').max(20, '카테고리명은 20자 이내로 입력해주세요'),
-  color: z.string().min(1, '색상을 선택해주세요'),
-})
+  name: z
+    .string()
+    .min(1, "카테고리명을 입력해주세요")
+    .max(20, "카테고리명은 20자 이내로 입력해주세요"),
+  color: z.string().min(1, "색상을 선택해주세요"),
+});
 
-type CategoryFormData = z.infer<typeof categorySchema>
+type CategoryFormData = z.infer<typeof categorySchema>;
 
 const CategoriesPage: React.FC = () => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  
-  const [categories, setCategories] = useAtom(categoriesAtom)
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [categories, setCategories] = useAtom(categoriesAtom);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch categories
   const { data: categoriesData, isLoading } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => api.get('/categories'),
-  })
+    queryKey: ["categories"],
+    queryFn: () => api.get("/categories"),
+  });
 
   React.useEffect(() => {
     if (categoriesData?.data) {
-      setCategories(categoriesData.data)
+      setCategories(categoriesData.data);
     }
-  }, [categoriesData])
+  }, [categoriesData]);
 
   const {
     control,
@@ -75,92 +75,94 @@ const CategoriesPage: React.FC = () => {
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      name: '',
+      name: "",
       color: CATEGORY_COLORS[0],
     },
-  })
+  });
 
   // Create/Update category mutation
   const saveCategoryMutation = useMutation({
     mutationFn: (data: CategoryFormData) => {
       if (editingCategory) {
-        return api.put(`/categories/${editingCategory.id}`, data)
+        return api.put(`/categories/${editingCategory.id}`, data);
       } else {
-        return api.post('/categories', data)
+        return api.post("/categories", data);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast({
-        title: editingCategory ? '카테고리가 수정되었습니다.' : '카테고리가 생성되었습니다.',
-        status: 'success',
+        title: editingCategory
+          ? "카테고리가 수정되었습니다."
+          : "카테고리가 생성되었습니다.",
+        status: "success",
         duration: 3000,
-      })
-      handleCloseModal()
+      });
+      handleCloseModal();
     },
     onError: () => {
       toast({
-        title: '카테고리 저장에 실패했습니다.',
-        status: 'error',
+        title: "카테고리 저장에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   // Delete category mutation
   const deleteCategoryMutation = useMutation({
     mutationFn: (categoryId: string) => api.delete(`/categories/${categoryId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast({
-        title: '카테고리가 삭제되었습니다.',
-        status: 'success',
+        title: "카테고리가 삭제되었습니다.",
+        status: "success",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   const onSubmit = async (data: CategoryFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await saveCategoryMutation.mutateAsync(data)
+      await saveCategoryMutation.mutateAsync(data);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleEdit = (category: Category) => {
-    setEditingCategory(category)
+    setEditingCategory(category);
     reset({
       name: category.name,
       color: category.color,
-    })
-    onOpen()
-  }
+    });
+    onOpen();
+  };
 
   const handleDelete = (categoryId: string) => {
-    if (window.confirm('정말로 이 카테고리를 삭제하시겠습니까?')) {
-      deleteCategoryMutation.mutate(categoryId)
+    if (window.confirm("정말로 이 카테고리를 삭제하시겠습니까?")) {
+      deleteCategoryMutation.mutate(categoryId);
     }
-  }
+  };
 
   const handleCloseModal = () => {
-    setEditingCategory(null)
+    setEditingCategory(null);
     reset({
-      name: '',
+      name: "",
       color: CATEGORY_COLORS[0],
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
-  const activeCategories = categories.filter(cat => !cat.removed)
+  const activeCategories = categories.filter((cat) => !cat.removed);
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -186,12 +188,7 @@ const CategoriesPage: React.FC = () => {
               <CardHeader>
                 <HStack justify="space-between">
                   <HStack>
-                    <Box
-                      w={4}
-                      h={4}
-                      borderRadius="full"
-                      bg={category.color}
-                    />
+                    <Box w={4} h={4} borderRadius="full" bg={category.color} />
                     <Text fontWeight="bold">{category.name}</Text>
                   </HStack>
                   <HStack spacing={1}>
@@ -226,7 +223,7 @@ const CategoriesPage: React.FC = () => {
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              {editingCategory ? '카테고리 수정' : '새 카테고리 추가'}
+              {editingCategory ? "카테고리 수정" : "새 카테고리 추가"}
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
@@ -245,7 +242,9 @@ const CategoriesPage: React.FC = () => {
                       )}
                     />
                     {errors.name && (
-                      <Text color="red.500" fontSize="sm">{errors.name.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.name.message}
+                      </Text>
                     )}
                   </FormControl>
 
@@ -264,8 +263,14 @@ const CategoriesPage: React.FC = () => {
                               borderRadius="full"
                               bg={color}
                               cursor="pointer"
-                              border={field.value === color ? '3px solid' : '1px solid'}
-                              borderColor={field.value === color ? 'blue.500' : 'gray.300'}
+                              border={
+                                field.value === color
+                                  ? "3px solid"
+                                  : "1px solid"
+                              }
+                              borderColor={
+                                field.value === color ? "blue.500" : "gray.300"
+                              }
                               onClick={() => field.onChange(color)}
                             />
                           ))}
@@ -273,7 +278,9 @@ const CategoriesPage: React.FC = () => {
                       )}
                     />
                     {errors.color && (
-                      <Text color="red.500" fontSize="sm">{errors.color.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.color.message}
+                      </Text>
                     )}
                   </FormControl>
 
@@ -295,7 +302,7 @@ const CategoriesPage: React.FC = () => {
         </Modal>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default CategoriesPage 
+export default CategoriesPage;

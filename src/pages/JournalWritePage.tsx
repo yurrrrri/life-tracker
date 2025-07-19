@@ -1,69 +1,81 @@
-import React, { useState } from 'react'
+import {
+  APP_CONSTANTS,
+  FEELING_LABELS,
+  ROUTES,
+  WEATHER_LABELS,
+} from "@/constants";
+import api from "@/services/api";
+import { Feeling, Journal, Weather } from "@/types";
+import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Select,
-  SimpleGrid,
   Card,
   CardBody,
-  IconButton,
-  useToast,
-
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
-
+  HStack,
+  IconButton,
   Image,
-
-
-} from '@chakra-ui/react'
-
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useDropzone } from 'react-dropzone'
-
-import { CloseIcon, AddIcon } from '@chakra-ui/icons'
-
-import { ROUTES } from '@/constants'
-import { Journal, Weather, Feeling } from '@/types'
-import { WEATHER_LABELS, FEELING_LABELS, APP_CONSTANTS } from '@/constants'
-import api from '@/services/api'
+  Input,
+  Select,
+  SimpleGrid,
+  Text,
+  Textarea,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { Controller, useForm } from "react-hook-form";
+import { useLocation, useNavigate } from "react-router-dom";
+import { z } from "zod";
 
 const journalSchema = z.object({
-  date: z.string().min(1, '날짜를 선택해주세요'),
+  date: z.string().min(1, "날짜를 선택해주세요"),
   weather: z.nativeEnum(Weather).optional(),
-  weatherComment: z.string().max(APP_CONSTANTS.MAX_WEATHER_COMMENT, '날씨 코멘트는 20자 이내로 입력해주세요'),
+  weatherComment: z
+    .string()
+    .max(
+      APP_CONSTANTS.MAX_WEATHER_COMMENT,
+      "날씨 코멘트는 20자 이내로 입력해주세요"
+    ),
   feeling: z.nativeEnum(Feeling),
-  feelingComment: z.string().max(APP_CONSTANTS.MAX_FEELING_COMMENT, '감정 코멘트는 30자 이내로 입력해주세요'),
-  contents: z.string().max(APP_CONSTANTS.MAX_JOURNAL_CONTENTS, '일기 내용은 1000자 이내로 입력해주세요'),
-  memo: z.string().max(APP_CONSTANTS.MAX_JOURNAL_MEMO, '메모는 100자 이내로 입력해주세요'),
+  feelingComment: z
+    .string()
+    .max(
+      APP_CONSTANTS.MAX_FEELING_COMMENT,
+      "감정 코멘트는 30자 이내로 입력해주세요"
+    ),
+  contents: z
+    .string()
+    .max(
+      APP_CONSTANTS.MAX_JOURNAL_CONTENTS,
+      "일기 내용은 1000자 이내로 입력해주세요"
+    ),
+  memo: z
+    .string()
+    .max(APP_CONSTANTS.MAX_JOURNAL_MEMO, "메모는 100자 이내로 입력해주세요"),
   locked: z.boolean(),
-})
+});
 
-type JournalFormData = z.infer<typeof journalSchema>
+type JournalFormData = z.infer<typeof journalSchema>;
 
 const JournalWritePage: React.FC = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const toast = useToast()
-  const queryClient = useQueryClient()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+  const queryClient = useQueryClient();
 
-  
+  const [images, setImages] = useState<File[]>([]);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [images, setImages] = useState<File[]>([])
-  const [previewImages, setPreviewImages] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const editingJournal = location.state?.journal as Journal | undefined
+  const editingJournal = location.state?.journal as Journal | undefined;
 
   const {
     control,
@@ -73,111 +85,117 @@ const JournalWritePage: React.FC = () => {
     formState: { errors, isDirty },
   } = useForm<JournalFormData>({
     resolver: zodResolver(journalSchema),
-    defaultValues: editingJournal ? {
-      date: editingJournal.date,
-      weather: editingJournal.weather,
-      weatherComment: editingJournal.weatherComment || '',
-      feeling: editingJournal.feeling,
-      feelingComment: editingJournal.feelingComment || '',
-      contents: editingJournal.contents || '',
-      memo: editingJournal.memo || '',
-      locked: editingJournal.locked,
-    } : {
-      date: new Date().toISOString().split('T')[0],
-      weather: undefined,
-      weatherComment: '',
-      feeling: 'NEUTRAL' as Feeling,
-      feelingComment: '',
-      contents: '',
-      memo: '',
-      locked: false,
-    },
-  })
+    defaultValues: editingJournal
+      ? {
+          date: editingJournal.date,
+          weather: editingJournal.weather,
+          weatherComment: editingJournal.weatherComment || "",
+          feeling: editingJournal.feeling,
+          feelingComment: editingJournal.feelingComment || "",
+          contents: editingJournal.contents || "",
+          memo: editingJournal.memo || "",
+          locked: editingJournal.locked,
+        }
+      : {
+          date: new Date().toISOString().split("T")[0],
+          weather: undefined,
+          weatherComment: "",
+          feeling: "NEUTRAL" as Feeling,
+          feelingComment: "",
+          contents: "",
+          memo: "",
+          locked: false,
+        },
+  });
 
-  const watchedValues = watch()
+  const watchedValues = watch();
 
   // Dropzone for image upload
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
-      'image/*': APP_CONSTANTS.SUPPORTED_IMAGE_TYPES,
+      "image/*": APP_CONSTANTS.SUPPORTED_IMAGE_TYPES,
     },
     maxFiles: APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL,
     maxSize: APP_CONSTANTS.MAX_IMAGE_SIZE,
     onDrop: (acceptedFiles) => {
-      setImages(prev => [...prev, ...acceptedFiles])
-      
+      setImages((prev) => [...prev, ...acceptedFiles]);
+
       // Create preview URLs
-      acceptedFiles.forEach(file => {
-        const reader = new FileReader()
+      acceptedFiles.forEach((file) => {
+        const reader = new FileReader();
         reader.onload = () => {
-          setPreviewImages(prev => [...prev, reader.result as string])
-        }
-        reader.readAsDataURL(file)
-      })
+          setPreviewImages((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     },
-  })
+  });
 
   // Save journal mutation
   const saveMutation = useMutation({
     mutationFn: (data: JournalFormData & { images: File[] }) => {
-      const formData = new FormData()
+      const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
-        if (key === 'images' && Array.isArray(value)) {
+        if (key === "images" && Array.isArray(value)) {
           value.forEach((file: File) => {
-            formData.append('images', file)
-          })
+            formData.append("images", file);
+          });
         } else if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
+          formData.append(key, String(value));
         }
-      })
-      
+      });
+
       if (editingJournal) {
-        return api.put(`/journals/${editingJournal.id}`, formData)
+        return api.put(`/journals/${editingJournal.id}`, formData);
       } else {
-        return api.post('/journals', formData)
+        return api.post("/journals", formData);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['journals'] })
+      queryClient.invalidateQueries({ queryKey: ["journals"] });
       toast({
-        title: editingJournal ? '일기가 수정되었습니다.' : '일기가 저장되었습니다.',
-        status: 'success',
+        title: editingJournal
+          ? "일기가 수정되었습니다."
+          : "일기가 저장되었습니다.",
+        status: "success",
         duration: 3000,
-      })
-      navigate(ROUTES.JOURNAL)
+      });
+      navigate(ROUTES.JOURNAL);
     },
     onError: () => {
       toast({
-        title: '일기 저장에 실패했습니다.',
-        status: 'error',
+        title: "일기 저장에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   const onSubmit = async (data: JournalFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await saveMutation.mutateAsync({ ...data, images })
+      await saveMutation.mutateAsync({ ...data, images });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleRemoveImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index))
-    setPreviewImages(prev => prev.filter((_, i) => i !== index))
-  }
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleCancel = () => {
     if (isDirty) {
-      if (window.confirm('저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?')) {
-        navigate(ROUTES.JOURNAL)
+      if (
+        window.confirm("저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?")
+      ) {
+        navigate(ROUTES.JOURNAL);
       }
     } else {
-      navigate(ROUTES.JOURNAL)
+      navigate(ROUTES.JOURNAL);
     }
-  }
+  };
 
   return (
     <Box p={6}>
@@ -185,7 +203,7 @@ const JournalWritePage: React.FC = () => {
         {/* Header */}
         <Flex justify="space-between" align="center">
           <Heading size="lg">
-            {editingJournal ? '일기 수정' : '새 일기 작성'}
+            {editingJournal ? "일기 수정" : "새 일기 작성"}
           </Heading>
           <HStack spacing={3}>
             <Button onClick={handleCancel}>취소</Button>
@@ -213,15 +231,12 @@ const JournalWritePage: React.FC = () => {
                       <Controller
                         name="date"
                         control={control}
-                        render={({ field }) => (
-                          <Input
-                            type="date"
-                            {...field}
-                          />
-                        )}
+                        render={({ field }) => <Input type="date" {...field} />}
                       />
                       {errors.date && (
-                        <Text color="red.500" fontSize="sm">{errors.date.message}</Text>
+                        <Text color="red.500" fontSize="sm">
+                          {errors.date.message}
+                        </Text>
                       )}
                     </FormControl>
 
@@ -234,11 +249,15 @@ const JournalWritePage: React.FC = () => {
                           <Select
                             placeholder="날씨 선택"
                             {...field}
-                            value={field.value || ''}
+                            value={field.value || ""}
                           >
-                            {Object.entries(WEATHER_LABELS).map(([key, label]) => (
-                              <option key={key} value={key}>{label}</option>
-                            ))}
+                            {Object.entries(WEATHER_LABELS).map(
+                              ([key, label]) => (
+                                <option key={key} value={key}>
+                                  {label}
+                                </option>
+                              )
+                            )}
                           </Select>
                         )}
                       />
@@ -275,14 +294,20 @@ const JournalWritePage: React.FC = () => {
                       control={control}
                       render={({ field }) => (
                         <Select {...field}>
-                          {Object.entries(FEELING_LABELS).map(([key, label]) => (
-                            <option key={key} value={key}>{label}</option>
-                          ))}
+                          {Object.entries(FEELING_LABELS).map(
+                            ([key, label]) => (
+                              <option key={key} value={key}>
+                                {label}
+                              </option>
+                            )
+                          )}
                         </Select>
                       )}
                     />
                     {errors.feeling && (
-                      <Text color="red.500" fontSize="sm">{errors.feeling.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.feeling.message}
+                      </Text>
                     )}
                   </FormControl>
 
@@ -320,7 +345,9 @@ const JournalWritePage: React.FC = () => {
                     )}
                   />
                   {errors.contents && (
-                    <Text color="red.500" fontSize="sm">{errors.contents.message}</Text>
+                    <Text color="red.500" fontSize="sm">
+                      {errors.contents.message}
+                    </Text>
                   )}
                 </FormControl>
               </CardBody>
@@ -331,7 +358,7 @@ const JournalWritePage: React.FC = () => {
               <CardBody>
                 <VStack spacing={4}>
                   <FormLabel>사진 첨부</FormLabel>
-                  
+
                   {/* Image Preview */}
                   {previewImages.length > 0 && (
                     <SimpleGrid columns={2} spacing={4} w="full">
@@ -361,7 +388,8 @@ const JournalWritePage: React.FC = () => {
                   )}
 
                   {/* Dropzone */}
-                  {previewImages.length < APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
+                  {previewImages.length <
+                    APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
                     <Box
                       {...getRootProps()}
                       border="2px dashed"
@@ -380,7 +408,8 @@ const JournalWritePage: React.FC = () => {
                           : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개, {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
+                        최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
+                        {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
                       </Text>
                     </Box>
                   )}
@@ -430,7 +459,7 @@ const JournalWritePage: React.FC = () => {
         </form>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default JournalWritePage 
+export default JournalWritePage;

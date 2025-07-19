@@ -1,105 +1,102 @@
-import React, { useState } from 'react'
 import {
+  Badge,
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  SimpleGrid,
-  Image,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-  Spinner,
   Center,
   Flex,
   Heading,
-  Badge,
+  HStack,
   IconButton,
+  Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  SimpleGrid,
+  Spinner,
+  Text,
+  useDisclosure,
   useToast,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
-import { DeleteIcon, DownloadIcon } from '@chakra-ui/icons'
-import { galleryImagesAtom, selectedImageAtom } from '@/stores'
-import { Image as ImageType } from '@/types'
-import api from '@/services/api'
+  VStack,
+} from "@chakra-ui/react";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import api from "@/services/api";
+import { galleryImagesAtom, selectedImageAtom } from "@/stores";
+import { Image as ImageType } from "@/types";
+import { formatDateTime } from "@/utils";
+import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const GalleryPage: React.FC = () => {
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  
-  const [galleryImages, setGalleryImages] = useAtom(galleryImagesAtom)
-  const [selectedImage, setSelectedImage] = useAtom(selectedImageAtom)
-  const [filterType, setFilterType] = useState<'all' | 'journal'>('all')
+  const [galleryImages, setGalleryImages] = useAtom(galleryImagesAtom);
+  const [selectedImage, setSelectedImage] = useAtom(selectedImageAtom);
+  const [filterType, setFilterType] = useState<"all" | "journal">("all");
 
   // Fetch gallery images
   const { data: galleryData, isLoading } = useQuery({
-    queryKey: ['gallery'],
-    queryFn: () => api.get('/images'),
-  })
+    queryKey: ["gallery"],
+    queryFn: () => api.get("/images"),
+  });
 
   React.useEffect(() => {
     if (galleryData?.data) {
-      setGalleryImages(galleryData.data)
+      setGalleryImages(galleryData.data);
     }
-  }, [galleryData])
+  }, [galleryData]);
 
   // Delete image mutation
   const deleteMutation = useMutation({
     mutationFn: (imageId: string) => api.delete(`/images/${imageId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gallery'] })
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
       toast({
-        title: '이미지가 삭제되었습니다.',
-        status: 'success',
+        title: "이미지가 삭제되었습니다.",
+        status: "success",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   // Filter images
-  const filteredImages = galleryImages.filter(image => {
-    if (filterType === 'journal') {
-      return image.forJournal
+  const filteredImages = galleryImages.filter((image) => {
+    if (filterType === "journal") {
+      return image.forJournal;
     }
-    return true
-  })
+    return true;
+  });
 
   const handleImageClick = (image: ImageType) => {
-    setSelectedImage(image)
-    onOpen()
-  }
+    setSelectedImage(image);
+    onOpen();
+  };
 
   const handleDelete = (imageId: string) => {
-    if (window.confirm('정말로 이 이미지를 삭제하시겠습니까?')) {
-      deleteMutation.mutate(imageId)
+    if (window.confirm("정말로 이 이미지를 삭제하시겠습니까?")) {
+      deleteMutation.mutate(imageId);
     }
-  }
+  };
 
   const handleDownload = (image: ImageType) => {
-    const link = document.createElement('a')
-    link.href = `/api/images/${image.id}`
-    link.download = image.filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const link = document.createElement("a");
+    link.href = `/api/images/${image.id}`;
+    link.download = image.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -110,14 +107,14 @@ const GalleryPage: React.FC = () => {
           <Heading size="lg">갤러리</Heading>
           <HStack spacing={3}>
             <Button
-              variant={filterType === 'all' ? 'solid' : 'outline'}
-              onClick={() => setFilterType('all')}
+              variant={filterType === "all" ? "solid" : "outline"}
+              onClick={() => setFilterType("all")}
             >
               전체
             </Button>
             <Button
-              variant={filterType === 'journal' ? 'solid' : 'outline'}
-              onClick={() => setFilterType('journal')}
+              variant={filterType === "journal" ? "solid" : "outline"}
+              onClick={() => setFilterType("journal")}
             >
               일기 이미지
             </Button>
@@ -132,7 +129,7 @@ const GalleryPage: React.FC = () => {
               position="relative"
               cursor="pointer"
               onClick={() => handleImageClick(image)}
-              _hover={{ transform: 'scale(1.05)' }}
+              _hover={{ transform: "scale(1.05)" }}
               transition="transform 0.2s"
             >
               <Image
@@ -143,7 +140,7 @@ const GalleryPage: React.FC = () => {
                 h="200px"
                 objectFit="cover"
               />
-              
+
               {/* Overlay with actions */}
               <Box
                 position="absolute"
@@ -167,8 +164,8 @@ const GalleryPage: React.FC = () => {
                     icon={<DownloadIcon />}
                     colorScheme="blue"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      handleDownload(image)
+                      e.stopPropagation();
+                      handleDownload(image);
                     }}
                   />
                   <IconButton
@@ -177,8 +174,8 @@ const GalleryPage: React.FC = () => {
                     icon={<DeleteIcon />}
                     colorScheme="red"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      handleDelete(image.id)
+                      e.stopPropagation();
+                      handleDelete(image.id);
                     }}
                   />
                 </HStack>
@@ -223,7 +220,8 @@ const GalleryPage: React.FC = () => {
                   <VStack spacing={2} w="full">
                     <Text fontWeight="bold">{selectedImage.filename}</Text>
                     <Text fontSize="sm" color="gray.500">
-                      업로드: {format(new Date(selectedImage.registeredOn), 'yyyy-MM-dd HH:mm', { locale: ko })}
+                      업로드:{" "}
+                      {formatDateTime(new Date(selectedImage.registeredOn))}
                     </Text>
                     {selectedImage.forJournal && (
                       <Badge colorScheme="green">일기 이미지</Badge>
@@ -239,8 +237,8 @@ const GalleryPage: React.FC = () => {
                         leftIcon={<DeleteIcon />}
                         colorScheme="red"
                         onClick={() => {
-                          handleDelete(selectedImage.id)
-                          onClose()
+                          handleDelete(selectedImage.id);
+                          onClose();
                         }}
                       >
                         삭제
@@ -254,7 +252,7 @@ const GalleryPage: React.FC = () => {
         </Modal>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default GalleryPage 
+export default GalleryPage;

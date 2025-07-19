@@ -1,58 +1,63 @@
-import React, { useState } from 'react'
+import { APP_CONSTANTS, ROUTES } from "@/constants";
+import api from "@/services/api";
+import { categoriesAtom } from "@/stores";
+import { Todo, TodoStatus } from "@/types";
 import {
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Select,
   Card,
   CardBody,
-  useToast,
-
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
+  HStack,
+  Input,
+  Select,
   Switch,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { categoriesAtom } from '@/stores'
-import { ROUTES } from '@/constants'
-import { Todo, TodoStatus } from '@/types'
-import { APP_CONSTANTS } from '@/constants'
-import api from '@/services/api'
+  Text,
+  Textarea,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useLocation, useNavigate } from "react-router-dom";
+import { z } from "zod";
 
 const todoSchema = z.object({
-  categoryId: z.string().min(1, '카테고리를 선택해주세요'),
-  contents: z.string().min(1, '할일 내용을 입력해주세요').max(APP_CONSTANTS.MAX_TODO_CONTENTS, '할일 내용은 30자 이내로 입력해주세요'),
-  memo: z.string().max(APP_CONSTANTS.MAX_TODO_MEMO, '메모는 50자 이내로 입력해주세요'),
+  categoryId: z.string().min(1, "카테고리를 선택해주세요"),
+  contents: z
+    .string()
+    .min(1, "할일 내용을 입력해주세요")
+    .max(
+      APP_CONSTANTS.MAX_TODO_CONTENTS,
+      "할일 내용은 30자 이내로 입력해주세요"
+    ),
+  memo: z
+    .string()
+    .max(APP_CONSTANTS.MAX_TODO_MEMO, "메모는 50자 이내로 입력해주세요"),
   isPeriod: z.boolean(),
-  startDateTime: z.string().min(1, '시작 시간을 입력해주세요'),
-  endDateTime: z.string().min(1, '종료 시간을 입력해주세요'),
+  startDateTime: z.string().min(1, "시작 시간을 입력해주세요"),
+  endDateTime: z.string().min(1, "종료 시간을 입력해주세요"),
   status: z.nativeEnum(TodoStatus),
-})
+});
 
-type TodoFormData = z.infer<typeof todoSchema>
+type TodoFormData = z.infer<typeof todoSchema>;
 
 const TodoWritePage: React.FC = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+  const queryClient = useQueryClient();
 
-  const [categories] = useAtom(categoriesAtom)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categories] = useAtom(categoriesAtom);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const editingTodo = location.state?.todo as Todo | undefined
+  const editingTodo = location.state?.todo as Todo | undefined;
 
   const {
     control,
@@ -61,72 +66,78 @@ const TodoWritePage: React.FC = () => {
     formState: { errors, isDirty },
   } = useForm<TodoFormData>({
     resolver: zodResolver(todoSchema),
-    defaultValues: editingTodo ? {
-      categoryId: editingTodo.categoryId,
-      contents: editingTodo.contents,
-      memo: editingTodo.memo || '',
-      isPeriod: editingTodo.isPeriod,
-      startDateTime: editingTodo.startDateTime,
-      endDateTime: editingTodo.endDateTime,
-      status: editingTodo.status,
-    } : {
-      categoryId: '',
-      contents: '',
-      memo: '',
-      isPeriod: false,
-      startDateTime: new Date().toISOString().slice(0, 16),
-      endDateTime: new Date().toISOString().slice(0, 16),
-      status: 'NOT_STARTED' as TodoStatus,
-    },
-  })
+    defaultValues: editingTodo
+      ? {
+          categoryId: editingTodo.categoryId,
+          contents: editingTodo.contents,
+          memo: editingTodo.memo || "",
+          isPeriod: editingTodo.isPeriod,
+          startDateTime: editingTodo.startDateTime,
+          endDateTime: editingTodo.endDateTime,
+          status: editingTodo.status,
+        }
+      : {
+          categoryId: "",
+          contents: "",
+          memo: "",
+          isPeriod: false,
+          startDateTime: new Date().toISOString().slice(0, 16),
+          endDateTime: new Date().toISOString().slice(0, 16),
+          status: "NOT_STARTED" as TodoStatus,
+        },
+  });
 
-  const watchedValues = watch()
+  const watchedValues = watch();
 
   // Save todo mutation
   const saveMutation = useMutation({
     mutationFn: (data: TodoFormData) => {
       if (editingTodo) {
-        return api.put(`/todos/${editingTodo.id}`, data)
+        return api.put(`/todos/${editingTodo.id}`, data);
       } else {
-        return api.post('/todos', data)
+        return api.post("/todos", data);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
       toast({
-        title: editingTodo ? '할일이 수정되었습니다.' : '할일이 저장되었습니다.',
-        status: 'success',
+        title: editingTodo
+          ? "할일이 수정되었습니다."
+          : "할일이 저장되었습니다.",
+        status: "success",
         duration: 3000,
-      })
-      navigate(ROUTES.TODO)
+      });
+      navigate(ROUTES.TODO);
     },
     onError: () => {
       toast({
-        title: '할일 저장에 실패했습니다.',
-        status: 'error',
+        title: "할일 저장에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   const onSubmit = async (data: TodoFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await saveMutation.mutateAsync(data)
+      await saveMutation.mutateAsync(data);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     if (isDirty) {
-      if (window.confirm('저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?')) {
-        navigate(ROUTES.TODO)
+      if (
+        window.confirm("저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?")
+      ) {
+        navigate(ROUTES.TODO);
       }
     } else {
-      navigate(ROUTES.TODO)
+      navigate(ROUTES.TODO);
     }
-  }
+  };
 
   return (
     <Box p={6}>
@@ -134,7 +145,7 @@ const TodoWritePage: React.FC = () => {
         {/* Header */}
         <Flex justify="space-between" align="center">
           <Heading size="lg">
-            {editingTodo ? '할일 수정' : '새 할일 추가'}
+            {editingTodo ? "할일 수정" : "새 할일 추가"}
           </Heading>
           <HStack spacing={3}>
             <Button onClick={handleCancel}>취소</Button>
@@ -163,16 +174,20 @@ const TodoWritePage: React.FC = () => {
                       control={control}
                       render={({ field }) => (
                         <Select placeholder="카테고리 선택" {...field}>
-                          {categories.filter(cat => !cat.removed).map(category => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
+                          {categories
+                            .filter((cat) => !cat.removed)
+                            .map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
                         </Select>
                       )}
                     />
                     {errors.categoryId && (
-                      <Text color="red.500" fontSize="sm">{errors.categoryId.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.categoryId.message}
+                      </Text>
                     )}
                   </FormControl>
 
@@ -189,7 +204,9 @@ const TodoWritePage: React.FC = () => {
                       )}
                     />
                     {errors.contents && (
-                      <Text color="red.500" fontSize="sm">{errors.contents.message}</Text>
+                      <Text color="red.500" fontSize="sm">
+                        {errors.contents.message}
+                      </Text>
                     )}
                   </FormControl>
 
@@ -239,14 +256,13 @@ const TodoWritePage: React.FC = () => {
                         name="startDateTime"
                         control={control}
                         render={({ field }) => (
-                          <Input
-                            type="datetime-local"
-                            {...field}
-                          />
+                          <Input type="datetime-local" {...field} />
                         )}
                       />
                       {errors.startDateTime && (
-                        <Text color="red.500" fontSize="sm">{errors.startDateTime.message}</Text>
+                        <Text color="red.500" fontSize="sm">
+                          {errors.startDateTime.message}
+                        </Text>
                       )}
                     </FormControl>
 
@@ -257,14 +273,13 @@ const TodoWritePage: React.FC = () => {
                           name="endDateTime"
                           control={control}
                           render={({ field }) => (
-                            <Input
-                              type="datetime-local"
-                              {...field}
-                            />
+                            <Input type="datetime-local" {...field} />
                           )}
                         />
                         {errors.endDateTime && (
-                          <Text color="red.500" fontSize="sm">{errors.endDateTime.message}</Text>
+                          <Text color="red.500" fontSize="sm">
+                            {errors.endDateTime.message}
+                          </Text>
                         )}
                       </FormControl>
                     )}
@@ -299,7 +314,7 @@ const TodoWritePage: React.FC = () => {
         </form>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default TodoWritePage 
+export default TodoWritePage;

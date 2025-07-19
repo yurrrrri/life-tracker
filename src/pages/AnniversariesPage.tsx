@@ -1,7 +1,7 @@
 import api from "@/services/api";
 import { Anniversary, AnniversaryType, AnniversaryWeight } from "@/types";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-
+import dayjs from "dayjs";
 import {
   Badge,
   Box,
@@ -33,8 +33,6 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { differenceInDays, format } from "date-fns";
-import { ko } from "date-fns/locale";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -218,7 +216,7 @@ const AnniversariesPage: React.FC = () => {
       thisYearAnniversary.setFullYear(today.getFullYear() + 1);
     }
 
-    const daysUntil = differenceInDays(thisYearAnniversary, today);
+    const daysUntil = dayjs().diff(thisYearAnniversary, "date");
     return daysUntil;
   };
 
@@ -288,9 +286,7 @@ const AnniversariesPage: React.FC = () => {
                 <CardBody>
                   <VStack align="stretch" spacing={2}>
                     <Text fontSize="sm" color="gray.600">
-                      {format(new Date(anniversary.date), "MM월 dd일", {
-                        locale: ko,
-                      })}
+                      {dayjs(new Date(anniversary.date)).format("MM월 dd일")}
                     </Text>
 
                     {isToday ? (

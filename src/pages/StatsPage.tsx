@@ -1,102 +1,137 @@
-import React, { useState } from 'react'
+import { FEELING_LABELS } from "@/constants";
+import api from "@/services/api";
 import {
+  feelingStatsAtom,
+  journalsAtom,
+  todosAtom,
+  todoStatsAtom,
+} from "@/stores";
+import { Feeling, StatsStrategy, TodoStatus } from "@/types";
+import {
+  Badge,
   Box,
-  VStack,
-  HStack,
-  Text,
-
   Card,
   CardBody,
   CardHeader,
-  Select,
-  SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  Spinner,
   Center,
   Flex,
   Heading,
+  HStack,
   Progress,
-  Badge,
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useQuery } from '@tanstack/react-query'
-import { feelingStatsAtom, todoStatsAtom, journalsAtom, todosAtom } from '@/stores'
-import { StatsStrategy, Feeling, TodoStatus } from '@/types'
-import { FEELING_LABELS } from '@/constants'
-import api from '@/services/api'
+  Select,
+  SimpleGrid,
+  Spinner,
+  Stat,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
 
 const StatsPage: React.FC = () => {
-  const [strategy, setStrategy] = useState<StatsStrategy>('MONTHLY' as StatsStrategy)
-  const [, setFeelingStats] = useAtom(feelingStatsAtom)
-  const [, setTodoStats] = useAtom(todoStatsAtom)
+  const [strategy, setStrategy] = useState<StatsStrategy>(
+    "MONTHLY" as StatsStrategy
+  );
+  const [, setFeelingStats] = useAtom(feelingStatsAtom);
+  const [, setTodoStats] = useAtom(todoStatsAtom);
 
-  const [journals] = useAtom(journalsAtom)
-  const [todos] = useAtom(todosAtom)
+  const [journals] = useAtom(journalsAtom);
+  const [todos] = useAtom(todosAtom);
 
   // Fetch stats
   const { data: statsData, isLoading } = useQuery({
-    queryKey: ['stats', strategy],
+    queryKey: ["stats", strategy],
     queryFn: () => api.get(`/stats?strategy=${strategy}`),
-  })
+  });
 
   React.useEffect(() => {
     if (statsData?.data) {
-      setFeelingStats(statsData.data.feelingStats || [])
-      setTodoStats(statsData.data.todoStats || [])
+      setFeelingStats(statsData.data.feelingStats || []);
+      setTodoStats(statsData.data.todoStats || []);
     }
-  }, [statsData])
+  }, [statsData]);
 
   // Calculate summary stats
-  const totalJournals = journals.length
-  const totalTodos = todos.length
-  const completedTodos = todos.filter(todo => todo.status === 'DONE').length
-  const completionRate = totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0
+  const totalJournals = journals.length;
+  const totalTodos = todos.length;
+  const completedTodos = todos.filter((todo) => todo.status === "DONE").length;
+  const completionRate =
+    totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
   // Get feeling distribution
-  const feelingDistribution = Object.values(Feeling).map(feeling => {
-    const count = journals.filter(journal => journal.feeling === feeling).length
-    return { feeling, count, percentage: totalJournals > 0 ? (count / totalJournals) * 100 : 0 }
-  }).sort((a, b) => b.count - a.count)
+  const feelingDistribution = Object.values(Feeling)
+    .map((feeling) => {
+      const count = journals.filter(
+        (journal) => journal.feeling === feeling
+      ).length;
+      return {
+        feeling,
+        count,
+        percentage: totalJournals > 0 ? (count / totalJournals) * 100 : 0,
+      };
+    })
+    .sort((a, b) => b.count - a.count);
 
   // Get todo status distribution
-  const todoStatusDistribution = Object.values(TodoStatus).map(status => {
-    const count = todos.filter(todo => todo.status === status).length
-    return { status, count, percentage: totalTodos > 0 ? (count / totalTodos) * 100 : 0 }
-  }).sort((a, b) => b.count - a.count)
+  const todoStatusDistribution = Object.values(TodoStatus)
+    .map((status) => {
+      const count = todos.filter((todo) => todo.status === status).length;
+      return {
+        status,
+        count,
+        percentage: totalTodos > 0 ? (count / totalTodos) * 100 : 0,
+      };
+    })
+    .sort((a, b) => b.count - a.count);
 
   const getStatusLabel = (status: TodoStatus) => {
     switch (status) {
-      case 'NOT_STARTED': return '시작 전'
-      case 'JUST_STARTED': return '시작함'
-      case 'IN_PROGRESS': return '진행 중'
-      case 'PENDING': return '보류'
-      case 'ONEDAY': return '언젠가'
-      case 'DONE': return '완료'
-      default: return status
+      case "NOT_STARTED":
+        return "시작 전";
+      case "JUST_STARTED":
+        return "시작함";
+      case "IN_PROGRESS":
+        return "진행 중";
+      case "PENDING":
+        return "보류";
+      case "ONEDAY":
+        return "언젠가";
+      case "DONE":
+        return "완료";
+      default:
+        return status;
     }
-  }
+  };
 
   const getStatusColor = (status: TodoStatus) => {
     switch (status) {
-      case 'NOT_STARTED': return 'gray'
-      case 'JUST_STARTED': return 'blue'
-      case 'IN_PROGRESS': return 'yellow'
-      case 'PENDING': return 'orange'
-      case 'ONEDAY': return 'purple'
-      case 'DONE': return 'green'
-      default: return 'gray'
+      case "NOT_STARTED":
+        return "gray";
+      case "JUST_STARTED":
+        return "blue";
+      case "IN_PROGRESS":
+        return "yellow";
+      case "PENDING":
+        return "orange";
+      case "ONEDAY":
+        return "purple";
+      case "DONE":
+        return "green";
+      default:
+        return "gray";
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -143,7 +178,9 @@ const StatsPage: React.FC = () => {
               <Stat>
                 <StatLabel>완료된 할일</StatLabel>
                 <StatNumber>{completedTodos}</StatNumber>
-                <StatHelpText>완료율: {completionRate.toFixed(1)}%</StatHelpText>
+                <StatHelpText>
+                  완료율: {completionRate.toFixed(1)}%
+                </StatHelpText>
               </Stat>
             </CardBody>
           </Card>
@@ -153,7 +190,18 @@ const StatsPage: React.FC = () => {
               <Stat>
                 <StatLabel>평균 일기 작성</StatLabel>
                 <StatNumber>
-                  {totalJournals > 0 ? (totalJournals / Math.max(1, Math.ceil((Date.now() - new Date('2025-01-01').getTime()) / (1000 * 60 * 60 * 24 * 30)))).toFixed(1) : 0}
+                  {totalJournals > 0
+                    ? (
+                        totalJournals /
+                        Math.max(
+                          1,
+                          Math.ceil(
+                            (Date.now() - new Date("2025-01-01").getTime()) /
+                              (1000 * 60 * 60 * 24 * 30)
+                          )
+                        )
+                      ).toFixed(1)
+                    : 0}
                 </StatNumber>
                 <StatHelpText>월 평균</StatHelpText>
               </Stat>
@@ -232,19 +280,23 @@ const StatsPage: React.FC = () => {
               <HStack justify="space-between">
                 <Text>최근 일기 작성</Text>
                 <Text fontSize="sm" color="gray.500">
-                  {journals.length > 0 
-                    ? new Date(journals[journals.length - 1].date).toLocaleDateString('ko-KR')
-                    : '없음'
-                  }
+                  {journals.length > 0
+                    ? new Date(
+                        journals[journals.length - 1].date
+                      ).toLocaleDateString("ko-KR")
+                    : "없음"}
                 </Text>
               </HStack>
               <HStack justify="space-between">
                 <Text>최근 할일 완료</Text>
                 <Text fontSize="sm" color="gray.500">
-                  {todos.filter(todo => todo.status === 'DONE').length > 0
-                    ? new Date(todos.filter(todo => todo.status === 'DONE')[0].registeredOn).toLocaleDateString('ko-KR')
-                    : '없음'
-                  }
+                  {todos.filter((todo) => todo.status === "DONE").length > 0
+                    ? new Date(
+                        todos.filter(
+                          (todo) => todo.status === "DONE"
+                        )[0].registeredOn
+                      ).toLocaleDateString("ko-KR")
+                    : "없음"}
                 </Text>
               </HStack>
             </VStack>
@@ -252,7 +304,7 @@ const StatsPage: React.FC = () => {
         </Card>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default StatsPage 
+export default StatsPage;

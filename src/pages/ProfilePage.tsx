@@ -1,63 +1,59 @@
-import React, { useState } from 'react'
+import api from "@/services/api";
+import { profileAtom } from "@/stores";
+import { formatDate } from "@/utils";
 import {
+  Avatar,
   Box,
-  VStack,
-  HStack,
-  Text,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
   Card,
   CardBody,
   CardHeader,
-  useToast,
-  Spinner,
   Center,
-
+  FormControl,
+  FormLabel,
   Heading,
-  Avatar,
-
-} from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
-import { profileAtom } from '@/stores'
-
-import api from '@/services/api'
+  HStack,
+  Input,
+  Spinner,
+  Text,
+  Textarea,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const profileSchema = z.object({
-  name: z.string().min(1, '이름을 입력해주세요'),
-  birthDate: z.string().min(1, '생년월일을 입력해주세요'),
-  phoneNumber: z.string().min(1, '전화번호를 입력해주세요'),
-  remark: z.string().max(200, '비고는 200자 이내로 입력해주세요'),
-})
+  name: z.string().min(1, "이름을 입력해주세요"),
+  birthDate: z.string().min(1, "생년월일을 입력해주세요"),
+  phoneNumber: z.string().min(1, "전화번호를 입력해주세요"),
+  remark: z.string().max(200, "비고는 200자 이내로 입력해주세요"),
+});
 
-type ProfileFormData = z.infer<typeof profileSchema>
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 const ProfilePage: React.FC = () => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  
-  const [profile, setProfile] = useAtom(profileAtom)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const [profile, setProfile] = useAtom(profileAtom);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch profile
   const { data: profileData, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: () => api.get('/profile'),
-  })
+    queryKey: ["profile"],
+    queryFn: () => api.get("/profile"),
+  });
 
   React.useEffect(() => {
     if (profileData?.data) {
-      setProfile(profileData.data)
+      setProfile(profileData.data);
     }
-  }, [profileData])
+  }, [profileData]);
 
   const {
     control,
@@ -65,54 +61,56 @@ const ProfilePage: React.FC = () => {
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: profile ? {
-      name: profile.name,
-      birthDate: profile.birthDate,
-      phoneNumber: profile.phoneNumber,
-      remark: profile.remark,
-    } : {
-      name: '',
-      birthDate: '',
-      phoneNumber: '',
-      remark: '',
-    },
-  })
+    defaultValues: profile
+      ? {
+          name: profile.name,
+          birthDate: profile.birthDate,
+          phoneNumber: profile.phoneNumber,
+          remark: profile.remark,
+        }
+      : {
+          name: "",
+          birthDate: "",
+          phoneNumber: "",
+          remark: "",
+        },
+  });
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: (data: ProfileFormData) => api.put('/profile', data),
+    mutationFn: (data: ProfileFormData) => api.put("/profile", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] })
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
-        title: '프로필이 업데이트되었습니다.',
-        status: 'success',
+        title: "프로필이 업데이트되었습니다.",
+        status: "success",
         duration: 3000,
-      })
+      });
     },
     onError: () => {
       toast({
-        title: '프로필 업데이트에 실패했습니다.',
-        status: 'error',
+        title: "프로필 업데이트에 실패했습니다.",
+        status: "error",
         duration: 3000,
-      })
+      });
     },
-  })
+  });
 
   const onSubmit = async (data: ProfileFormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await updateProfileMutation.mutateAsync(data)
+      await updateProfileMutation.mutateAsync(data);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" />
       </Center>
-    )
+    );
   }
 
   return (
@@ -130,7 +128,7 @@ const ProfilePage: React.FC = () => {
                 <VStack align="start" spacing={1}>
                   <Heading size="md">{profile.name}</Heading>
                   <Text fontSize="sm" color="gray.500">
-                    가입일: {format(new Date(profile.registeredOn), 'yyyy년 MM월 dd일', { locale: ko })}
+                    가입일: {formatDate(new Date(profile.registeredOn))}
                   </Text>
                 </VStack>
               </HStack>
@@ -139,7 +137,7 @@ const ProfilePage: React.FC = () => {
               <VStack spacing={4} align="stretch">
                 <HStack justify="space-between">
                   <Text fontWeight="bold">생년월일</Text>
-                  <Text>{format(new Date(profile.birthDate), 'yyyy년 MM월 dd일', { locale: ko })}</Text>
+                  <Text>{formatDate(new Date(profile.birthDate))}</Text>
                 </HStack>
                 <HStack justify="space-between">
                   <Text fontWeight="bold">전화번호</Text>
@@ -170,14 +168,13 @@ const ProfilePage: React.FC = () => {
                     name="name"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        placeholder="이름을 입력하세요"
-                        {...field}
-                      />
+                      <Input placeholder="이름을 입력하세요" {...field} />
                     )}
                   />
                   {errors.name && (
-                    <Text color="red.500" fontSize="sm">{errors.name.message}</Text>
+                    <Text color="red.500" fontSize="sm">
+                      {errors.name.message}
+                    </Text>
                   )}
                 </FormControl>
 
@@ -186,15 +183,12 @@ const ProfilePage: React.FC = () => {
                   <Controller
                     name="birthDate"
                     control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="date"
-                        {...field}
-                      />
-                    )}
+                    render={({ field }) => <Input type="date" {...field} />}
                   />
                   {errors.birthDate && (
-                    <Text color="red.500" fontSize="sm">{errors.birthDate.message}</Text>
+                    <Text color="red.500" fontSize="sm">
+                      {errors.birthDate.message}
+                    </Text>
                   )}
                 </FormControl>
 
@@ -204,14 +198,13 @@ const ProfilePage: React.FC = () => {
                     name="phoneNumber"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        placeholder="전화번호를 입력하세요"
-                        {...field}
-                      />
+                      <Input placeholder="전화번호를 입력하세요" {...field} />
                     )}
                   />
                   {errors.phoneNumber && (
-                    <Text color="red.500" fontSize="sm">{errors.phoneNumber.message}</Text>
+                    <Text color="red.500" fontSize="sm">
+                      {errors.phoneNumber.message}
+                    </Text>
                   )}
                 </FormControl>
 
@@ -229,7 +222,9 @@ const ProfilePage: React.FC = () => {
                     )}
                   />
                   {errors.remark && (
-                    <Text color="red.500" fontSize="sm">{errors.remark.message}</Text>
+                    <Text color="red.500" fontSize="sm">
+                      {errors.remark.message}
+                    </Text>
                   )}
                 </FormControl>
 
@@ -250,7 +245,7 @@ const ProfilePage: React.FC = () => {
         </Card>
       </VStack>
     </Box>
-  )
-}
+  );
+};
 
-export default ProfilePage 
+export default ProfilePage;

@@ -38,7 +38,7 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
-const SettingsPage: React.FC = () => {
+const SettingsPage = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -127,7 +127,7 @@ const SettingsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -137,7 +137,7 @@ const SettingsPage: React.FC = () => {
     <Box p={6}>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <Heading size="lg">설정</Heading>
+        <Heading size="md">설정</Heading>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -250,10 +250,10 @@ const SettingsPage: React.FC = () => {
                   </Alert>
 
                   <HStack spacing={4}>
-                    <Button variant="outline" isDisabled>
+                    <Button rounded="l1" variant="outline" isDisabled>
                       데이터 내보내기
                     </Button>
-                    <Button variant="outline" isDisabled>
+                    <Button rounded="l1" variant="outline" isDisabled>
                       데이터 가져오기
                     </Button>
                   </HStack>
@@ -267,7 +267,6 @@ const SettingsPage: React.FC = () => {
                 <HStack justify="flex-end" spacing={3}>
                   <Button
                     type="submit"
-                    colorScheme="blue"
                     isLoading={isSubmitting}
                     loadingText="저장 중..."
                     isDisabled={!isDirty}

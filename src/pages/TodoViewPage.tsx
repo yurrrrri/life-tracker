@@ -20,10 +20,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const TodoViewPage: React.FC = () => {
+const TodoViewPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -39,7 +38,7 @@ const TodoViewPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -47,7 +46,7 @@ const TodoViewPage: React.FC = () => {
 
   if (error || !todo?.data) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Text>할일을 찾을 수 없습니다.</Text>
       </Center>
     );
@@ -106,11 +105,10 @@ const TodoViewPage: React.FC = () => {
             >
               목록으로
             </Button>
-            <Heading size="lg">할일 상세</Heading>
+            <Heading size="md">할일 상세</Heading>
           </HStack>
           <Button
             leftIcon={<EditIcon />}
-            colorScheme="blue"
             onClick={() =>
               navigate(ROUTES.TODO_WRITE, { state: { todo: todoData } })
             }

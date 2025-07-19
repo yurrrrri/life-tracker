@@ -7,7 +7,7 @@ import { ROUTES } from "./constants";
 
 // Components
 import LoginPage from "./pages/LoginPage";
-import Layout from "./components/Layout";
+import Layout from "./commons/Layout";
 import HomePage from "./pages/HomePage";
 import JournalPage from "./pages/JournalPage";
 import JournalWritePage from "./pages/JournalWritePage";
@@ -23,7 +23,7 @@ import CategoriesPage from "./pages/CategoriesPage";
 import AnniversariesPage from "./pages/AnniversariesPage";
 
 // Protected Route Component
-// const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+// const ProtectedRoute<{ children: React.ReactNode }> = ({
 //   children,
 // }) => {
 //   const [isAuthenticated] = useAtom(isAuthenticatedAtom);

@@ -37,7 +37,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useAtom(isAuthenticatedAtom);
@@ -235,7 +235,6 @@ const LoginPage: React.FC = () => {
 
                   <Button
                     type="submit"
-                    colorScheme="brand"
                     size="lg"
                     w="full"
                     h="50px"

@@ -1,3 +1,8 @@
+import api from "@/services/api";
+import { galleryImagesAtom, selectedImageAtom } from "@/stores";
+import { Image as ImageType } from "@/types";
+import { formatDateTime } from "@/utils";
+import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
@@ -20,16 +25,11 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
-import api from "@/services/api";
-import { galleryImagesAtom, selectedImageAtom } from "@/stores";
-import { Image as ImageType } from "@/types";
-import { formatDateTime } from "@/utils";
-import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const GalleryPage: React.FC = () => {
+const GalleryPage = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -93,7 +93,7 @@ const GalleryPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -104,7 +104,7 @@ const GalleryPage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">갤러리</Heading>
+          <Heading size="md">갤러리</Heading>
           <HStack spacing={3}>
             <Button
               variant={filterType === "all" ? "solid" : "outline"}
@@ -162,7 +162,6 @@ const GalleryPage: React.FC = () => {
                     size="sm"
                     aria-label="다운로드"
                     icon={<DownloadIcon />}
-                    colorScheme="blue"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDownload(image);

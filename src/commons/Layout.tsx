@@ -113,20 +113,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const handleGoHome = () => {
+    navigate("/");
+  };
+
   const isActive = (path: string) => {
     return (
       location.pathname === path || location.pathname.startsWith(path + "/")
     );
   };
 
-  const renderNavItem = (item: NavItem, level: number = 0) => {
+  const renderNavItem = (
+    item: NavItem,
+    level: number = 0,
+    variant?: string
+  ) => {
     const isActiveItem = isActive(item.path);
     const paddingLeft = level * 6 + 6;
 
     return (
       <Box key={item.path}>
         <Button
-          variant="ghost"
+          variant={variant || "solid"}
           size="md"
           width="full"
           justifyContent="flex-start"
@@ -137,14 +145,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             navigate(item.path);
             onClose();
           }}
-          mb={2}
           fontSize="md"
         >
           {item.label}
         </Button>
         {item.children && (
-          <VStack spacing={2} ml={6}>
-            {item.children.map((child) => renderNavItem(child, level + 1))}
+          <VStack spacing={0} align="stretch" mt={2}>
+            {item.children.map((child) =>
+              renderNavItem(child, level + 1, "ghost")
+            )}
           </VStack>
         )}
       </Box>
@@ -152,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Flex h="100vh">
+    <Flex w="1500px" h="100vh">
       {/* Desktop Sidebar */}
       <Box
         display={{ base: "none", md: "block" }}
@@ -163,23 +172,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         py={6}
       >
         <VStack spacing={6} align="stretch">
-          <Box px={6}>
-            <Text fontSize="2xl" fontWeight="bold" color="brand.500">
-              일기장
-            </Text>
-          </Box>
+          {isDarkMode ? (
+            <img
+              src="life-tracker-dark-mode.png"
+              width={225}
+              style={{ margin: "auto", cursor: "pointer" }}
+              onClick={handleGoHome}
+            />
+          ) : (
+            <img
+              src="life-tracker.png"
+              width={220}
+              style={{ margin: "auto", marginBottom: 4, cursor: "pointer" }}
+              onClick={handleGoHome}
+            />
+          )}
           <Divider />
-          <VStack spacing={3} align="stretch" px={6}>
+          <VStack spacing={3} align="stretch" px={5} height="100%">
             {navItems.map((item) => renderNavItem(item))}
           </VStack>
-          <Box px={6} mt="auto">
+          <Box px={5} mb={10}>
             <IconButton
               aria-label="Toggle color mode"
               icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
               onClick={handleColorModeToggle}
-              variant="ghost"
-              size="md"
-              width="full"
+              variant="outline"
+              size="sm"
             />
           </Box>
         </VStack>
@@ -192,14 +210,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           align="center"
           justify="space-between"
           w="full"
-          px={6}
+          px={5}
           py={3}
           bg={bg}
           borderBottom="1px"
           borderColor={borderColor}
         >
           <Text fontSize="xl" fontWeight="bold" color="brand.500">
-            일기장
+            LIFE TRACKER
           </Text>
           <HStack spacing={3}>
             <IconButton
@@ -230,10 +248,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         display="flex"
         justifyContent="center"
       >
-        <Box
-          w="full"
-          maxW="1500px"
-        >
+        <Box w="full" maxW="1500px">
           {children}
         </Box>
       </Box>

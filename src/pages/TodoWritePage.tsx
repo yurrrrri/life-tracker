@@ -23,7 +23,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -48,7 +48,7 @@ const todoSchema = z.object({
 
 type TodoFormData = z.infer<typeof todoSchema>;
 
-const TodoWritePage: React.FC = () => {
+const TodoWritePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -144,13 +144,14 @@ const TodoWritePage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">
+          <Heading size="md">
             {editingTodo ? "할일 수정" : "새 할일 추가"}
           </Heading>
           <HStack spacing={3}>
-            <Button onClick={handleCancel}>취소</Button>
+            <Button rounded="l1" variant="outline" onClick={handleCancel}>
+              취소
+            </Button>
             <Button
-              colorScheme="blue"
               onClick={handleSubmit(onSubmit)}
               isLoading={isSubmitting}
               loadingText="저장 중..."

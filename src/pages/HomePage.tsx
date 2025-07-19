@@ -27,7 +27,6 @@ import {
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import React from "react";
 import {
   FiBook,
   FiCalendar,
@@ -38,7 +37,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
   const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
   const [journals] = useAtom(journalsAtom);
@@ -119,8 +118,8 @@ const HomePage: React.FC = () => {
     const todos = getTodosForDate(date);
 
     const dayBg = useColorModeValue(
-      isSelected ? "brand.100" : isTodayDate ? "blue.50" : "transparent",
-      isSelected ? "brand.900" : isTodayDate ? "blue.900" : "transparent"
+      isSelected ? "brand.100" : isTodayDate ? "brand.50" : "transparent",
+      isSelected ? "brand.900" : isTodayDate ? "brand.900" : "transparent"
     );
 
     const dayColor = useColorModeValue(
@@ -170,9 +169,8 @@ const HomePage: React.FC = () => {
               <Badge
                 key={todoIndex}
                 size="md"
-                colorScheme="blue"
                 variant="subtle"
-                bg={category?.color || "blue.100"}
+                bg={category?.color || "brand.100"}
                 color="white"
                 fontSize="xs"
               >
@@ -195,19 +193,19 @@ const HomePage: React.FC = () => {
       label: "일기 작성",
       icon: <FiBook />,
       path: ROUTES.JOURNAL_WRITE,
-      color: "green",
+      color: "purple",
     },
     {
       label: "할 일 추가",
       icon: <FiCheckSquare />,
       path: ROUTES.TODO_WRITE,
-      color: "blue",
+      color: "teal",
     },
     {
       label: "갤러리 보기",
       icon: <FiCalendar />,
       path: ROUTES.GALLERY,
-      color: "purple",
+      color: "blue",
     },
   ];
 
@@ -216,7 +214,7 @@ const HomePage: React.FC = () => {
       {/* Header */}
       <Flex justify="space-between" align="center">
         <Heading size="xl">홈</Heading>
-        <Button onClick={goToToday} size="md" variant="outline">
+        <Button rounded="l1" onClick={goToToday} size="md" variant="outline">
           오늘
         </Button>
       </Flex>
@@ -224,7 +222,7 @@ const HomePage: React.FC = () => {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <Heading size="lg">빠른 작업</Heading>
+          <Heading size="md">빠른 작업</Heading>
         </CardHeader>
         <CardBody>
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
@@ -235,8 +233,8 @@ const HomePage: React.FC = () => {
                 colorScheme={action.color}
                 variant="outline"
                 onClick={() => navigate(action.path)}
-                h="80px"
-                fontSize="lg"
+                h="46px"
+                fontSize="smaller"
               >
                 {action.label}
               </Button>
@@ -249,7 +247,7 @@ const HomePage: React.FC = () => {
       <Card>
         <CardHeader>
           <Flex justify="space-between" align="center">
-            <Heading size="lg">캘린더</Heading>
+            <Heading size="md">캘린더</Heading>
             <HStack spacing={3}>
               <IconButton
                 aria-label="Previous month"
@@ -264,7 +262,7 @@ const HomePage: React.FC = () => {
                 textAlign="center"
                 fontSize="lg"
               >
-                {dayjs(currentDate).format("yyyy년 M월")}
+                {dayjs(currentDate).format("YYYY년 M월")}
               </Text>
               <IconButton
                 aria-label="Next month"
@@ -307,7 +305,7 @@ const HomePage: React.FC = () => {
       {selectedDate && (
         <Card>
           <CardHeader>
-            <Heading size="lg">{formatDate(selectedDate)}</Heading>
+            <Heading size="md">{formatDate(selectedDate)}</Heading>
           </CardHeader>
           <CardBody>
             <VStack spacing={6} align="stretch">
@@ -365,7 +363,6 @@ const HomePage: React.FC = () => {
                 ) : (
                   <Button
                     leftIcon={<FiPlus />}
-                    colorScheme="blue"
                     variant="outline"
                     onClick={() => navigate(ROUTES.TODO_WRITE)}
                     size="md"

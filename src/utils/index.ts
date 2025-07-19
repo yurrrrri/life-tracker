@@ -3,16 +3,12 @@ import { TodoStatus } from "@/types";
 import dayjs from "dayjs";
 
 // Date utilities
-export const formatYearDate = (date?: dayjs.ConfigType): string => {
-  return dayjs(date).format("YYYY년 MM월 dd일");
-};
-
 export const formatDate = (date?: dayjs.ConfigType): string => {
-  return dayjs(date).format("YYYY년 MM월 dd일");
+  return dayjs(date).format("YYYY년 M월 D일");
 };
 
 export const formatDateTime = (date?: dayjs.ConfigType): string => {
-  return dayjs(date).format("YYYY년 MM월 dd일 HH시 mm분");
+  return dayjs(date).format("YYYY년 M월 D일 HH시 mm분");
 };
 
 export const isToday = (date?: dayjs.ConfigType): boolean => {

@@ -27,10 +27,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const JournalViewPage: React.FC = () => {
+const JournalViewPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -46,7 +45,7 @@ const JournalViewPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -54,7 +53,7 @@ const JournalViewPage: React.FC = () => {
 
   if (error || !journal?.data) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Text>일기를 찾을 수 없습니다.</Text>
       </Center>
     );
@@ -79,11 +78,10 @@ const JournalViewPage: React.FC = () => {
             >
               목록으로
             </Button>
-            <Heading size="lg">일기 상세</Heading>
+            <Heading size="md">일기 상세</Heading>
           </HStack>
           <Button
             leftIcon={<EditIcon />}
-            colorScheme="blue"
             onClick={() =>
               navigate(ROUTES.JOURNAL_WRITE, {
                 state: { journal: journalData },

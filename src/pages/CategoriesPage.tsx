@@ -1,3 +1,7 @@
+import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants";
+import api from "@/services/api";
+import { categoriesAtom } from "@/stores";
+import { Category } from "@/types";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -31,10 +35,6 @@ import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants";
-import api from "@/services/api";
-import { categoriesAtom } from "@/stores";
-import { Category } from "@/types";
 
 const categorySchema = z.object({
   name: z
@@ -46,7 +46,7 @@ const categorySchema = z.object({
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
-const CategoriesPage: React.FC = () => {
+const CategoriesPage = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -159,7 +159,7 @@ const CategoriesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -170,10 +170,9 @@ const CategoriesPage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">카테고리 관리</Heading>
+          <Heading size="md">카테고리 관리</Heading>
           <Button
             leftIcon={<AddIcon />}
-            colorScheme="blue"
             onClick={onOpen}
             isDisabled={activeCategories.length >= APP_CONSTANTS.MAX_CATEGORIES}
           >
@@ -269,7 +268,7 @@ const CategoriesPage: React.FC = () => {
                                   : "1px solid"
                               }
                               borderColor={
-                                field.value === color ? "blue.500" : "gray.300"
+                                field.value === color ? "brand.500" : "gray.300"
                               }
                               onClick={() => field.onChange(color)}
                             />
@@ -285,10 +284,15 @@ const CategoriesPage: React.FC = () => {
                   </FormControl>
 
                   <HStack justify="flex-end" w="full" spacing={3}>
-                    <Button onClick={handleCloseModal}>취소</Button>
+                    <Button
+                      rounded="l1"
+                      variant="outline"
+                      onClick={handleCloseModal}
+                    >
+                      취소
+                    </Button>
                     <Button
                       type="submit"
-                      colorScheme="blue"
                       isLoading={isSubmitting}
                       loadingText="저장 중..."
                     >

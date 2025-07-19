@@ -32,7 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
 
-const StatsPage: React.FC = () => {
+const StatsPage = () => {
   const [strategy, setStrategy] = useState<StatsStrategy>(
     "MONTHLY" as StatsStrategy
   );
@@ -128,7 +128,7 @@ const StatsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -139,7 +139,7 @@ const StatsPage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">통계</Heading>
+          <Heading size="md">통계</Heading>
           <Select
             value={strategy}
             onChange={(e) => setStrategy(e.target.value as StatsStrategy)}
@@ -226,12 +226,7 @@ const StatsPage: React.FC = () => {
                       </Text>
                     </HStack>
                   </HStack>
-                  <Progress
-                    value={percentage}
-                    colorScheme="blue"
-                    size="sm"
-                    borderRadius="full"
-                  />
+                  <Progress value={percentage} size="sm" borderRadius="full" />
                 </Box>
               ))}
             </VStack>

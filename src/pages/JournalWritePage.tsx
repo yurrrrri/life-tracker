@@ -29,7 +29,7 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -65,7 +65,7 @@ const journalSchema = z.object({
 
 type JournalFormData = z.infer<typeof journalSchema>;
 
-const JournalWritePage: React.FC = () => {
+const JournalWritePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -202,13 +202,14 @@ const JournalWritePage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">
+          <Heading size="md">
             {editingJournal ? "일기 수정" : "새 일기 작성"}
           </Heading>
           <HStack spacing={3}>
-            <Button onClick={handleCancel}>취소</Button>
+            <Button rounded="l1" variant="outline" onClick={handleCancel}>
+              취소
+            </Button>
             <Button
-              colorScheme="blue"
               onClick={handleSubmit(onSubmit)}
               isLoading={isSubmitting}
               loadingText="저장 중..."
@@ -393,12 +394,12 @@ const JournalWritePage: React.FC = () => {
                     <Box
                       {...getRootProps()}
                       border="2px dashed"
-                      borderColor={isDragActive ? "blue.400" : "gray.300"}
+                      borderColor={isDragActive ? "purple.400" : "gray.300"}
                       borderRadius="md"
                       p={6}
                       textAlign="center"
                       cursor="pointer"
-                      _hover={{ borderColor: "blue.400" }}
+                      _hover={{ borderColor: "purple.400" }}
                     >
                       <input {...getInputProps()} />
                       <AddIcon boxSize={6} mb={2} />

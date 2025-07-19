@@ -36,7 +36,7 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-const ProfilePage: React.FC = () => {
+const ProfilePage = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -107,7 +107,7 @@ const ProfilePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -117,7 +117,7 @@ const ProfilePage: React.FC = () => {
     <Box p={6}>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <Heading size="lg">프로필</Heading>
+        <Heading size="md">프로필</Heading>
 
         {/* Profile Info */}
         {profile && (
@@ -231,7 +231,6 @@ const ProfilePage: React.FC = () => {
                 <HStack justify="flex-end" w="full" spacing={3}>
                   <Button
                     type="submit"
-                    colorScheme="blue"
                     isLoading={isSubmitting}
                     loadingText="저장 중..."
                     isDisabled={!isDirty}

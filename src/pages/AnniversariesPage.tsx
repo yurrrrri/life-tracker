@@ -1,7 +1,6 @@
 import api from "@/services/api";
 import { Anniversary, AnniversaryType, AnniversaryWeight } from "@/types";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import dayjs from "dayjs";
 import {
   Badge,
   Box,
@@ -33,6 +32,7 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -46,7 +46,7 @@ const anniversarySchema = z.object({
 
 type AnniversaryFormData = z.infer<typeof anniversarySchema>;
 
-const AnniversariesPage: React.FC = () => {
+const AnniversariesPage = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -222,7 +222,7 @@ const AnniversariesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -233,8 +233,8 @@ const AnniversariesPage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">기념일 관리</Heading>
-          <Button leftIcon={<AddIcon />} colorScheme="blue" onClick={onOpen}>
+          <Heading size="md">기념일 관리</Heading>
+          <Button rounded="l1" leftIcon={<AddIcon />} onClick={onOpen}>
             새 기념일 추가
           </Button>
         </Flex>
@@ -271,9 +271,7 @@ const AnniversariesPage: React.FC = () => {
                     </HStack>
 
                     <HStack spacing={2}>
-                      <Badge colorScheme="blue">
-                        {getTypeLabel(anniversary.type)}
-                      </Badge>
+                      <Badge>{getTypeLabel(anniversary.type)}</Badge>
                       {anniversary.weight && (
                         <Badge colorScheme={getWeightColor(anniversary.weight)}>
                           {getWeightLabel(anniversary.weight)}
@@ -384,10 +382,15 @@ const AnniversariesPage: React.FC = () => {
                   </FormControl>
 
                   <HStack justify="flex-end" w="full" spacing={3}>
-                    <Button onClick={handleCloseModal}>취소</Button>
+                    <Button
+                      rounded="l1"
+                      variant="outline"
+                      onClick={handleCloseModal}
+                    >
+                      취소
+                    </Button>
                     <Button
                       type="submit"
-                      colorScheme="blue"
                       isLoading={isSubmitting}
                       loadingText="저장 중..."
                     >

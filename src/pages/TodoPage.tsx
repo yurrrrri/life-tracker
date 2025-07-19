@@ -29,7 +29,7 @@ import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TodoPage: React.FC = () => {
+const TodoPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -154,7 +154,7 @@ const TodoPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Center h="50vh">
+      <Center w="1200px" h="50vh">
         <Spinner size="xl" />
       </Center>
     );
@@ -165,10 +165,9 @@ const TodoPage: React.FC = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="lg">할일 목록</Heading>
+          <Heading size="md">할일 목록</Heading>
           <Button
             leftIcon={<AddIcon />}
-            colorScheme="blue"
             onClick={() => navigate(ROUTES.TODO_WRITE)}
           >
             새 할일 추가

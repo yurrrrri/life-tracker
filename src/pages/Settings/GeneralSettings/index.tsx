@@ -250,10 +250,10 @@ export const GeneralSettings = () => {
                   </Alert>
 
                   <HStack spacing={4}>
-                    <Button rounded="l1" variant="outline" isDisabled>
+                    <Button variant="outline" isDisabled>
                       데이터 내보내기
                     </Button>
-                    <Button rounded="l1" variant="outline" isDisabled>
+                    <Button variant="outline" isDisabled>
                       데이터 가져오기
                     </Button>
                   </HStack>

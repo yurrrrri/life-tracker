@@ -1,0 +1,18 @@
+export const Feeling = {
+  Angry: "Angry",
+  Astonished: "Astonished",
+  Dizzy: "Dizzy",
+  Expressionless: "Expressionless",
+  Frown: "Frown",
+  Grimace: "Grimace",
+  Grin: "Grin",
+  HeartEyes: "HeartEyes",
+  Kiss: "Kiss",
+  Laughing: "Laughing",
+  Neutral: "Neutral",
+  Smile: "Smile",
+  Sunglasses: "Sunglasses",
+  Surprise: "Surprise",
+  Tear: "Tear",
+  Wink: "Wink",
+} as const;

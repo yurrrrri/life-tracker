@@ -284,11 +284,7 @@ export const Categories = () => {
                   </FormControl>
 
                   <HStack justify="flex-end" w="full" spacing={3}>
-                    <Button
-                      rounded="l1"
-                      variant="outline"
-                      onClick={handleCloseModal}
-                    >
+                    <Button variant="outline" onClick={handleCloseModal}>
                       취소
                     </Button>
                     <Button

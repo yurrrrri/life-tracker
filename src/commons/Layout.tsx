@@ -145,7 +145,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             navigate(item.path);
             onClose();
           }}
-          fontSize="md"
+          fontSize="sm"
+          fontFamily="Hahmlet"
+          fontWeight={300}
         >
           {item.label}
         </Button>

@@ -148,7 +148,7 @@ export const TodoWrite = () => {
             {editingTodo ? "할일 수정" : "새 할일 추가"}
           </Heading>
           <HStack spacing={3}>
-            <Button rounded="l1" variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={handleCancel}>
               취소
             </Button>
             <Button

@@ -1,26 +1,26 @@
 // import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
 import { Box, useColorMode } from "@chakra-ui/react";
+import { Navigate, Route, Routes } from "react-router-dom";
 // import { useAtom } from "jotai";
 // import { isAuthenticatedAtom } from "./stores";
 import { ROUTES } from "./constants";
-
-// Components
-import LoginPage from "./pages/LoginPage";
 import Layout from "./commons/Layout";
-import HomePage from "./pages/HomePage";
-import JournalPage from "./pages/JournalPage";
-import JournalWritePage from "./pages/JournalWritePage";
-import JournalViewPage from "./pages/JournalViewPage";
-import TodoPage from "./pages/TodoPage";
-import TodoWritePage from "./pages/TodoWritePage";
-import TodoViewPage from "./pages/TodoViewPage";
-import GalleryPage from "./pages/GalleryPage";
-import StatsPage from "./pages/StatsPage";
-import SettingsPage from "./pages/SettingsPage";
-import ProfilePage from "./pages/ProfilePage";
-import CategoriesPage from "./pages/CategoriesPage";
-import AnniversariesPage from "./pages/AnniversariesPage";
+import {
+  Anniversaries,
+  Categories,
+  Dashboard,
+  Gallery,
+  GeneralSettings,
+  JournalList,
+  JournalView,
+  JournalWrite,
+  LoginPage,
+  Profile,
+  Stats,
+  TodoList,
+  TodoView,
+  TodoWrite,
+} from "./pages";
 
 // Protected Route Component
 // const ProtectedRoute<{ children: React.ReactNode }> = ({
@@ -54,7 +54,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <HomePage />
+              <Dashboard />
             </Layout>
             // </ProtectedRoute>
           }
@@ -65,7 +65,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <JournalPage />
+              <JournalList />
             </Layout>
             // </ProtectedRoute>
           }
@@ -76,7 +76,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <JournalWritePage />
+              <JournalWrite />
             </Layout>
             // </ProtectedRoute>
           }
@@ -87,7 +87,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <JournalViewPage />
+              <JournalView />
             </Layout>
             // </ProtectedRoute>
           }
@@ -98,7 +98,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <TodoPage />
+              <TodoList />
             </Layout>
             // </ProtectedRoute>
           }
@@ -109,7 +109,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <TodoWritePage />
+              <TodoWrite />
             </Layout>
             // </ProtectedRoute>
           }
@@ -120,7 +120,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <TodoViewPage />
+              <TodoView />
             </Layout>
             // </ProtectedRoute>
           }
@@ -131,7 +131,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <GalleryPage />
+              <Gallery />
             </Layout>
             // </ProtectedRoute>
           }
@@ -142,7 +142,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <StatsPage />
+              <Stats />
             </Layout>
             // </ProtectedRoute>
           }
@@ -153,7 +153,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <SettingsPage />
+              <GeneralSettings />
             </Layout>
             // </ProtectedRoute>
           }
@@ -164,7 +164,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <ProfilePage />
+              <Profile />
             </Layout>
             // </ProtectedRoute>
           }
@@ -175,7 +175,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <CategoriesPage />
+              <Categories />
             </Layout>
             // </ProtectedRoute>
           }
@@ -186,7 +186,7 @@ function App() {
           element={
             // <ProtectedRoute>
             <Layout>
-              <AnniversariesPage />
+              <Anniversaries />
             </Layout>
             // </ProtectedRoute>
           }

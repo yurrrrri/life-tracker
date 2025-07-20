@@ -34,8 +34,8 @@ const theme = extendTheme({
     },
   },
   fonts: {
-    heading: "Inter, system-ui, sans-serif",
-    body: "Inter, system-ui, sans-serif",
+    heading: "hahmlet, Nanum Gothic, Inter, system-ui, sans-serif",
+    body: "Gowun Dodum, Inter, system-ui, sans-serif",
   },
   components: {
     Button: {

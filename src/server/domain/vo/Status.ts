@@ -1,0 +1,8 @@
+export const Status = {
+  NOT_STARTED: "NOT_STARTED",
+  JUST_STARTED: "JUST_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  PENDING: "PENDING",
+  ONEDAY: "ONEDAY",
+  DONE: "DONE",
+} as const;

@@ -1,8 +1,8 @@
 import { ROUTES } from "@/constants/data";
 import api from "@/services/api";
-import { categoriesAtom, todosAtom } from "@/utils/atoms";
+import { categoriesAtom, currentDateAtom, selectedDateAtom, todosAtom } from "@/utils/atoms";
 import { Todo, TodoStatus } from "@/constants/types";
-import { formatDateTime } from "@/utils";
+import { formatDate, formatDateTime, isDateFuture, isServiceDate, isToday } from "@/utils";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -13,6 +13,8 @@ import {
   CardHeader,
   Center,
   Flex,
+  Grid,
+  GridItem,
   Heading,
   HStack,
   IconButton,
@@ -21,6 +23,7 @@ import {
   SimpleGrid,
   Spinner,
   Text,
+  useColorModeValue,
   useToast,
   VStack,
 } from "@chakra-ui/react";
@@ -28,8 +31,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import dayjs from "dayjs";
 
 export const TodoList = () => {
+  const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
+  const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
+
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -45,6 +53,106 @@ export const TodoList = () => {
     queryKey: ["todos"],
     queryFn: () => api.get("/todos"),
   });
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    setSelectedDate(formatDate(today));
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(dayjs(currentDate).subtract(1, "month").toDate());
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(dayjs(currentDate).add(1, "month").toDate());
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(formatDate(date));
+  };
+
+  const getCalendarDays = () => {
+    const dayList = [];
+    const start = 1;
+    const end = dayjs(start).daysInMonth();
+
+    for (let i = 1; i <= end; i++) {
+      dayList.push(dayjs().date(i).toDate());
+    }
+
+    return dayList;
+  };
+
+  const getCategoryForTodo = (categoryId: string) => {
+    return categories.find((category) => category.id === categoryId);
+  };
+
+  const renderCalendarDay = (date: Date, index: number) => {
+    const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
+    const isSelected = selectedDate === formatDate(date);
+    const isTodayDate = isToday(date);
+    const isFutureDate = isDateFuture(date);
+    const isServiceDateValid = isServiceDate(formatDate(date));
+
+    const dayBg = useColorModeValue(
+      isTodayDate ? "brand.50" : isSelected ? "brand.100" : "transparent",
+      isTodayDate ? "brand.600" : isSelected ? "brand.300" : "transparent"
+    );
+
+    const dayColor = useColorModeValue(
+      isCurrentMonth ? "gray.800" : "gray.400",
+      isCurrentMonth ? "white" : "gray.500"
+    );
+
+    const borderColor = useColorModeValue("gray.200", "gray.700");
+
+    return (
+      <Box
+        key={index}
+        p={3}
+        h="100px"
+        bg={dayBg}
+        border="1px"
+        borderColor={borderColor}
+        cursor="pointer"
+        onClick={() => handleDateClick(date)}
+        position="relative"
+        _hover={
+          isCurrentMonth && !isFutureDate && isServiceDateValid
+            ? { bg: useColorModeValue("gray.50", "gray.700") }
+            : {}
+        }
+      >
+        <Text fontSize="md" color={dayColor} mb={2}>
+          {date.getDate()}
+        </Text>
+
+        <VStack spacing={1} align="start">
+          {todos.slice(0, 2).map((todo, todoIndex) => {
+            const category = getCategoryForTodo(todo.categoryId);
+            return (
+              <Badge
+                key={todoIndex}
+                size="md"
+                variant="subtle"
+                bg={category?.color || "brand.100"}
+                color="white"
+                fontSize="xs"
+              >
+                {todo.contents}
+              </Badge>
+            );
+          })}
+          {todos.length > 2 && (
+            <Badge size="md" colorScheme="gray" variant="subtle">
+              +{todos.length - 2}
+            </Badge>
+          )}
+        </VStack>
+      </Box>
+    );
+  };
 
   React.useEffect(() => {
     if (todosData?.data) {
@@ -181,7 +289,7 @@ export const TodoList = () => {
               <HStack w="full" spacing={4}>
                 <Box flex={1}>
                   <Input
-                    placeholder="할일 내용이나 메모로 검색..."
+                    placeholder="할 일을 검색해 보세요."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -218,6 +326,67 @@ export const TodoList = () => {
                 </Select>
               </HStack>
             </VStack>
+          </CardBody>
+        </Card>
+
+        {/* Calendar View */}
+        <Card>
+          <CardHeader>
+            <Flex justify="space-between" align="center">
+              <Heading size="md">캘린더</Heading>
+              <HStack spacing={3} marginLeft={12}>
+                <IconButton
+                  aria-label="Previous month"
+                  icon={<FiChevronLeft />}
+                  onClick={goToPreviousMonth}
+                  size="md"
+                  variant="ghost"
+                />
+                <Text
+                  fontWeight="bold"
+                  minW="150px"
+                  textAlign="center"
+                  fontSize="lg"
+                >
+                  {dayjs(currentDate).format("YYYY년 M월")}
+                </Text>
+                <IconButton
+                  aria-label="Next month"
+                  icon={<FiChevronRight />}
+                  onClick={goToNextMonth}
+                  size="md"
+                  variant="ghost"
+                />
+              </HStack>
+              <Button onClick={goToToday} variant="outline">
+                오늘
+              </Button>
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {/* Calendar Header */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={2} mb={3}>
+              {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+                <GridItem key={day}>
+                  <Text
+                    textAlign="center"
+                    fontWeight="bold"
+                    fontSize="md"
+                    color="gray.500"
+                    py={2}
+                  >
+                    {day}
+                  </Text>
+                </GridItem>
+              ))}
+            </Grid>
+
+            {/* Calendar Days */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={2}>
+              {getCalendarDays().map((date, index) =>
+                renderCalendarDay(date, index)
+              )}
+            </Grid>
           </CardBody>
         </Card>
 

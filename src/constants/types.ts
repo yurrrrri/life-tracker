@@ -97,7 +97,7 @@ export interface Anniversary {
   type: AnniversaryType
   date: string
   name: string
-  weight?: AnniversaryWeight
+  weight?: AnniversaryWeight;
   registeredOn: number
   modifiedOn: number
 }

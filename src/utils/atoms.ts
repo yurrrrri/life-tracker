@@ -9,6 +9,7 @@ import {
   FontType,
 } from "@/constants/types";
 import { STORAGE_KEYS } from "@/constants/data";
+import { formatDate } from ".";
 
 // Auth state
 export const isAuthenticatedAtom = atom<boolean>(false);
@@ -56,7 +57,7 @@ export const modalTypeAtom = atom<string>("");
 
 // Form state
 export const journalFormDataAtom = atom({
-  date: new Date().toISOString().split("T")[0],
+  date: formatDate(),
   weather: undefined,
   weatherComment: "",
   feeling: "NEUTRAL" as any,
@@ -83,7 +84,7 @@ export const filteredTodosAtom = atom((get) => {
   const selectedDate = get(selectedDateAtom);
 
   return todos.filter((todo) => {
-    const todoDate = new Date(todo.startDateTime).toISOString().split("T")[0];
+    const todoDate = formatDate(todo.startDateTime);
     return todoDate === selectedDate;
   });
 });
@@ -102,7 +103,7 @@ export const categoriesByDateAtom = atom((get) => {
 
   const todoCategories = todos
     .filter((todo) => {
-      const todoDate = new Date(todo.startDateTime).toISOString().split("T")[0];
+      const todoDate = formatDate(todo.startDateTime);
       return todoDate === selectedDate;
     })
     .map((todo) => todo.categoryId);

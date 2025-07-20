@@ -63,17 +63,17 @@ export const Profile = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: profile
       ? {
-          name: profile.name,
-          birthDate: profile.birthDate,
-          phoneNumber: profile.phoneNumber,
-          remark: profile.remark,
-        }
+        name: profile.name,
+        birthDate: profile.birthDate,
+        phoneNumber: profile.phoneNumber,
+        remark: profile.remark,
+      }
       : {
-          name: "",
-          birthDate: "",
-          phoneNumber: "",
-          remark: "",
-        },
+        name: "",
+        birthDate: "",
+        phoneNumber: "",
+        remark: "",
+      },
   });
 
   // Update profile mutation
@@ -209,13 +209,13 @@ export const Profile = () => {
                 </FormControl>
 
                 <FormControl isInvalid={!!errors.remark}>
-                  <FormLabel>비고</FormLabel>
+                  <FormLabel>한 마디</FormLabel>
                   <Controller
                     name="remark"
                     control={control}
                     render={({ field }) => (
                       <Textarea
-                        placeholder="추가 정보를 입력하세요"
+                        placeholder="하고 싶은 말을 남겨 보세요."
                         rows={3}
                         {...field}
                       />

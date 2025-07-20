@@ -147,7 +147,7 @@ select {
 .timeline-bar {
   position: absolute;
   width: 500px;
-  height: 1445px;
+  height: 1060px;
   border-top: 1px solid #d7caf4ff;
   border-left: 1px solid #d7caf4ff;
   border-bottom: 1px solid #d7caf4ff;
@@ -155,7 +155,7 @@ select {
   .bar-item {
     position: relative;
     width: 100px;
-    height: 1445px;
+    height: 1060px;
     background: none;
     border-right: 1px solid #d7caf4ff;
   }
@@ -175,7 +175,9 @@ select {
     width: 400px;
 
     .todo-item {
-      button {
+      position: absolute;
+
+      .todo-btn {
         z-index: 1000;
       }
     }

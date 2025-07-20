@@ -30,6 +30,7 @@ import {
   FiImage,
   FiMenu,
   FiMoon,
+  FiPenTool,
   FiSettings,
   FiSun,
   FiTag,
@@ -63,6 +64,11 @@ const navItems: NavItem[] = [
     label: "투두리스트",
     icon: <FiCheckSquare />,
     path: ROUTES.TODO,
+  },
+  {
+    label: "필사노트",
+    icon: <FiPenTool />,
+    path: ROUTES.SENTENCE,
   },
   {
     label: "갤러리",
@@ -129,7 +135,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     variant?: string
   ) => {
     const isActiveItem = isActive(item.path);
-    const paddingLeft = level * 6 + 6;
+    const paddingLeft = level * 4 + 3;
 
     return (
       <Box key={item.path}>

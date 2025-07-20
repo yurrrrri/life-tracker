@@ -6,9 +6,16 @@ import {
   CardHeader,
   Flex,
   Heading,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
+  Portal,
   SimpleGrid,
   useInterval,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -16,20 +23,18 @@ import { FiBook, FiCalendar, FiCheckSquare, FiPenTool } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
+  // *** STATE ***
   const [now, setNow] = useState(dayjs().subtract(8, "hour").toDate());
 
+  // *** HOOKS ***
   const navigate = useNavigate();
 
-  const getTimes = () => {
-    const list = [];
-    for (let i = 8; i <= 24; i++) {
-      list.push(
-        <span>{i.toLocaleString("ko-KR", { minimumIntegerDigits: 2 })}:00</span>
-      );
-    }
-    return list;
-  };
+  useInterval(() => {
+    // 1분 마다 현재 시간 초기화
+    setNow(dayjs().subtract(8, "hour").toDate());
+  }, 60000);
 
+  // *** VAR ***
   const quickActions = [
     {
       label: "일기 작성",
@@ -46,7 +51,7 @@ export const Dashboard = () => {
     {
       label: "필사노트 작성",
       icon: <FiPenTool />,
-      path: ROUTES.SENTENCE_WRTE,
+      path: ROUTES.SENTENCE_WRITE,
       color: "pink",
     },
     {
@@ -57,47 +62,66 @@ export const Dashboard = () => {
     },
   ];
 
+  // *** RENDER ***
+  const renderTimes = () => {
+    const list = [];
+    for (let i = 8; i <= 24; i++) {
+      list.push(<span>{(i).toLocaleString("ko-KR", { minimumIntegerDigits: 2 })}:00</span>);
+    }
+    return list;
+  };
+
   const renderTodoItem = (
     hour: number,
     minute: number,
     diff: number,
-    label: string
+    label: string,
+    color: string,
   ) => {
     return (
       <div
         className="todo-item"
         style={{
-          marginTop: 91 * hour + 1.6 * minute,
+          marginTop: 64.8 * (hour - 8) + minute + 10,
         }}
       >
-        <Button
-          minH={`${1.6 * diff}px`}
-          w={400}
-          variant="solid"
-          fontSize="smaller"
-          alignItems="start"
-          flexDirection="column"
-        >
-          <p>
-            {dayjs().hour(hour).minute(minute).add(8, "hour").format("HH:mm")}
-            <em style={{ margin: "0 4px 0" }}>~</em>
-            {dayjs()
-              .hour(hour)
-              .minute(minute)
-              .add(8, "hour")
-              .add(diff, "minute")
-              .format("HH:mm")}
-          </p>
-          <p style={{ fontFamily: "Hahmlet", fontWeight: 600 }}>{label}</p>
-        </Button>
+        <Popover>
+          <PopoverTrigger>
+            <Button
+              className="todo-btn"
+              minH={`${1.18 * diff}px`}
+              w={400}
+              colorScheme={color}
+              variant="solid"
+              fontSize="smaller"
+              alignItems="start"
+              flexDirection="column"
+            >
+              <p>
+                {dayjs().hour(hour).minute(minute).format("HH:mm")}
+                <em style={{ margin: "0 4px 0" }}>~</em>
+                {dayjs()
+                  .hour(hour)
+                  .minute(minute)
+                  .add(diff, "minute")
+                  .format("HH:mm")}
+              </p>
+              <p style={{ fontFamily: "Hahmlet", fontWeight: 700 }}>{label}</p>
+            </Button>
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent>
+              <PopoverArrow />
+              <PopoverHeader>{label}</PopoverHeader>
+              <PopoverFooter display='flex' justifyContent='end'>
+                <Button w={12} variant="outline">수정</Button>
+              </PopoverFooter>
+            </PopoverContent>
+          </Portal>
+        </Popover>
       </div>
     );
   };
-
-  useInterval(() => {
-    // 1분 마다 현재 시간 초기화
-    setNow(dayjs().subtract(8, "hour").toDate());
-  }, 60000);
 
   return (
     <>
@@ -127,28 +151,29 @@ export const Dashboard = () => {
         </Card>
 
         {/* Timeline view */}
-        <Card h={1485} mb={10}>
+        <Card h={1100} mb={10}>
           <CardBody>
             <div className="timeline-bar">
               <div
                 className="bar-now"
                 style={{
-                  marginTop: 91 * now.getHours() + 1.45 * now.getMinutes(),
+                  marginTop: 65 * now.getHours() + 1.1 * now.getMinutes(),
                 }}
               />
               <VStack className="todo-items" w="full">
-                {renderTodoItem(0, 30, 60, "사이드 프로젝트 개발")}
+                {renderTodoItem(8, 30, 60, "사이드 프로젝트 개발", 'brand')}
+                {renderTodoItem(16, 30, 60, "운동", 'green')}
               </VStack>
               <div className="bar-item">
                 <Flex position="relative">
                   <VStack
                     position="relative"
                     justifyContent="flex-start"
-                    gap={16}
+                    gap={10}
                     ml={8}
                     mt={1.5}
                   >
-                    {...getTimes()}
+                    {...renderTimes()}
                   </VStack>
                 </Flex>
               </div>

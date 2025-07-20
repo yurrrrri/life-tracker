@@ -253,7 +253,7 @@ export const Categories = () => {
                       name="color"
                       control={control}
                       render={({ field }) => (
-                        <SimpleGrid columns={5} spacing={2}>
+                        <SimpleGrid columns={5} spacing={2} ml={10}>
                           {CATEGORY_COLORS.map((color) => (
                             <Box
                               key={color}

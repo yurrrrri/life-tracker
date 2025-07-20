@@ -1,9 +1,10 @@
-import api from "@/services/api";
+import { Loader } from "@/commons";
 import {
   Anniversary,
   AnniversaryType,
   AnniversaryWeight,
 } from "@/constants/types";
+import api from "@/services/api";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -16,8 +17,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  Heading,
   HStack,
+  Heading,
   IconButton,
   Input,
   Modal,
@@ -28,11 +29,10 @@ import {
   ModalOverlay,
   Select,
   SimpleGrid,
-  Spinner,
   Text,
-  useDisclosure,
-  useToast,
   VStack,
+  useDisclosure,
+  useToast
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -170,7 +170,7 @@ export const Anniversaries = () => {
   const getTypeLabel = (type: AnniversaryType) => {
     switch (type) {
       case "HOLIDAY":
-        return "공휴일";
+        return "휴일";
       case "SPECIAL":
         return "특별한 날";
       default:
@@ -225,11 +225,7 @@ export const Anniversaries = () => {
   };
 
   if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
+    return <Loader />;
   }
 
   return (
@@ -363,7 +359,7 @@ export const Anniversaries = () => {
                       control={control}
                       render={({ field }) => (
                         <Select {...field}>
-                          <option value="HOLIDAY">공휴일</option>
+                          <option value="HOLIDAY">휴일</option>
                           <option value="SPECIAL">특별한 날</option>
                         </Select>
                       )}

@@ -51,18 +51,18 @@ export const JournalList = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const goToToday = () => {
-    const today = new Date();
-    setCurrentDate(today);
-    setSelectedDate(formatDate(today));
-  };
-
   const [searchTerm, setSearchTerm] = useState("");
   const [filterWeather, setFilterWeather] = useState<Weather | "">("");
   const [filterFeeling, setFilterFeeling] = useState<Feeling | "">("");
   const [sortBy, setSortBy] = useState<"desc" | "asc">("desc");
 
   const borderColor = useColorModeValue("gray.200", "gray.700");
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    setSelectedDate(formatDate(today));
+  };
 
   const goToPreviousMonth = () => {
     setCurrentDate(dayjs(currentDate).subtract(1, "month").toDate());

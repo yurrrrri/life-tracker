@@ -155,7 +155,7 @@ export const ROUTES = {
   TODO_WRITE: "/todo/write",
   TODO_VIEW: "/todo/view/:id",
   SENTENCE: "/sentence",
-  SENTENCE_WRTE: "/sentence/write",
+  SENTENCE_WRITE: "/sentence/write",
   SENTENCE_VIEW: "/sentence/view/:id",
   GALLERY: "/gallery",
   STATS: "/stats",

@@ -4,8 +4,8 @@ import {
   ROUTES,
   WEATHER_LABELS,
 } from "@/constants/data";
-import api from "@/services/api";
 import { Feeling, Journal, Weather } from "@/constants/types";
+import api from "@/services/api";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -15,17 +15,18 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  Heading,
   HStack,
+  Heading,
   IconButton,
   Image,
   Input,
   Select,
   SimpleGrid,
+  Switch,
   Text,
   Textarea,
-  useToast,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -87,25 +88,25 @@ export const JournalWrite = () => {
     resolver: zodResolver(journalSchema),
     defaultValues: editingJournal
       ? {
-          date: editingJournal.date,
-          weather: editingJournal.weather,
-          weatherComment: editingJournal.weatherComment || "",
-          feeling: editingJournal.feeling,
-          feelingComment: editingJournal.feelingComment || "",
-          contents: editingJournal.contents || "",
-          memo: editingJournal.memo || "",
-          locked: editingJournal.locked,
-        }
+        date: editingJournal.date,
+        weather: editingJournal.weather,
+        weatherComment: editingJournal.weatherComment || "",
+        feeling: editingJournal.feeling,
+        feelingComment: editingJournal.feelingComment || "",
+        contents: editingJournal.contents || "",
+        memo: editingJournal.memo || "",
+        locked: editingJournal.locked,
+      }
       : {
-          date: new Date().toISOString().split("T")[0],
-          weather: undefined,
-          weatherComment: "",
-          feeling: "NEUTRAL" as Feeling,
-          feelingComment: "",
-          contents: "",
-          memo: "",
-          locked: false,
-        },
+        date: new Date().toISOString().split("T")[0],
+        weather: undefined,
+        weatherComment: "",
+        feeling: "NEUTRAL" as Feeling,
+        feelingComment: "",
+        contents: "",
+        memo: "",
+        locked: false,
+      },
   });
 
   const watchedValues = watch();
@@ -332,25 +333,40 @@ export const JournalWrite = () => {
             {/* Contents */}
             <Card>
               <CardBody>
-                <FormControl isInvalid={!!errors.contents}>
-                  <FormLabel>일기 내용</FormLabel>
-                  <Controller
-                    name="contents"
-                    control={control}
-                    render={({ field }) => (
-                      <Textarea
-                        placeholder="오늘 하루를 기록해보세요..."
-                        rows={10}
-                        {...field}
-                      />
+                <VStack>
+                  <FormControl isInvalid={!!errors.contents}>
+                    <FormLabel>일기 내용</FormLabel>
+                    <Controller
+                      name="contents"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          placeholder="오늘 하루를 기록해보세요..."
+                          rows={10}
+                          {...field}
+                        />
+                      )}
+                    />
+                    {errors.contents && (
+                      <Text color="red.500" fontSize="sm">
+                        {errors.contents.message}
+                      </Text>
                     )}
-                  />
-                  {errors.contents && (
-                    <Text color="red.500" fontSize="sm">
-                      {errors.contents.message}
-                    </Text>
-                  )}
-                </FormControl>
+                  </FormControl>
+
+                  <FormControl>
+                    <Controller
+                      name="locked"
+                      control={control}
+                      render={({ field }) => (
+                        <HStack>
+                          <Switch checked={field.value} onChange={field.onChange} />
+                          <Text>비공개로 설정</Text>
+                        </HStack>
+                      )}
+                    />
+                  </FormControl>
+                </VStack>
               </CardBody>
             </Card>
 
@@ -391,29 +407,29 @@ export const JournalWrite = () => {
                   {/* Dropzone */}
                   {previewImages.length <
                     APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
-                    <Box
-                      {...getRootProps()}
-                      border="2px dashed"
-                      borderColor={isDragActive ? "purple.400" : "gray.300"}
-                      borderRadius="md"
-                      p={6}
-                      textAlign="center"
-                      cursor="pointer"
-                      _hover={{ borderColor: "purple.400" }}
-                    >
-                      <input {...getInputProps()} />
-                      <AddIcon boxSize={6} mb={2} />
-                      <Text>
-                        {isDragActive
-                          ? "파일을 여기에 놓으세요"
-                          : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
-                      </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
-                        {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
-                      </Text>
-                    </Box>
-                  )}
+                      <Box
+                        {...getRootProps()}
+                        border="2px dashed"
+                        borderColor={isDragActive ? "purple.400" : "gray.300"}
+                        borderRadius="md"
+                        p={6}
+                        textAlign="center"
+                        cursor="pointer"
+                        _hover={{ borderColor: "purple.400" }}
+                      >
+                        <input {...getInputProps()} />
+                        <AddIcon boxSize={6} mb={2} />
+                        <Text>
+                          {isDragActive
+                            ? "파일을 여기에 놓으세요"
+                            : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500">
+                          최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
+                          {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
+                        </Text>
+                      </Box>
+                    )}
                 </VStack>
               </CardBody>
             </Card>
@@ -429,27 +445,9 @@ export const JournalWrite = () => {
                       control={control}
                       render={({ field }) => (
                         <Input
-                          placeholder="추가 메모를 입력하세요"
+                          placeholder="메모할 내용을 적어 보세요."
                           {...field}
                         />
-                      )}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel>설정</FormLabel>
-                    <Controller
-                      name="locked"
-                      control={control}
-                      render={({ field }) => (
-                        <HStack>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                          />
-                          <Text>비공개로 설정</Text>
-                        </HStack>
                       )}
                     />
                   </FormControl>

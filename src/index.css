@@ -143,3 +143,41 @@ select {
     background-color: #f9f9f9;
   }
 }
+
+.timeline-bar {
+  position: absolute;
+  width: 500px;
+  height: 1445px;
+  border-top: 1px solid #d7caf4ff;
+  border-left: 1px solid #d7caf4ff;
+  border-bottom: 1px solid #d7caf4ff;
+
+  .bar-item {
+    position: relative;
+    width: 100px;
+    height: 1445px;
+    background: none;
+    border-right: 1px solid #d7caf4ff;
+  }
+
+  .bar-now {
+    position: absolute;
+    margin-left: 92px;
+    width: 16px;
+    height: 0px;
+    border-top: 6px solid rgb(255, 0, 102);
+    z-index: 1000;
+  }
+
+  .todo-items {
+    position: absolute;
+    margin-left: 94px;
+    width: 400px;
+
+    .todo-item {
+      button {
+        z-index: 1000;
+      }
+    }
+  }
+}

@@ -37,7 +37,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const HomePage = () => {
+export const Dashboard = () => {
   const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
   const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
   const [journals] = useAtom(journalsAtom);
@@ -379,4 +379,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Dashboard;

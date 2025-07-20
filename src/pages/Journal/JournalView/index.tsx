@@ -29,7 +29,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
-const JournalViewPage = () => {
+export const JournalView = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -210,4 +210,4 @@ const JournalViewPage = () => {
   );
 };
 
-export default JournalViewPage;
+export default JournalView;

@@ -46,7 +46,7 @@ const anniversarySchema = z.object({
 
 type AnniversaryFormData = z.infer<typeof anniversarySchema>;
 
-const AnniversariesPage = () => {
+export const Anniversaries = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -407,4 +407,4 @@ const AnniversariesPage = () => {
   );
 };
 
-export default AnniversariesPage;
+export default Anniversaries;

@@ -29,7 +29,7 @@ import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TodoPage = () => {
+export const TodoList = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -335,4 +335,4 @@ const TodoPage = () => {
   );
 };
 
-export default TodoPage;
+export default TodoList;

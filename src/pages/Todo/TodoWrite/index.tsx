@@ -48,7 +48,7 @@ const todoSchema = z.object({
 
 type TodoFormData = z.infer<typeof todoSchema>;
 
-const TodoWritePage = () => {
+export const TodoWrite = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -318,4 +318,4 @@ const TodoWritePage = () => {
   );
 };
 
-export default TodoWritePage;
+export default TodoWrite;

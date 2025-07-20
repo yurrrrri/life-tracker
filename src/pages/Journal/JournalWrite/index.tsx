@@ -65,7 +65,7 @@ const journalSchema = z.object({
 
 type JournalFormData = z.infer<typeof journalSchema>;
 
-const JournalWritePage = () => {
+export const JournalWrite = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -463,4 +463,4 @@ const JournalWritePage = () => {
   );
 };
 
-export default JournalWritePage;
+export default JournalWrite;

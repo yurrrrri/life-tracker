@@ -32,7 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
 
-const StatsPage = () => {
+export const Stats = () => {
   const [strategy, setStrategy] = useState<StatsStrategy>(
     "MONTHLY" as StatsStrategy
   );
@@ -302,4 +302,4 @@ const StatsPage = () => {
   );
 };
 
-export default StatsPage;
+export default Stats;

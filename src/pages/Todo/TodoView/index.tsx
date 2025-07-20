@@ -22,7 +22,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
-const TodoViewPage = () => {
+export const TodoView = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -184,4 +184,4 @@ const TodoViewPage = () => {
   );
 };
 
-export default TodoViewPage;
+export default TodoView;

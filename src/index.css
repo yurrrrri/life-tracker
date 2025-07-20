@@ -3,9 +3,73 @@
   font-weight: 400;
   font-style: normal;
 }
+.nanum-gothic-regular {
+  font-family: "Nanum Gothic", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.nanum-gothic-bold {
+  font-family: "Nanum Gothic", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+.hahmlet-100 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+}
+.hahmlet-200 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+.hahmlet-300 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+.hahmlet-400 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.hahmlet-500 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+.hahmlet-600 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+.hahmlet-700 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+.hahmlet-800 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+.hahmlet-900 {
+  font-family: "Hahmlet", serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
 
 :root {
-  font-family: Gowun Dodum, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Gowun Dodum", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 

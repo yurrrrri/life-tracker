@@ -42,7 +42,7 @@ import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const JournalPage = () => {
+export const JournalList = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -323,4 +323,4 @@ const JournalPage = () => {
   );
 };
 
-export default JournalPage;
+export default JournalList;

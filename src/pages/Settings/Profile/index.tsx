@@ -36,7 +36,7 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-const ProfilePage = () => {
+export const Profile = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -247,4 +247,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default Profile;

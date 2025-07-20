@@ -38,7 +38,7 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
-const SettingsPage = () => {
+export const GeneralSettings = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -283,4 +283,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default GeneralSettings;

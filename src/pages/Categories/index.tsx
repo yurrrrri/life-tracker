@@ -46,7 +46,7 @@ const categorySchema = z.object({
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
-const CategoriesPage = () => {
+export const Categories = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -309,4 +309,4 @@ const CategoriesPage = () => {
   );
 };
 
-export default CategoriesPage;
+export default Categories;

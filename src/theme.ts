@@ -9,7 +9,7 @@ const theme = extendTheme({
   config,
   colors: {
     blue: {
-      50: "#ffffff",
+      50: "#e9e1faff",
       100: "#d7caf4ff",
       200: "#b293f3ff",
       300: "#a27df1ff",
@@ -21,7 +21,7 @@ const theme = extendTheme({
       900: "#29096dff",
     },
     brand: {
-      50: "#ffffff",
+      50: "#e9e1faff",
       100: "#d7caf4ff",
       200: "#b293f3ff",
       300: "#a27df1ff",

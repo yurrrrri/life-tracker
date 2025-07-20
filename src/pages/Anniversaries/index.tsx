@@ -234,7 +234,7 @@ export const Anniversaries = () => {
         {/* Header */}
         <Flex justify="space-between" align="center">
           <Heading size="md">기념일 관리</Heading>
-          <Button rounded="l1" leftIcon={<AddIcon />} onClick={onOpen}>
+          <Button leftIcon={<AddIcon />} onClick={onOpen}>
             새 기념일 추가
           </Button>
         </Flex>
@@ -382,11 +382,7 @@ export const Anniversaries = () => {
                   </FormControl>
 
                   <HStack justify="flex-end" w="full" spacing={3}>
-                    <Button
-                      rounded="l1"
-                      variant="outline"
-                      onClick={handleCloseModal}
-                    >
+                    <Button variant="outline" onClick={handleCloseModal}>
                       취소
                     </Button>
                     <Button

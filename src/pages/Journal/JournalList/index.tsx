@@ -1,15 +1,14 @@
+import { FEELING_LABELS, ROUTES, WEATHER_LABELS } from "@/constants";
 import {
-  FEELING_ICONS,
-  FEELING_LABELS,
-  ROUTES,
-  WEATHER_ICONS,
-  WEATHER_LABELS,
-} from "@/constants";
-import api from "@/services/api";
-import { journalsAtom } from "@/stores";
-import { Feeling, Journal, Weather } from "@/types";
-import { formatDate } from "@/utils";
-import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+  categoriesAtom,
+  currentDateAtom,
+  journalsAtom,
+  selectedDateAtom,
+  todosAtom,
+} from "@/stores";
+import { Feeling, Weather } from "@/types";
+import { formatDate, isDateFuture, isServiceDate, isToday } from "@/utils";
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
@@ -17,8 +16,9 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Center,
   Flex,
+  Grid,
+  GridItem,
   Heading,
   HStack,
   IconButton,
@@ -30,105 +30,152 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
-  SimpleGrid,
-  Spinner,
   Text,
+  useColorModeValue,
   useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useAtom } from "jotai";
-import React, { useState } from "react";
+import { useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export const JournalList = () => {
+  const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
+  const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
+  const [journals] = useAtom(journalsAtom);
+  const [todos] = useAtom(todosAtom);
+  const [categories] = useAtom(categoriesAtom);
+
   const navigate = useNavigate();
-  const toast = useToast();
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [journals, setJournals] = useAtom(journalsAtom);
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    setSelectedDate(formatDate(today));
+  };
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterWeather, setFilterWeather] = useState<Weather | "">("");
   const [filterFeeling, setFilterFeeling] = useState<Feeling | "">("");
-  const [sortBy, setSortBy] = useState<"date" | "feeling">("date");
+  const [sortBy, setSortBy] = useState<"desc" | "asc">("desc");
 
-  // Fetch journals
-  const { data: journalsData, isLoading } = useQuery({
-    queryKey: ["journals"],
-    queryFn: () => api.get("/journals"),
-  });
+  const borderColor = useColorModeValue("gray.200", "gray.700");
 
-  React.useEffect(() => {
-    if (journalsData?.data) {
-      setJournals(journalsData.data);
+  const goToPreviousMonth = () => {
+    setCurrentDate(dayjs(currentDate).subtract(1, "month").toDate());
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(dayjs(currentDate).add(1, "month").toDate());
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(formatDate(date));
+  };
+
+  const getCalendarDays = () => {
+    const dayList = [];
+    const start = 1;
+    const end = dayjs(start).daysInMonth();
+
+    for (let i = 1; i <= end; i++) {
+      dayList.push(dayjs().date(i).toDate());
     }
-  }, [journalsData]);
 
-  // Delete journal mutation
-  const deleteMutation = useMutation({
-    mutationFn: (journalId: string) => api.delete(`/journals/${journalId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journals"] });
-      toast({
-        title: "일기가 삭제되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-    onError: () => {
-      toast({
-        title: "일기 삭제에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
-    },
-  });
+    return dayList;
+  };
 
-  // Filter and sort journals
-  const filteredJournals = journals
-    .filter((journal) => {
-      const matchesSearch =
-        journal.contents?.includes(searchTerm) ||
-        journal.memo?.includes(searchTerm);
-      const matchesWeather =
-        !filterWeather || journal.weather === filterWeather;
-      const matchesFeeling =
-        !filterFeeling || journal.feeling === filterFeeling;
+  const getJournalForDate = (date: Date) => {
+    const dateString = formatDate(date);
+    return journals.find((journal) => journal.date === dateString);
+  };
 
-      return matchesSearch && matchesWeather && matchesFeeling;
-    })
-    .sort((a, b) => {
-      if (sortBy === "date") {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      } else {
-        return a.feeling.localeCompare(b.feeling);
-      }
+  const getTodosForDate = (date: Date) => {
+    const dateString = formatDate(date);
+    return todos.filter((todo) => {
+      const todoDate = formatDate(new Date(todo.startDateTime));
+      return todoDate === dateString;
     });
-
-  const handleDelete = (journalId: string) => {
-    if (window.confirm("정말로 이 일기를 삭제하시겠습니까?")) {
-      deleteMutation.mutate(journalId);
-    }
   };
 
-  const handleView = (journal: Journal) => {
-    navigate(ROUTES.JOURNAL_VIEW.replace(":id", journal.id));
+  const getCategoryForTodo = (categoryId: string) => {
+    return categories.find((category) => category.id === categoryId);
   };
 
-  const handleEdit = (journal: Journal) => {
-    navigate(ROUTES.JOURNAL_WRITE, { state: { journal } });
-  };
+  const renderCalendarDay = (date: Date, index: number) => {
+    const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
+    const isSelected = selectedDate === formatDate(date);
+    const isTodayDate = isToday(date);
+    const isFutureDate = isDateFuture(date);
+    const isServiceDateValid = isServiceDate(formatDate(date));
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
+    const journal = getJournalForDate(date);
+    const todos = getTodosForDate(date);
+
+    const dayBg = useColorModeValue(
+      isTodayDate ? "brand.50" : isSelected ? "brand.100" : "transparent",
+      isTodayDate ? "brand.600" : isSelected ? "brand.300" : "transparent"
     );
-  }
+
+    const dayColor = useColorModeValue(
+      isCurrentMonth ? "gray.800" : "gray.400",
+      isCurrentMonth ? "white" : "gray.500"
+    );
+
+    return (
+      <Box
+        key={index}
+        p={3}
+        h="100px"
+        bg={dayBg}
+        border="1px"
+        borderColor={borderColor}
+        cursor="pointer"
+        onClick={() => handleDateClick(date)}
+        position="relative"
+        _hover={
+          isCurrentMonth && !isFutureDate && isServiceDateValid
+            ? { bg: useColorModeValue("gray.50", "gray.700") }
+            : {}
+        }
+      >
+        <Text fontSize="md" color={dayColor} mb={2}>
+          {date.getDate()}
+        </Text>
+
+        <VStack spacing={1} align="start">
+          {journal && (
+            <Badge size="md" colorScheme="green" variant="subtle">
+              일기
+            </Badge>
+          )}
+          {todos.slice(0, 2).map((todo, todoIndex) => {
+            const category = getCategoryForTodo(todo.categoryId);
+            return (
+              <Badge
+                key={todoIndex}
+                size="md"
+                variant="subtle"
+                bg={category?.color || "brand.100"}
+                color="white"
+                fontSize="xs"
+              >
+                {todo.contents}
+              </Badge>
+            );
+          })}
+          {todos.length > 2 && (
+            <Badge size="md" colorScheme="gray" variant="subtle">
+              +{todos.length - 2}
+            </Badge>
+          )}
+        </VStack>
+      </Box>
+    );
+  };
 
   return (
     <Box p={6}>
@@ -136,142 +183,120 @@ export const JournalList = () => {
         {/* Header */}
         <Flex justify="space-between" align="center">
           <Heading size="md">일기 목록</Heading>
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={() => navigate(ROUTES.JOURNAL_WRITE)}
-          >
-            새 일기 작성
-          </Button>
+          <Box>
+            <Button
+              style={{ marginRight: 8 }}
+              leftIcon={<AddIcon />}
+              onClick={() => navigate(ROUTES.JOURNAL_WRITE)}
+            >
+              새 일기 작성
+            </Button>
+            <Button size="md" variant="outline">
+              타임라인으로 보기
+            </Button>
+          </Box>
         </Flex>
 
         {/* Search and Filter */}
         <Card>
           <CardBody>
-            <VStack spacing={4}>
-              <HStack w="full" spacing={4}>
+            <VStack>
+              <HStack w="full">
                 <Box flex={1}>
                   <Input
-                    placeholder="일기 내용이나 메모로 검색..."
+                    placeholder="일기 내용이나 메모로 검색할 수 있어요."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </Box>
-                <Button rounded="l1" onClick={onOpen}>
-                  필터
-                </Button>
-              </HStack>
-
-              <HStack w="full" spacing={4}>
-                <Select
-                  value={sortBy}
-                  onChange={(e) =>
-                    setSortBy(e.target.value as "date" | "feeling")
-                  }
-                >
-                  <option value="date">날짜순</option>
-                  <option value="feeling">감정순</option>
-                </Select>
               </HStack>
             </VStack>
           </CardBody>
         </Card>
 
-        {/* Journals Grid */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {filteredJournals.map((journal) => {
-            const WeatherIcon = journal.weather
-              ? WEATHER_ICONS[journal.weather]
-              : null;
-            const FeelingIcon = FEELING_ICONS[journal.feeling];
+        {/* Calendar View */}
+        <Card>
+          <CardHeader>
+            <Flex justify="space-between" align="center">
+              <Heading size="md">캘린더</Heading>
+              <HStack spacing={3} marginLeft={12}>
+                <IconButton
+                  aria-label="Previous month"
+                  icon={<FiChevronLeft />}
+                  onClick={goToPreviousMonth}
+                  size="md"
+                  variant="ghost"
+                />
+                <Text
+                  fontWeight="bold"
+                  minW="150px"
+                  textAlign="center"
+                  fontSize="lg"
+                >
+                  {dayjs(currentDate).format("YYYY년 M월")}
+                </Text>
+                <IconButton
+                  aria-label="Next month"
+                  icon={<FiChevronRight />}
+                  onClick={goToNextMonth}
+                  size="md"
+                  variant="ghost"
+                />
+              </HStack>
+              <Button onClick={goToToday} variant="outline">
+                오늘
+              </Button>
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {/* Calendar Header */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={2} mb={3}>
+              {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+                <GridItem key={day}>
+                  <Text
+                    textAlign="center"
+                    fontWeight="bold"
+                    fontSize="md"
+                    color="gray.500"
+                    py={2}
+                  >
+                    {day}
+                  </Text>
+                </GridItem>
+              ))}
+            </Grid>
 
-            return (
-              <Card
-                key={journal.id}
-                cursor="pointer"
-                onClick={() => handleView(journal)}
-              >
-                <CardHeader>
-                  <HStack justify="space-between">
-                    <Text fontWeight="bold" fontSize="lg">
-                      {formatDate(new Date(journal.date))}
-                    </Text>
-                    <HStack spacing={2}>
-                      {journal.locked && <Badge colorScheme="red">잠금</Badge>}
-                      {journal.saved && (
-                        <Badge colorScheme="green">저장됨</Badge>
-                      )}
-                    </HStack>
-                  </HStack>
-                </CardHeader>
+            {/* Calendar Days */}
+            <Grid templateColumns="repeat(7, 1fr)" gap={2}>
+              {getCalendarDays().map((date, index) =>
+                renderCalendarDay(date, index)
+              )}
+            </Grid>
+          </CardBody>
+        </Card>
 
-                <CardBody>
-                  <VStack align="stretch" spacing={3}>
-                    {/* Weather and Feeling */}
-                    <HStack justify="space-between">
-                      {WeatherIcon && (
-                        <HStack>
-                          <WeatherIcon />
-                          <Text fontSize="sm">
-                            {WEATHER_LABELS[journal.weather!]}
-                          </Text>
-                        </HStack>
-                      )}
-                      <HStack>
-                        <FeelingIcon />
-                        <Text fontSize="sm">
-                          {FEELING_LABELS[journal.feeling]}
-                        </Text>
-                      </HStack>
-                    </HStack>
-
-                    {/* Contents Preview */}
-                    {journal.contents && (
-                      <Text noOfLines={3} fontSize="sm" color="gray.600">
-                        {journal.contents}
-                      </Text>
-                    )}
-
-                    {/* Memo */}
-                    {journal.memo && (
-                      <Text fontSize="xs" color="gray.500" fontStyle="italic">
-                        {journal.memo}
-                      </Text>
-                    )}
-
-                    {/* Actions */}
-                    <HStack justify="flex-end" spacing={2}>
-                      <IconButton
-                        size="sm"
-                        aria-label="편집"
-                        icon={<EditIcon />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(journal);
-                        }}
-                      />
-                      <IconButton
-                        size="sm"
-                        aria-label="삭제"
-                        icon={<DeleteIcon />}
-                        colorScheme="red"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(journal.id);
-                        }}
-                      />
-                    </HStack>
-                  </VStack>
-                </CardBody>
-              </Card>
-            );
-          })}
-        </SimpleGrid>
-
-        {filteredJournals.length === 0 && (
-          <Center py={10}>
-            <Text color="gray.500">일기가 없습니다.</Text>
-          </Center>
-        )}
+        {/* Timeline View */}
+        <Card>
+          <CardHeader>
+            <Flex justify="space-between">
+              <Heading size="md">타임라인</Heading>
+              <HStack spacing={2}>
+                <Select
+                  w={120}
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "desc" | "asc")}
+                >
+                  <option value="desc">내림차순</option>
+                  <option value="asc">오름차순</option>
+                </Select>
+                <Button onClick={onOpen}>필터</Button>
+              </HStack>
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            <VStack w="full" spacing={4}></VStack>
+          </CardBody>
+        </Card>
       </VStack>
 
       {/* Filter Modal */}

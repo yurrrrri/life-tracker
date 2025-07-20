@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { profileAtom } from "@/stores";
+import { profileAtom } from "@/utils/atoms";
 import { formatDate } from "@/utils";
 import {
   Avatar,

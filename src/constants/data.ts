@@ -27,7 +27,7 @@ import {
   WiThunderstorm,
 } from "react-icons/wi";
 
-import { Feeling, Weather } from "@/types";
+import { Feeling, Weather } from "@/constants/types";
 
 // Weather icons mapping
 export const WEATHER_ICONS = {

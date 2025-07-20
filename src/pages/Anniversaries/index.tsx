@@ -1,5 +1,9 @@
 import api from "@/services/api";
-import { Anniversary, AnniversaryType, AnniversaryWeight } from "@/types";
+import {
+  Anniversary,
+  AnniversaryType,
+  AnniversaryWeight,
+} from "@/constants/types";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,

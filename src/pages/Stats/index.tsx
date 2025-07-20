@@ -1,12 +1,12 @@
-import { FEELING_LABELS } from "@/constants";
+import { FEELING_LABELS } from "@/constants/data";
 import api from "@/services/api";
 import {
   feelingStatsAtom,
   journalsAtom,
   todosAtom,
   todoStatsAtom,
-} from "@/stores";
-import { Feeling, StatsStrategy, TodoStatus } from "@/types";
+} from "@/utils/atoms";
+import { Feeling, StatsStrategy, TodoStatus } from "@/constants/types";
 import {
   Badge,
   Box,

@@ -4,9 +4,9 @@ import {
   ROUTES,
   WEATHER_ICONS,
   WEATHER_LABELS,
-} from "@/constants";
+} from "@/constants/data";
 import api from "@/services/api";
-import { Journal } from "@/types";
+import { Journal } from "@/constants/types";
 import { formatDate, formatDateTime } from "@/utils";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {

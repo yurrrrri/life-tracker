@@ -1,5 +1,5 @@
-import { APP_CONSTANTS } from "@/constants";
-import { TodoStatus } from "@/types";
+import { APP_CONSTANTS } from "@/constants/data";
+import { TodoStatus } from "@/constants/types";
 import dayjs from "dayjs";
 
 // Date utilities

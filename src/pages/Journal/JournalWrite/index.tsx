@@ -3,9 +3,9 @@ import {
   FEELING_LABELS,
   ROUTES,
   WEATHER_LABELS,
-} from "@/constants";
+} from "@/constants/data";
 import api from "@/services/api";
-import { Feeling, Journal, Weather } from "@/types";
+import { Feeling, Journal, Weather } from "@/constants/types";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Box,

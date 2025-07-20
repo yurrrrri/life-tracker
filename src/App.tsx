@@ -3,7 +3,7 @@ import { Box, useColorMode } from "@chakra-ui/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 // import { useAtom } from "jotai";
 // import { isAuthenticatedAtom } from "./stores";
-import { ROUTES } from "./constants";
+import { ROUTES } from "./constants/data";
 import Layout from "./commons/Layout";
 import {
   Anniversaries,

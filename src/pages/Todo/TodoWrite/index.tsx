@@ -1,7 +1,7 @@
-import { APP_CONSTANTS, ROUTES } from "@/constants";
+import { APP_CONSTANTS, ROUTES } from "@/constants/data";
 import api from "@/services/api";
-import { categoriesAtom } from "@/stores";
-import { Todo, TodoStatus } from "@/types";
+import { categoriesAtom } from "@/utils/atoms";
+import { Todo, TodoStatus } from "@/constants/types";
 import {
   Box,
   Button,

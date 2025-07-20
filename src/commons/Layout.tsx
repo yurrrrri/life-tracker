@@ -1,5 +1,5 @@
-import { ROUTES } from "@/constants";
-import { isDarkModeAtom } from "@/stores";
+import { ROUTES } from "@/constants/data";
+import { isDarkModeAtom } from "@/utils/atoms";
 import {
   Box,
   Button,

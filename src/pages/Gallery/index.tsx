@@ -1,6 +1,6 @@
 import api from "@/services/api";
-import { galleryImagesAtom, selectedImageAtom } from "@/stores";
-import { Image as ImageType } from "@/types";
+import { galleryImagesAtom, selectedImageAtom } from "@/utils/atoms";
+import { Image as ImageType } from "@/constants/types";
 import { formatDateTime } from "@/utils";
 import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
 import {

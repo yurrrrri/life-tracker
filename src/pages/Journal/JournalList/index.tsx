@@ -1,12 +1,12 @@
-import { FEELING_LABELS, ROUTES, WEATHER_LABELS } from "@/constants";
+import { FEELING_LABELS, ROUTES, WEATHER_LABELS } from "@/constants/data";
 import {
   categoriesAtom,
   currentDateAtom,
   journalsAtom,
   selectedDateAtom,
   todosAtom,
-} from "@/stores";
-import { Feeling, Weather } from "@/types";
+} from "@/utils/atoms";
+import { Feeling, Weather } from "@/constants/types";
 import { formatDate, isDateFuture, isServiceDate, isToday } from "@/utils";
 import { AddIcon } from "@chakra-ui/icons";
 import {

@@ -1,6 +1,6 @@
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/constants/data";
 import api from "@/services/api";
-import { Todo, TodoStatus } from "@/types";
+import { Todo, TodoStatus } from "@/constants/types";
 import { formatDateTime } from "@/utils";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {

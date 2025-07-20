@@ -1,7 +1,7 @@
-import { ROUTES } from "@/constants";
+import { ROUTES } from "@/constants/data";
 import api from "@/services/api";
-import { categoriesAtom, todosAtom } from "@/stores";
-import { Todo, TodoStatus } from "@/types";
+import { categoriesAtom, todosAtom } from "@/utils/atoms";
+import { Todo, TodoStatus } from "@/constants/types";
 import { formatDateTime } from "@/utils";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {

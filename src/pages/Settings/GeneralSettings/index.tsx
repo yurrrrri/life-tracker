@@ -1,6 +1,6 @@
 import api from "@/services/api";
-import { fontTypeAtom, isDarkModeAtom, settingsAtom } from "@/stores";
-import { FontType } from "@/types";
+import { fontTypeAtom, isDarkModeAtom, settingsAtom } from "@/utils/atoms";
+import { FontType } from "@/constants/types";
 import {
   Alert,
   AlertIcon,

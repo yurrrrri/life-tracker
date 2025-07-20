@@ -1,7 +1,7 @@
-import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants";
+import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants/data";
 import api from "@/services/api";
-import { categoriesAtom } from "@/stores";
-import { Category } from "@/types";
+import { categoriesAtom } from "@/utils/atoms";
+import { Category } from "@/constants/types";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,

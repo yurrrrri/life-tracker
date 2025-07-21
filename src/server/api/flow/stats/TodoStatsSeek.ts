@@ -1,1 +1,1 @@
-export const TodoStatsSeek = () => {};
+export function TodoStatsSeek() {}

@@ -1,1 +1,1 @@
-export const ProfileSeek = () => {};
+export function ProfileSeek() {}

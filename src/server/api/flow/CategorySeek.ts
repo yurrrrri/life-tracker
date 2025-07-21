@@ -1,1 +1,1 @@
-export const CategorySeek = () => {};
+export function CategorySeek() {}

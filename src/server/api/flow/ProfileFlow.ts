@@ -1,1 +1,1 @@
-export const ProfileFlow = () => {};
+export function ProfileFlow() {}

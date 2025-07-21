@@ -1,1 +1,1 @@
-export const AnniversarySeek = () => {};
+export function AnniversarySeek() {}

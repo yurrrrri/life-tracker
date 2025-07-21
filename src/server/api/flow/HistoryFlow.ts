@@ -1,1 +1,1 @@
-export const HistoryFlow = () => {};
+export function HistoryFlow() {}

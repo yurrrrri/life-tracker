@@ -1,1 +1,1 @@
-export const JournalSeek = () => {};
+export function JournalSeek() {}

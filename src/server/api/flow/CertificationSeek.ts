@@ -1,1 +1,1 @@
-export const CertificationSeek = () => {};
+export function CertificationSeek() {}

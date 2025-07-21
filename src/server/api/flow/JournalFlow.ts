@@ -1,1 +1,1 @@
-export const JournalFlow = () => {};
+export function JournalFlow() {}

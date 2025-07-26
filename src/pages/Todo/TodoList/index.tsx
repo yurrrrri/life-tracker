@@ -1,8 +1,14 @@
-import { ROUTES } from "@/constants/data";
+import { Loader } from "@/commons";
+import { Status, Todo } from "@/server";
 import api from "@/services/api";
-import { categoriesAtom, currentDateAtom, selectedDateAtom, todosAtom } from "@/utils/atoms";
-import { Todo, TodoStatus } from "@/constants/types";
-import { formatDate, formatDateTime, isDateFuture, isServiceDate, isToday } from "@/utils";
+import {
+  categoriesAtom,
+  currentDateAtom,
+  selectedDateAtom,
+  todosAtom,
+} from "@/utils/atoms";
+import { formatDate, formatDateTime, isFuture, isToday } from "@/utils/dates";
+import { ROUTES } from "@/utils/routes";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -21,18 +27,17 @@ import {
   Input,
   Select,
   SimpleGrid,
-  Spinner,
   Text,
   useColorModeValue,
   useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export const TodoList = () => {
   const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
@@ -45,7 +50,9 @@ export const TodoList = () => {
   const [todos, setTodos] = useAtom(todosAtom);
   const [categories] = useAtom(categoriesAtom);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<TodoStatus | "">("");
+  const [filterStatus, setFilterStatus] = useState<keyof typeof Status | "">(
+    ""
+  );
   const [filterCategory, setFilterCategory] = useState<string>("");
 
   // Fetch todos
@@ -92,8 +99,7 @@ export const TodoList = () => {
     const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
     const isSelected = selectedDate === formatDate(date);
     const isTodayDate = isToday(date);
-    const isFutureDate = isDateFuture(date);
-    const isServiceDateValid = isServiceDate(formatDate(date));
+    const isFutureDate = isFuture(date);
 
     const dayBg = useColorModeValue(
       isTodayDate ? "brand.50" : isSelected ? "brand.100" : "transparent",
@@ -119,7 +125,7 @@ export const TodoList = () => {
         onClick={() => handleDateClick(date)}
         position="relative"
         _hover={
-          isCurrentMonth && !isFutureDate && isServiceDateValid
+          isCurrentMonth && !isFutureDate
             ? { bg: useColorModeValue("gray.50", "gray.700") }
             : {}
         }
@@ -136,7 +142,7 @@ export const TodoList = () => {
                 key={todoIndex}
                 size="md"
                 variant="subtle"
-                bg={category?.color || "brand.100"}
+                bg={category?.colorType || "brand.100"}
                 color="white"
                 fontSize="xs"
               >
@@ -162,8 +168,13 @@ export const TodoList = () => {
 
   // Update todo status mutation
   const updateStatusMutation = useMutation({
-    mutationFn: ({ todoId, status }: { todoId: string; status: TodoStatus }) =>
-      api.patch(`/todos/${todoId}/status`, { status }),
+    mutationFn: ({
+      todoId,
+      status,
+    }: {
+      todoId: string;
+      status: keyof typeof Status;
+    }) => api.patch(`/todos/${todoId}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
       toast({
@@ -204,7 +215,7 @@ export const TodoList = () => {
         new Date(b.startDateTime).getTime()
     );
 
-  const handleStatusChange = (todoId: string, status: TodoStatus) => {
+  const handleStatusChange = (todoId: string, status: keyof typeof Status) => {
     updateStatusMutation.mutate({ todoId, status });
   };
 
@@ -215,14 +226,14 @@ export const TodoList = () => {
   };
 
   const handleView = (todo: Todo) => {
-    navigate(ROUTES.TODO_VIEW.replace(":id", todo.id));
+    navigate(ROUTES.TODO_DETAIL.replace(":id", todo.id));
   };
 
   const handleEdit = (todo: Todo) => {
-    navigate(ROUTES.TODO_WRITE, { state: { todo } });
+    navigate(ROUTES.TODO_CREATE, { state: { todo } });
   };
 
-  const getStatusColor = (status: TodoStatus) => {
+  const getStatusColor = (status: keyof typeof Status) => {
     switch (status) {
       case "NOT_STARTED":
         return "gray";
@@ -241,7 +252,7 @@ export const TodoList = () => {
     }
   };
 
-  const getStatusLabel = (status: TodoStatus) => {
+  const getStatusLabel = (status: keyof typeof Status) => {
     switch (status) {
       case "NOT_STARTED":
         return "시작 전";
@@ -260,13 +271,7 @@ export const TodoList = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -276,7 +281,7 @@ export const TodoList = () => {
           <Heading size="md">할일 목록</Heading>
           <Button
             leftIcon={<AddIcon />}
-            onClick={() => navigate(ROUTES.TODO_WRITE)}
+            onClick={() => navigate(ROUTES.TODO_CREATE)}
           >
             새 할일 추가
           </Button>
@@ -300,11 +305,11 @@ export const TodoList = () => {
                 <Select
                   value={filterStatus}
                   onChange={(e) =>
-                    setFilterStatus(e.target.value as TodoStatus | "")
+                    setFilterStatus(e.target.value as keyof typeof Status | "")
                   }
                   placeholder="상태별 필터"
                 >
-                  {Object.values(TodoStatus).map((status) => (
+                  {Object.values(Status).map((status) => (
                     <option key={status} value={status}>
                       {getStatusLabel(status)}
                     </option>
@@ -423,7 +428,7 @@ export const TodoList = () => {
                           w={3}
                           h={3}
                           borderRadius="full"
-                          bg={category.color}
+                          bg={category.colorType}
                         />
                         <Text fontSize="sm">{category.name}</Text>
                       </HStack>
@@ -453,12 +458,12 @@ export const TodoList = () => {
                           e.stopPropagation();
                           handleStatusChange(
                             todo.id,
-                            e.target.value as TodoStatus
+                            e.target.value as keyof typeof Status
                           );
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {Object.values(TodoStatus).map((status) => (
+                        {Object.values(Status).map((status) => (
                           <option key={status} value={status}>
                             {getStatusLabel(status)}
                           </option>

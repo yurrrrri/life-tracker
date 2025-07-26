@@ -1,19 +1,10 @@
-import { ROUTES } from "@/constants/data";
 import { isDarkModeAtom } from "@/utils/atoms";
 import {
   Box,
   Button,
   Divider,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   Flex,
-  HStack,
   IconButton,
-  Text,
   useColorMode,
   useColorModeValue,
   useDisclosure,
@@ -21,99 +12,23 @@ import {
 } from "@chakra-ui/react";
 import { useAtom } from "jotai";
 import React from "react";
-import {
-  FiBarChart,
-  FiBook,
-  FiCalendar,
-  FiCheckSquare,
-  FiHome,
-  FiImage,
-  FiMenu,
-  FiMoon,
-  FiPenTool,
-  FiSettings,
-  FiSun,
-  FiTag,
-  FiUser,
-} from "react-icons/fi";
+import { FiMoon, FiSun } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
+import { NavItem, navItems } from "./navigation";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-interface NavItem {
-  label: string;
-  icon: React.ReactElement;
-  path: string;
-  children?: NavItem[];
-}
-
-const navItems: NavItem[] = [
-  {
-    label: "홈",
-    icon: <FiHome />,
-    path: ROUTES.HOME,
-  },
-  {
-    label: "일기",
-    icon: <FiBook />,
-    path: ROUTES.JOURNAL,
-  },
-  {
-    label: "투두리스트",
-    icon: <FiCheckSquare />,
-    path: ROUTES.TODO,
-  },
-  {
-    label: "필사노트",
-    icon: <FiPenTool />,
-    path: ROUTES.SENTENCE,
-  },
-  {
-    label: "갤러리",
-    icon: <FiImage />,
-    path: ROUTES.GALLERY,
-  },
-  {
-    label: "통계",
-    icon: <FiBarChart />,
-    path: ROUTES.STATS,
-  },
-  {
-    label: "설정",
-    icon: <FiSettings />,
-    path: ROUTES.SETTINGS,
-    children: [
-      {
-        label: "프로필",
-        icon: <FiUser />,
-        path: ROUTES.PROFILE,
-      },
-      {
-        label: "카테고리",
-        icon: <FiTag />,
-        path: ROUTES.CATEGORIES,
-      },
-      {
-        label: "특별한 날",
-        icon: <FiCalendar />,
-        path: ROUTES.ANNIVERSARIES,
-      },
-    ],
-  },
-];
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { colorMode, toggleColorMode } = useColorMode();
-  const navigate = useNavigate();
-  const location = useLocation();
+export const Layout = ({ children }: { children: React.ReactNode }) => {
+  // *** ATOM
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
 
-  const bg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  // *** CHAKRA ***
+  const { onClose } = useDisclosure();
+  const { colorMode, toggleColorMode } = useColorMode();
 
+  // *** HOOKS ***
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // *** HANDLER ***
   const handleColorModeToggle = () => {
     toggleColorMode();
     setIsDarkMode(!isDarkMode);
@@ -123,19 +38,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate("/");
   };
 
-  const isActive = (path: string) => {
-    return (
-      location.pathname === path || location.pathname.startsWith(path + "/")
-    );
-  };
-
+  // *** RENDER ***
   const renderNavItem = (
     item: NavItem,
     level: number = 0,
     variant?: string
   ) => {
-    const isActiveItem = isActive(item.path);
-    const paddingLeft = level * 4 + 3;
+    const path = item.path;
+    const isActive =
+      location.pathname === path || location.pathname.startsWith(path + "/");
 
     return (
       <Box key={item.path}>
@@ -145,8 +56,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           width="full"
           justifyContent="flex-start"
           leftIcon={item.icon}
-          pl={paddingLeft}
-          colorScheme={isActiveItem ? "brand" : "gray"}
+          pl={level * 4 + 3}
+          colorScheme={isActive ? "brand" : "gray"}
           onClick={() => {
             navigate(item.path);
             onClose();
@@ -170,13 +81,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <Flex w="1500px" h="100vh">
-      {/* Desktop Sidebar */}
+      {/* Sidebar */}
       <Box
         display={{ base: "none", md: "block" }}
         w="300px"
-        bg={bg}
+        bg={useColorModeValue("white", "gray.800")}
         borderRight="1px"
-        borderColor={borderColor}
+        borderColor={useColorModeValue("gray.200", "gray.700")}
         py={6}
       >
         <VStack spacing={6} align="stretch">
@@ -211,41 +122,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </VStack>
       </Box>
 
-      {/* Mobile Header */}
-      <Box display={{ base: "block", md: "none" }} w="full">
-        <Flex
-          as="header"
-          align="center"
-          justify="space-between"
-          w="full"
-          px={5}
-          py={3}
-          bg={bg}
-          borderBottom="1px"
-          borderColor={borderColor}
-        >
-          <Text fontSize="xl" fontWeight="bold" color="brand.500">
-            LIFE TRACKER
-          </Text>
-          <HStack spacing={3}>
-            <IconButton
-              aria-label="Toggle color mode"
-              icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
-              onClick={handleColorModeToggle}
-              variant="ghost"
-              size="md"
-            />
-            <IconButton
-              aria-label="Open menu"
-              icon={<FiMenu />}
-              onClick={onOpen}
-              variant="ghost"
-              size="md"
-            />
-          </HStack>
-        </Flex>
-      </Box>
-
       {/* Main Content */}
       <Box
         flex="1"
@@ -260,20 +136,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </Box>
       </Box>
-
-      {/* Mobile Drawer */}
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>메뉴</DrawerHeader>
-          <DrawerBody>
-            <VStack spacing={2} align="stretch">
-              {navItems.map((item) => renderNavItem(item))}
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
     </Flex>
   );
 };

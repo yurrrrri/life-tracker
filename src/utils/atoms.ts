@@ -1,15 +1,15 @@
+import { Category, FontType, Journal, Profile, Todo } from "@/server";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import {
-  Settings,
-  Profile,
-  Category,
-  Todo,
-  Journal,
-  FontType,
-} from "@/constants/types";
-import { STORAGE_KEYS } from "@/constants/data";
-import { formatDate } from ".";
+import { formatDate } from "./dates";
+
+// *** ATOM STORAGE KEYS ***
+const STORAGE_KEYS = {
+  AUTH_TOKEN: "auth_token",
+  USER_SETTINGS: "user_settings",
+  THEME_MODE: "theme_mode",
+  LAST_VISITED_DATE: "last_visited_date",
+};
 
 // Auth state
 export const isAuthenticatedAtom = atom<boolean>(false);
@@ -21,12 +21,12 @@ export const passwordAttemptsAtom = atom<number>(0);
 export const lastPasswordAttemptAtom = atom<number>(0);
 
 // Settings state
-export const settingsAtom = atom<Settings | null>(null);
+export const settingsAtom = atom<Profile | null>(null);
 export const isDarkModeAtom = atomWithStorage<boolean>(
   STORAGE_KEYS.THEME_MODE,
   false
 );
-export const fontTypeAtom = atom<FontType>("DEFAULT" as FontType);
+export const fontTypeAtom = atom<keyof typeof FontType>("GowunDodum");
 
 // Profile state
 export const profileAtom = atom<Profile | null>(null);

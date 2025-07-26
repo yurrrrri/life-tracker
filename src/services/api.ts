@@ -1,27 +1,26 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
 import {
-  ApiResponse,
-  Journal,
-  Todo,
-  Category,
-  Profile,
-  Settings,
   Anniversary,
-  JournalFormData,
-  TodoFormData,
-  ProfileFormData,
-  SettingsFormData,
-} from "@/constants/types";
+  Category,
+  ColorType,
+  Journal,
+  JournalCdo,
+  Profile,
+  ProfileCdo,
+  Todo,
+  TodoCdo,
+} from "@/server";
 import {
-  sampleJournals,
-  sampleTodos,
-  sampleCategories,
-  sampleProfile,
-  sampleSettings,
-  sampleImages,
   sampleAnniversaries,
+  sampleCategories,
+  sampleImages,
+  sampleJournals,
+  sampleProfile,
   sampleStats,
+  sampleTodos,
 } from "@/services/sampleData";
+import { ApiResponse } from "@/utils/types";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import dayjs from "dayjs";
 
 class ApiService {
   private api: AxiosInstance;
@@ -118,19 +117,20 @@ class ApiService {
     };
   }
 
-  async createJournal(data: JournalFormData): Promise<ApiResponse<Journal>> {
+  async createJournal(data: JournalCdo): Promise<ApiResponse<Journal>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newJournal: Journal = {
       id: String(Date.now()),
       date: data.date,
-      weather: data.weather,
       weatherComment: data.weatherComment,
-      feeling: data.feeling,
       feelingComment: data.feelingComment,
       contents: data.contents,
       saved: true,
       locked: data.locked || false,
+      imageId1: "",
+      imageId2: "",
+      memo: "",
       registeredOn: Date.now(),
       modifiedOn: Date.now(),
     };
@@ -143,7 +143,7 @@ class ApiService {
 
   async updateJournal(
     id: string,
-    data: Partial<JournalFormData>
+    data: Partial<JournalCdo>
   ): Promise<ApiResponse<Journal>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -201,7 +201,7 @@ class ApiService {
     };
   }
 
-  async createTodo(data: TodoFormData): Promise<ApiResponse<Todo>> {
+  async createTodo(data: TodoCdo): Promise<ApiResponse<Todo>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newTodo: Todo = {
@@ -224,7 +224,7 @@ class ApiService {
 
   async updateTodo(
     id: string,
-    data: Partial<TodoFormData>
+    data: Partial<TodoCdo>
   ): Promise<ApiResponse<Todo>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -255,8 +255,8 @@ class ApiService {
     const copiedTodo = {
       ...todo,
       id: String(Date.now()),
-      startDateTime: newDate,
-      endDateTime: newDate,
+      startDateTime: dayjs(newDate).toDate(),
+      endDateTime: dayjs(newDate).toDate(),
     };
     return {
       success: true,
@@ -278,14 +278,16 @@ class ApiService {
 
   async createCategory(
     name: string,
-    color: string
+    color: string,
+    orderNo: number
   ): Promise<ApiResponse<Category>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newCategory: Category = {
       id: String(Date.now()),
       name,
-      color,
+      colorType: color as keyof typeof ColorType,
+      orderNo,
       removed: false,
     };
     return {
@@ -332,7 +334,7 @@ class ApiService {
     };
   }
 
-  async updateProfile(data: ProfileFormData): Promise<ApiResponse<Profile>> {
+  async updateProfile(data: ProfileCdo): Promise<ApiResponse<Profile>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
     const updatedProfile = { ...sampleProfile, ...data };
@@ -343,23 +345,12 @@ class ApiService {
     };
   }
 
-  // Settings endpoints
-  async getSettings(): Promise<ApiResponse<Settings>> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return {
-      success: true,
-      data: sampleSettings,
-      message: "설정 조회 성공",
-    };
-  }
-
   async updateSettings(
-    data: Partial<SettingsFormData>
-  ): Promise<ApiResponse<Settings>> {
+    data: Partial<ProfileCdo>
+  ): Promise<ApiResponse<Profile>> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const updatedSettings = { ...sampleSettings, ...data };
+    const updatedSettings = { ...sampleProfile, ...data };
     return {
       success: true,
       data: updatedSettings,
@@ -452,7 +443,7 @@ class ApiService {
     await new Promise((resolve) => setTimeout(resolve, 500));
     const newAnniversary: Anniversary = {
       id: String(Date.now()),
-      type: data.type,
+      dateType: data.dateType,
       date: data.date,
       name: data.name,
       weight: data.weight,

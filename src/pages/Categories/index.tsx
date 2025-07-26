@@ -1,7 +1,8 @@
-import { APP_CONSTANTS, CATEGORY_COLORS } from "@/constants/data";
+import { Loader } from "@/commons";
+import { Category } from "@/server";
 import api from "@/services/api";
 import { categoriesAtom } from "@/utils/atoms";
-import { Category } from "@/constants/types";
+import { APP_CONSTANTS, CATEGORY_COLORS } from "@/utils/constants";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -23,7 +24,6 @@ import {
   ModalHeader,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   useDisclosure,
   useToast,
@@ -135,7 +135,7 @@ export const Categories = () => {
     setEditingCategory(category);
     reset({
       name: category.name,
-      color: category.color,
+      color: category.colorType,
     });
     onOpen();
   };
@@ -157,13 +157,7 @@ export const Categories = () => {
 
   const activeCategories = categories.filter((cat) => !cat.removed);
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -187,7 +181,12 @@ export const Categories = () => {
               <CardHeader>
                 <HStack justify="space-between">
                   <HStack>
-                    <Box w={4} h={4} borderRadius="full" bg={category.color} />
+                    <Box
+                      w={4}
+                      h={4}
+                      borderRadius="full"
+                      bg={category.colorType}
+                    />
                     <Text fontWeight="bold">{category.name}</Text>
                   </HStack>
                   <HStack spacing={1}>

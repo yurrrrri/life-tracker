@@ -2,6 +2,7 @@ export * from "./ColorType";
 export * from "./DateType";
 export * from "./Feeling";
 export * from "./FeelingComment";
+export * from "./FontType";
 export * from "./Status";
 export * from "./Weather";
 export * from "./WeatherComment";

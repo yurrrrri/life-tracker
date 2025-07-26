@@ -1,25 +1,25 @@
+import { Loader } from "@/commons";
+import { Image } from "@/server";
 import api from "@/services/api";
 import { galleryImagesAtom, selectedImageAtom } from "@/utils/atoms";
-import { Image as ImageType } from "@/constants/types";
-import { formatDateTime } from "@/utils";
+import { formatDateTime } from "@/utils/dates";
 import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
   Button,
   Center,
+  Image as CKImage,
   Flex,
   Heading,
   HStack,
   IconButton,
-  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
   SimpleGrid,
-  Spinner,
   Text,
   useDisclosure,
   useToast,
@@ -71,7 +71,7 @@ export const Gallery = () => {
     return true;
   });
 
-  const handleImageClick = (image: ImageType) => {
+  const handleImageClick = (image: Image) => {
     setSelectedImage(image);
     onOpen();
   };
@@ -82,22 +82,16 @@ export const Gallery = () => {
     }
   };
 
-  const handleDownload = (image: ImageType) => {
+  const handleDownload = (image: Image) => {
     const link = document.createElement("a");
     link.href = `/api/images/${image.id}`;
-    link.download = image.filename;
+    link.download = image.fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -132,7 +126,7 @@ export const Gallery = () => {
               _hover={{ transform: "scale(1.05)" }}
               transition="transform 0.2s"
             >
-              <Image
+              <CKImage
                 src={`/api/images/${image.id}`}
                 alt={image.filename}
                 borderRadius="md"
@@ -210,7 +204,7 @@ export const Gallery = () => {
             <ModalBody p={0}>
               {selectedImage && (
                 <VStack spacing={4} p={4}>
-                  <Image
+                  <CKImage
                     src={`/api/images/${selectedImage.id}`}
                     alt={selectedImage.filename}
                     maxH="70vh"

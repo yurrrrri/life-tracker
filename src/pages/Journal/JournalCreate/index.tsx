@@ -1,11 +1,11 @@
+import { Feeling, Journal, Weather } from "@/server";
+import api from "@/services/api";
 import {
   APP_CONSTANTS,
   FEELING_LABELS,
-  ROUTES,
   WEATHER_LABELS,
-} from "@/constants/data";
-import { Feeling, Journal, Weather } from "@/constants/types";
-import api from "@/services/api";
+} from "@/utils/constants";
+import { ROUTES } from "@/utils/routes";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -66,7 +66,7 @@ const journalSchema = z.object({
 
 type JournalFormData = z.infer<typeof journalSchema>;
 
-export const JournalWrite = () => {
+export const JournalCreate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -88,25 +88,25 @@ export const JournalWrite = () => {
     resolver: zodResolver(journalSchema),
     defaultValues: editingJournal
       ? {
-        date: editingJournal.date,
-        weather: editingJournal.weather,
-        weatherComment: editingJournal.weatherComment || "",
-        feeling: editingJournal.feeling,
-        feelingComment: editingJournal.feelingComment || "",
-        contents: editingJournal.contents || "",
-        memo: editingJournal.memo || "",
-        locked: editingJournal.locked,
-      }
+          date: editingJournal.date,
+          weather: editingJournal.weatherComment?.weather || "SUNNY",
+          weatherComment: editingJournal.weatherComment?.comment || "",
+          feeling: editingJournal.feelingComment?.feeling || "NEUTRAL",
+          feelingComment: editingJournal.feelingComment?.comment || "",
+          contents: editingJournal.contents || "",
+          memo: editingJournal.memo || "",
+          locked: editingJournal.locked,
+        }
       : {
-        date: new Date().toISOString().split("T")[0],
-        weather: undefined,
-        weatherComment: "",
-        feeling: "NEUTRAL" as Feeling,
-        feelingComment: "",
-        contents: "",
-        memo: "",
-        locked: false,
-      },
+          date: new Date().toISOString().split("T")[0],
+          weather: undefined,
+          weatherComment: "",
+          feeling: "NEUTRAL" as keyof typeof Feeling,
+          feelingComment: "",
+          contents: "",
+          memo: "",
+          locked: false,
+        },
   });
 
   const watchedValues = watch();
@@ -360,7 +360,10 @@ export const JournalWrite = () => {
                       control={control}
                       render={({ field }) => (
                         <HStack>
-                          <Switch checked={field.value} onChange={field.onChange} />
+                          <Switch
+                            checked={field.value}
+                            onChange={field.onChange}
+                          />
                           <Text>비공개로 설정</Text>
                         </HStack>
                       )}
@@ -407,29 +410,29 @@ export const JournalWrite = () => {
                   {/* Dropzone */}
                   {previewImages.length <
                     APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
-                      <Box
-                        {...getRootProps()}
-                        border="2px dashed"
-                        borderColor={isDragActive ? "purple.400" : "gray.300"}
-                        borderRadius="md"
-                        p={6}
-                        textAlign="center"
-                        cursor="pointer"
-                        _hover={{ borderColor: "purple.400" }}
-                      >
-                        <input {...getInputProps()} />
-                        <AddIcon boxSize={6} mb={2} />
-                        <Text>
-                          {isDragActive
-                            ? "파일을 여기에 놓으세요"
-                            : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
-                        </Text>
-                        <Text fontSize="sm" color="gray.500">
-                          최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
-                          {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
-                        </Text>
-                      </Box>
-                    )}
+                    <Box
+                      {...getRootProps()}
+                      border="2px dashed"
+                      borderColor={isDragActive ? "purple.400" : "gray.300"}
+                      borderRadius="md"
+                      p={6}
+                      textAlign="center"
+                      cursor="pointer"
+                      _hover={{ borderColor: "purple.400" }}
+                    >
+                      <input {...getInputProps()} />
+                      <AddIcon boxSize={6} mb={2} />
+                      <Text>
+                        {isDragActive
+                          ? "파일을 여기에 놓으세요"
+                          : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
+                        {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
+                      </Text>
+                    </Box>
+                  )}
                 </VStack>
               </CardBody>
             </Card>
@@ -461,4 +464,4 @@ export const JournalWrite = () => {
   );
 };
 
-export default JournalWrite;
+export default JournalCreate;

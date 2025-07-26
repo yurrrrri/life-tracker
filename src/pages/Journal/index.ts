@@ -1,3 +1,3 @@
 export * from "./JournalList";
-export * from "./JournalView";
-export * from "./JournalWrite";
+export * from "./JournalDetail";
+export * from "./JournalCreate";

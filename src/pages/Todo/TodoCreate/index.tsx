@@ -1,7 +1,8 @@
-import { APP_CONSTANTS, ROUTES } from "@/constants/data";
+import { Status, Todo } from "@/server";
 import api from "@/services/api";
 import { categoriesAtom } from "@/utils/atoms";
-import { Todo, TodoStatus } from "@/constants/types";
+import { APP_CONSTANTS } from "@/utils/constants";
+import { ROUTES } from "@/utils/routes";
 import {
   Box,
   Button,
@@ -43,12 +44,12 @@ const todoSchema = z.object({
   isPeriod: z.boolean(),
   startDateTime: z.string().min(1, "시작 시간을 입력해주세요"),
   endDateTime: z.string().min(1, "종료 시간을 입력해주세요"),
-  status: z.nativeEnum(TodoStatus),
+  status: z.nativeEnum(Status),
 });
 
 type TodoFormData = z.infer<typeof todoSchema>;
 
-export const TodoWrite = () => {
+export const TodoCreate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -72,8 +73,8 @@ export const TodoWrite = () => {
           contents: editingTodo.contents,
           memo: editingTodo.memo || "",
           isPeriod: editingTodo.isPeriod,
-          startDateTime: editingTodo.startDateTime,
-          endDateTime: editingTodo.endDateTime,
+          startDateTime: editingTodo.startDateTime.toISOString().slice(0, 16),
+          endDateTime: editingTodo.endDateTime.toISOString().slice(0, 16),
           status: editingTodo.status,
         }
       : {
@@ -83,7 +84,7 @@ export const TodoWrite = () => {
           isPeriod: false,
           startDateTime: new Date().toISOString().slice(0, 16),
           endDateTime: new Date().toISOString().slice(0, 16),
-          status: "NOT_STARTED" as TodoStatus,
+          status: "NOT_STARTED" as keyof typeof Status,
         },
   });
 
@@ -318,4 +319,4 @@ export const TodoWrite = () => {
   );
 };
 
-export default TodoWrite;
+export default TodoCreate;

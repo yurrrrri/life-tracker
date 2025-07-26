@@ -1,4 +1,4 @@
-import { ROUTES } from "@/constants/data";
+import { ROUTES } from "@/utils/routes";
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   Portal,
   SimpleGrid,
   useInterval,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -39,19 +39,19 @@ export const Dashboard = () => {
     {
       label: "일기 작성",
       icon: <FiBook />,
-      path: ROUTES.JOURNAL_WRITE,
+      path: ROUTES.JOURNAL_CREATE,
       color: "purple",
     },
     {
       label: "할 일 추가",
       icon: <FiCheckSquare />,
-      path: ROUTES.TODO_WRITE,
+      path: ROUTES.TODO_CREATE,
       color: "teal",
     },
     {
       label: "필사노트 작성",
       icon: <FiPenTool />,
-      path: ROUTES.SENTENCE_WRITE,
+      path: ROUTES.SENTENCE_CREATE,
       color: "pink",
     },
     {
@@ -66,7 +66,9 @@ export const Dashboard = () => {
   const renderTimes = () => {
     const list = [];
     for (let i = 8; i <= 24; i++) {
-      list.push(<span>{(i).toLocaleString("ko-KR", { minimumIntegerDigits: 2 })}:00</span>);
+      list.push(
+        <span>{i.toLocaleString("ko-KR", { minimumIntegerDigits: 2 })}:00</span>
+      );
     }
     return list;
   };
@@ -76,7 +78,7 @@ export const Dashboard = () => {
     minute: number,
     diff: number,
     label: string,
-    color: string,
+    color: string
   ) => {
     return (
       <div
@@ -113,8 +115,10 @@ export const Dashboard = () => {
             <PopoverContent>
               <PopoverArrow />
               <PopoverHeader>{label}</PopoverHeader>
-              <PopoverFooter display='flex' justifyContent='end'>
-                <Button w={12} variant="outline">수정</Button>
+              <PopoverFooter display="flex" justifyContent="end">
+                <Button w={12} variant="outline">
+                  수정
+                </Button>
               </PopoverFooter>
             </PopoverContent>
           </Portal>
@@ -161,8 +165,8 @@ export const Dashboard = () => {
                 }}
               />
               <VStack className="todo-items" w="full">
-                {renderTodoItem(8, 30, 60, "사이드 프로젝트 개발", 'brand')}
-                {renderTodoItem(16, 30, 60, "운동", 'green')}
+                {renderTodoItem(8, 30, 60, "사이드 프로젝트 개발", "brand")}
+                {renderTodoItem(16, 30, 60, "운동", "green")}
               </VStack>
               <div className="bar-item">
                 <Flex position="relative">

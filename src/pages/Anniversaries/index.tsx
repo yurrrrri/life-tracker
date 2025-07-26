@@ -1,9 +1,5 @@
 import { Loader } from "@/commons";
-import {
-  Anniversary,
-  AnniversaryType,
-  AnniversaryWeight,
-} from "@/constants/types";
+import { Anniversary, DateType, Weight } from "@/server";
 import api from "@/services/api";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
@@ -32,7 +28,7 @@ import {
   Text,
   VStack,
   useDisclosure,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -42,10 +38,10 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const anniversarySchema = z.object({
-  type: z.nativeEnum(AnniversaryType),
+  type: z.nativeEnum(DateType),
   date: z.string().min(1, "날짜를 선택해주세요"),
   name: z.string().min(1, "기념일명을 입력해주세요"),
-  weight: z.nativeEnum(AnniversaryWeight).optional(),
+  weight: z.nativeEnum(Weight).optional(),
 });
 
 type AnniversaryFormData = z.infer<typeof anniversarySchema>;
@@ -80,10 +76,10 @@ export const Anniversaries = () => {
   } = useForm<AnniversaryFormData>({
     resolver: zodResolver(anniversarySchema),
     defaultValues: {
-      type: "SPECIAL" as AnniversaryType,
+      type: "SPECIAL" as keyof typeof DateType,
       date: "",
       name: "",
-      weight: "MEDIUM" as AnniversaryWeight,
+      weight: "THIRD" as keyof typeof Weight,
     },
   });
 
@@ -142,10 +138,10 @@ export const Anniversaries = () => {
   const handleEdit = (anniversary: Anniversary) => {
     setEditingAnniversary(anniversary);
     reset({
-      type: anniversary.type,
+      type: anniversary.dateType,
       date: anniversary.date,
       name: anniversary.name,
-      weight: anniversary.weight || ("MEDIUM" as AnniversaryWeight),
+      weight: anniversary.weight || ("THIRD" as keyof typeof Weight),
     });
     onOpen();
   };
@@ -159,15 +155,15 @@ export const Anniversaries = () => {
   const handleCloseModal = () => {
     setEditingAnniversary(null);
     reset({
-      type: "SPECIAL" as AnniversaryType,
+      type: "SPECIAL" as keyof typeof DateType,
       date: "",
       name: "",
-      weight: "MEDIUM" as AnniversaryWeight,
+      weight: "THIRD" as keyof typeof Weight,
     });
     onClose();
   };
 
-  const getTypeLabel = (type: AnniversaryType) => {
+  const getTypeLabel = (type: keyof typeof DateType) => {
     switch (type) {
       case "HOLIDAY":
         return "휴일";
@@ -178,26 +174,26 @@ export const Anniversaries = () => {
     }
   };
 
-  const getWeightLabel = (weight: AnniversaryWeight) => {
+  const getWeightLabel = (weight: keyof typeof Weight) => {
     switch (weight) {
-      case "LOW":
+      case "THIRD":
         return "낮음";
-      case "MEDIUM":
+      case "SECOND":
         return "보통";
-      case "HIGH":
+      case "FIRST":
         return "높음";
       default:
         return weight;
     }
   };
 
-  const getWeightColor = (weight: AnniversaryWeight) => {
+  const getWeightColor = (weight: keyof typeof Weight) => {
     switch (weight) {
-      case "LOW":
+      case "THIRD":
         return "gray";
-      case "MEDIUM":
+      case "SECOND":
         return "blue";
-      case "HIGH":
+      case "FIRST":
         return "red";
       default:
         return "gray";
@@ -224,9 +220,7 @@ export const Anniversaries = () => {
     return daysUntil;
   };
 
-  if (isLoading) {
-    return <Loader />;
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -271,7 +265,7 @@ export const Anniversaries = () => {
                     </HStack>
 
                     <HStack spacing={2}>
-                      <Badge>{getTypeLabel(anniversary.type)}</Badge>
+                      <Badge>{getTypeLabel(anniversary.dateType)}</Badge>
                       {anniversary.weight && (
                         <Badge colorScheme={getWeightColor(anniversary.weight)}>
                           {getWeightLabel(anniversary.weight)}

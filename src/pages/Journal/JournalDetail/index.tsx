@@ -1,13 +1,14 @@
+import { Loader } from "@/commons";
+import { Feeling, Journal, Weather } from "@/server";
+import api from "@/services/api";
 import {
   FEELING_ICONS,
   FEELING_LABELS,
-  ROUTES,
   WEATHER_ICONS,
   WEATHER_LABELS,
-} from "@/constants/data";
-import api from "@/services/api";
-import { Journal } from "@/constants/types";
-import { formatDate, formatDateTime } from "@/utils";
+} from "@/utils/constants";
+import { formatDate, formatDateTime } from "@/utils/dates";
+import { ROUTES } from "@/utils/routes";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -22,14 +23,13 @@ import {
   Heading,
   HStack,
   Image,
-  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const JournalView = () => {
+export const JournalDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -43,13 +43,7 @@ export const JournalView = () => {
     enabled: !!id,
   });
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   if (error || !journal?.data) {
     return (
@@ -60,10 +54,12 @@ export const JournalView = () => {
   }
 
   const journalData: Journal = journal.data;
-  const WeatherIcon = journalData.weather
-    ? WEATHER_ICONS[journalData.weather]
+  const WeatherIcon = !!journalData.weatherComment?.weather
+    ? WEATHER_ICONS[journalData.weatherComment.weather]
     : null;
-  const FeelingIcon = FEELING_ICONS[journalData.feeling];
+  const FeelingIcon = !!journalData.feelingComment?.feeling
+    ? FEELING_ICONS[journalData.feelingComment?.feeling]
+    : null;
 
   return (
     <Box p={6}>
@@ -83,7 +79,7 @@ export const JournalView = () => {
           <Button
             leftIcon={<EditIcon />}
             onClick={() =>
-              navigate(ROUTES.JOURNAL_WRITE, {
+              navigate(ROUTES.JOURNAL_CREATE, {
                 state: { journal: journalData },
               })
             }
@@ -115,23 +111,36 @@ export const JournalView = () => {
                 {WeatherIcon && (
                   <HStack>
                     <WeatherIcon size={24} />
-                    <Text>{WEATHER_LABELS[journalData.weather!]}</Text>
+                    <Text>
+                      {!!journalData.weatherComment?.weather
+                        ? WEATHER_LABELS[
+                            journalData.weatherComment
+                              .weather as keyof typeof Weather
+                          ]
+                        : WEATHER_LABELS[Weather.SUNNY]}
+                    </Text>
                     {journalData.weatherComment && (
                       <Text fontSize="sm" color="gray.600">
-                        ({journalData.weatherComment})
+                        ({journalData.weatherComment.comment || ""})
                       </Text>
                     )}
                   </HStack>
                 )}
-                <HStack>
-                  <FeelingIcon size={24} />
-                  <Text>{FEELING_LABELS[journalData.feeling]}</Text>
-                  {journalData.feelingComment && (
-                    <Text fontSize="sm" color="gray.600">
-                      ({journalData.feelingComment})
+                {FeelingIcon && (
+                  <HStack>
+                    <FeelingIcon size={24} />
+                    <Text>
+                      {!!journalData.feelingComment?.feeling
+                        ? FEELING_LABELS[journalData.feelingComment?.feeling]
+                        : FEELING_LABELS[Feeling.NEUTRAL]}
                     </Text>
-                  )}
-                </HStack>
+                    {journalData.feelingComment && (
+                      <Text fontSize="sm" color="gray.600">
+                        ({journalData.feelingComment.comment || ""})
+                      </Text>
+                    )}
+                  </HStack>
+                )}
               </HStack>
             </VStack>
           </CardHeader>
@@ -210,4 +219,4 @@ export const JournalView = () => {
   );
 };
 
-export default JournalView;
+export default JournalDetail;

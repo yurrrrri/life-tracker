@@ -1,7 +1,8 @@
-import { ROUTES } from "@/constants/data";
+import { Loader } from "@/commons";
+import { getStatusColor, getStatusName, Todo } from "@/server";
 import api from "@/services/api";
-import { Todo, TodoStatus } from "@/constants/types";
-import { formatDateTime } from "@/utils";
+import { formatDateTime } from "@/utils/dates";
+import { ROUTES } from "@/utils/routes";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -15,14 +16,13 @@ import {
   Flex,
   Heading,
   HStack,
-  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const TodoView = () => {
+export const TodoDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -36,13 +36,7 @@ export const TodoView = () => {
     enabled: !!id,
   });
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   if (error || !todo?.data) {
     return (
@@ -53,44 +47,6 @@ export const TodoView = () => {
   }
 
   const todoData: Todo = todo.data;
-
-  const getStatusColor = (status: TodoStatus) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "gray";
-      case "JUST_STARTED":
-        return "blue";
-      case "IN_PROGRESS":
-        return "yellow";
-      case "PENDING":
-        return "orange";
-      case "ONEDAY":
-        return "purple";
-      case "DONE":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
-
-  const getStatusLabel = (status: TodoStatus) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "시작 전";
-      case "JUST_STARTED":
-        return "시작함";
-      case "IN_PROGRESS":
-        return "진행 중";
-      case "PENDING":
-        return "보류";
-      case "ONEDAY":
-        return "언젠가";
-      case "DONE":
-        return "완료";
-      default:
-        return status;
-    }
-  };
 
   return (
     <Box p={6}>
@@ -110,7 +66,7 @@ export const TodoView = () => {
           <Button
             leftIcon={<EditIcon />}
             onClick={() =>
-              navigate(ROUTES.TODO_WRITE, { state: { todo: todoData } })
+              navigate(ROUTES.TODO_CREATE, { state: { todo: todoData } })
             }
           >
             수정
@@ -126,7 +82,7 @@ export const TodoView = () => {
                   {todoData.contents}
                 </Text>
                 <Badge colorScheme={getStatusColor(todoData.status)} size="lg">
-                  {getStatusLabel(todoData.status)}
+                  {getStatusName(todoData.status)}
                 </Badge>
               </HStack>
             </VStack>
@@ -184,4 +140,4 @@ export const TodoView = () => {
   );
 };
 
-export default TodoView;
+export default TodoDetail;

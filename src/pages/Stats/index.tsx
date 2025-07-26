@@ -1,4 +1,11 @@
-import { FEELING_LABELS } from "@/constants/data";
+import { Loader } from "@/commons";
+import {
+  Feeling,
+  getStatusColor,
+  getStatusName,
+  Status,
+  Strategy,
+} from "@/server";
 import api from "@/services/api";
 import {
   feelingStatsAtom,
@@ -6,21 +13,19 @@ import {
   todosAtom,
   todoStatsAtom,
 } from "@/utils/atoms";
-import { Feeling, StatsStrategy, TodoStatus } from "@/constants/types";
+import { FEELING_LABELS } from "@/utils/constants";
 import {
   Badge,
   Box,
   Card,
   CardBody,
   CardHeader,
-  Center,
   Flex,
   Heading,
   HStack,
   Progress,
   Select,
   SimpleGrid,
-  Spinner,
   Stat,
   StatHelpText,
   StatLabel,
@@ -33,8 +38,8 @@ import { useAtom } from "jotai";
 import React, { useState } from "react";
 
 export const Stats = () => {
-  const [strategy, setStrategy] = useState<StatsStrategy>(
-    "MONTHLY" as StatsStrategy
+  const [strategy, setStrategy] = useState<keyof typeof Strategy>(
+    "MONTHLY" as keyof typeof Strategy
   );
   const [, setFeelingStats] = useAtom(feelingStatsAtom);
   const [, setTodoStats] = useAtom(todoStatsAtom);
@@ -66,7 +71,7 @@ export const Stats = () => {
   const feelingDistribution = Object.values(Feeling)
     .map((feeling) => {
       const count = journals.filter(
-        (journal) => journal.feeling === feeling
+        (journal) => journal.feelingComment?.feeling === feeling
       ).length;
       return {
         feeling,
@@ -77,7 +82,7 @@ export const Stats = () => {
     .sort((a, b) => b.count - a.count);
 
   // Get todo status distribution
-  const todoStatusDistribution = Object.values(TodoStatus)
+  const todoStatusDistribution = Object.values(Status)
     .map((status) => {
       const count = todos.filter((todo) => todo.status === status).length;
       return {
@@ -88,51 +93,7 @@ export const Stats = () => {
     })
     .sort((a, b) => b.count - a.count);
 
-  const getStatusLabel = (status: TodoStatus) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "시작 전";
-      case "JUST_STARTED":
-        return "시작함";
-      case "IN_PROGRESS":
-        return "진행 중";
-      case "PENDING":
-        return "보류";
-      case "ONEDAY":
-        return "언젠가";
-      case "DONE":
-        return "완료";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: TodoStatus) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "gray";
-      case "JUST_STARTED":
-        return "blue";
-      case "IN_PROGRESS":
-        return "yellow";
-      case "PENDING":
-        return "orange";
-      case "ONEDAY":
-        return "purple";
-      case "DONE":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -142,7 +103,9 @@ export const Stats = () => {
           <Heading size="md">통계</Heading>
           <Select
             value={strategy}
-            onChange={(e) => setStrategy(e.target.value as StatsStrategy)}
+            onChange={(e) =>
+              setStrategy(e.target.value as keyof typeof Strategy)
+            }
             w="200px"
           >
             <option value="MONTHLY">월별</option>
@@ -245,7 +208,7 @@ export const Stats = () => {
                   <HStack justify="space-between" mb={2}>
                     <HStack>
                       <Badge colorScheme={getStatusColor(status)}>
-                        {getStatusLabel(status)}
+                        {getStatusName(status)}
                       </Badge>
                       <Text>{count}개</Text>
                     </HStack>

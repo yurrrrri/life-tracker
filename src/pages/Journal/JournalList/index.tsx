@@ -1,4 +1,4 @@
-import { FEELING_LABELS, ROUTES, WEATHER_LABELS } from "@/constants/data";
+import { Feeling, Weather } from "@/server";
 import {
   categoriesAtom,
   currentDateAtom,
@@ -6,8 +6,9 @@ import {
   selectedDateAtom,
   todosAtom,
 } from "@/utils/atoms";
-import { Feeling, Weather } from "@/constants/types";
-import { formatDate, isDateFuture, isServiceDate, isToday } from "@/utils";
+import { FEELING_LABELS, WEATHER_LABELS } from "@/utils/constants";
+import { formatDate, isFuture, isToday } from "@/utils/dates";
+import { ROUTES } from "@/utils/routes";
 import { AddIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -52,8 +53,12 @@ export const JournalList = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterWeather, setFilterWeather] = useState<Weather | "">("");
-  const [filterFeeling, setFilterFeeling] = useState<Feeling | "">("");
+  const [filterWeather, setFilterWeather] = useState<keyof typeof Weather | "">(
+    ""
+  );
+  const [filterFeeling, setFilterFeeling] = useState<keyof typeof Feeling | "">(
+    ""
+  );
   const [sortBy, setSortBy] = useState<"desc" | "asc">("desc");
 
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -109,8 +114,7 @@ export const JournalList = () => {
     const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
     const isSelected = selectedDate === formatDate(date);
     const isTodayDate = isToday(date);
-    const isFutureDate = isDateFuture(date);
-    const isServiceDateValid = isServiceDate(formatDate(date));
+    const isFutureDate = isFuture(date);
 
     const journal = getJournalForDate(date);
     const todos = getTodosForDate(date);
@@ -137,7 +141,7 @@ export const JournalList = () => {
         onClick={() => handleDateClick(date)}
         position="relative"
         _hover={
-          isCurrentMonth && !isFutureDate && isServiceDateValid
+          isCurrentMonth && !isFutureDate
             ? { bg: useColorModeValue("gray.50", "gray.700") }
             : {}
         }
@@ -159,7 +163,7 @@ export const JournalList = () => {
                 key={todoIndex}
                 size="md"
                 variant="subtle"
-                bg={category?.color || "brand.100"}
+                bg={category?.colorType || "brand.100"}
                 color="white"
                 fontSize="xs"
               >
@@ -187,7 +191,7 @@ export const JournalList = () => {
             <Button
               style={{ marginRight: 8 }}
               leftIcon={<AddIcon />}
-              onClick={() => navigate(ROUTES.JOURNAL_WRITE)}
+              onClick={() => navigate(ROUTES.JOURNAL_CREATE)}
             >
               새 일기 작성
             </Button>
@@ -312,7 +316,9 @@ export const JournalList = () => {
                 <Select
                   value={filterWeather}
                   onChange={(e) =>
-                    setFilterWeather(e.target.value as Weather | "")
+                    setFilterWeather(
+                      e.target.value as keyof typeof Weather | ""
+                    )
                   }
                 >
                   <option value="">전체</option>
@@ -329,7 +335,9 @@ export const JournalList = () => {
                 <Select
                   value={filterFeeling}
                   onChange={(e) =>
-                    setFilterFeeling(e.target.value as Feeling | "")
+                    setFilterFeeling(
+                      e.target.value as keyof typeof Feeling | ""
+                    )
                   }
                 >
                   <option value="">전체</option>

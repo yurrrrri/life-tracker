@@ -3,7 +3,6 @@ import { Box, useColorMode } from "@chakra-ui/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 // import { useAtom } from "jotai";
 // import { isAuthenticatedAtom } from "./stores";
-import { ROUTES } from "./constants/data";
 import Layout from "./commons/Layout";
 import {
   Anniversaries,
@@ -11,16 +10,17 @@ import {
   Dashboard,
   Gallery,
   GeneralSettings,
+  JournalCreate,
+  JournalDetail,
   JournalList,
-  JournalView,
-  JournalWrite,
   LoginPage,
   Profile,
   Stats,
+  TodoCreate,
+  TodoDetail,
   TodoList,
-  TodoView,
-  TodoWrite,
 } from "./pages";
+import { ROUTES } from "./utils/routes";
 
 // Protected Route Component
 // const ProtectedRoute<{ children: React.ReactNode }> = ({
@@ -72,22 +72,22 @@ function App() {
         />
 
         <Route
-          path={ROUTES.JOURNAL_WRITE}
+          path={ROUTES.JOURNAL_CREATE}
           element={
             // <ProtectedRoute>
             <Layout>
-              <JournalWrite />
+              <JournalCreate />
             </Layout>
             // </ProtectedRoute>
           }
         />
 
         <Route
-          path={ROUTES.JOURNAL_VIEW}
+          path={ROUTES.JOURNAL_DETAIL}
           element={
             // <ProtectedRoute>
             <Layout>
-              <JournalView />
+              <JournalDetail />
             </Layout>
             // </ProtectedRoute>
           }
@@ -105,22 +105,22 @@ function App() {
         />
 
         <Route
-          path={ROUTES.TODO_WRITE}
+          path={ROUTES.TODO_CREATE}
           element={
             // <ProtectedRoute>
             <Layout>
-              <TodoWrite />
+              <TodoCreate />
             </Layout>
             // </ProtectedRoute>
           }
         />
 
         <Route
-          path={ROUTES.TODO_VIEW}
+          path={ROUTES.TODO_DETAIL}
           element={
             // <ProtectedRoute>
             <Layout>
-              <TodoView />
+              <TodoDetail />
             </Layout>
             // </ProtectedRoute>
           }

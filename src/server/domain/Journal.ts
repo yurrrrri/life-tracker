@@ -6,9 +6,9 @@ export interface Journal {
   weatherComment?: WeatherComment;
   feelingComment?: FeelingComment;
   contents: string;
-  imageId1: string;
-  imageId2: string;
-  memo: string;
+  imageId1?: string;
+  imageId2?: string;
+  memo?: string;
   saved: boolean;
   locked: boolean;
   registeredOn: number;

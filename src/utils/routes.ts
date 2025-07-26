@@ -1,0 +1,20 @@
+// *** ROUTES ***
+export const ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  JOURNAL: "/journal",
+  JOURNAL_CREATE: "/journal/create",
+  JOURNAL_DETAIL: "/journal/:id",
+  TODO: "/todo",
+  TODO_CREATE: "/todo/create",
+  TODO_DETAIL: "/todo/:id",
+  SENTENCE: "/sentence",
+  SENTENCE_CREATE: "/sentence/create",
+  SENTENCE_DETAIL: "/sentence/:id",
+  GALLERY: "/gallery",
+  STATS: "/stats",
+  SETTINGS: "/settings",
+  PROFILE: "/profile",
+  CATEGORIES: "/categories",
+  ANNIVERSARIES: "/anniversaries",
+};

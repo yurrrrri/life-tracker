@@ -1,4 +1,4 @@
-import { APP_CONSTANTS, ROUTES } from "@/constants/data";
+import { APP_CONSTANTS } from "@/utils/constants";
 import apiService from "@/services/api";
 import {
   authTokenAtom,
@@ -6,7 +6,8 @@ import {
   lastPasswordAttemptAtom,
   passwordAttemptsAtom,
 } from "@/utils/atoms";
-import { handleError } from "@/utils";
+import { handleError } from "@/utils/errors";
+import { ROUTES } from "@/utils/routes";
 import {
   Box,
   Button,

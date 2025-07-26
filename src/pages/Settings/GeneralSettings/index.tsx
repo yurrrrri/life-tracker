@@ -1,6 +1,7 @@
+import { Loader } from "@/commons";
+import { FontType, getFontName } from "@/server";
 import api from "@/services/api";
 import { fontTypeAtom, isDarkModeAtom, settingsAtom } from "@/utils/atoms";
-import { FontType } from "@/constants/types";
 import {
   Alert,
   AlertIcon,
@@ -9,14 +10,12 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Center,
   FormControl,
   FormLabel,
   Heading,
   HStack,
   Input,
   Select,
-  Spinner,
   Switch,
   Text,
   useToast,
@@ -69,15 +68,17 @@ export const GeneralSettings = () => {
     defaultValues: settings
       ? {
           password: settings.password,
-          notificationTime: settings.notificationTime,
+          notificationTime: settings.notificationTime
+            .toISOString()
+            .slice(0, 16),
           isDark: settings.isDark,
-          fontType: settings.fontType,
+          fontType: settings.fontType as keyof typeof FontType,
         }
       : {
           password: "",
           notificationTime: "09:00",
           isDark: false,
-          fontType: "DEFAULT" as FontType,
+          fontType: "YESMyoungjo" as keyof typeof FontType,
         },
   });
 
@@ -105,33 +106,14 @@ export const GeneralSettings = () => {
     setIsSubmitting(true);
     try {
       await updateSettingsMutation.mutateAsync(data);
-      setIsDarkMode(data.isDark);
+      setIsDarkMode(data.isDark || false);
       setFontType(data.fontType);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getFontTypeLabel = (fontType: FontType) => {
-    switch (fontType) {
-      case "DEFAULT":
-        return "기본";
-      case "SERIF":
-        return "명조체";
-      case "MONOSPACE":
-        return "고정폭";
-      default:
-        return fontType;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>
@@ -224,7 +206,7 @@ export const GeneralSettings = () => {
                         <Select {...field}>
                           {Object.values(FontType).map((fontType) => (
                             <option key={fontType} value={fontType}>
-                              {getFontTypeLabel(fontType)}
+                              {getFontName(fontType)}
                             </option>
                           ))}
                         </Select>

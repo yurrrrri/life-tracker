@@ -1,5 +1,4 @@
-import { FontType } from "@/constants/types";
-import { ProfileCdo } from "@/server/domain";
+import { FontType, ProfileCdo } from "@/server/domain";
 import axios from "axios";
 
 const url = (path: string) => `/profiles${path}`;

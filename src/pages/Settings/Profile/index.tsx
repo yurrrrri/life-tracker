@@ -1,6 +1,7 @@
+import { Loader } from "@/commons";
 import api from "@/services/api";
 import { profileAtom } from "@/utils/atoms";
-import { formatDate } from "@/utils";
+import { formatDate } from "@/utils/dates";
 import {
   Avatar,
   Box,
@@ -8,13 +9,11 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Center,
   FormControl,
   FormLabel,
   Heading,
   HStack,
   Input,
-  Spinner,
   Text,
   Textarea,
   useToast,
@@ -63,17 +62,17 @@ export const Profile = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: profile
       ? {
-        name: profile.name,
-        birthDate: profile.birthDate,
-        phoneNumber: profile.phoneNumber,
-        remark: profile.remark,
-      }
+          name: profile.name,
+          birthDate: profile.birthDate,
+          phoneNumber: profile.phoneNumber,
+          remark: profile.remark,
+        }
       : {
-        name: "",
-        birthDate: "",
-        phoneNumber: "",
-        remark: "",
-      },
+          name: "",
+          birthDate: "",
+          phoneNumber: "",
+          remark: "",
+        },
   });
 
   // Update profile mutation
@@ -105,13 +104,7 @@ export const Profile = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Center w="1200px" h="50vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <Box p={6}>

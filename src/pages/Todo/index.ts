@@ -1,3 +1,3 @@
 export * from "./TodoList";
-export * from "./TodoView";
-export * from "./TodoWrite";
+export * from "./TodoDetail";
+export * from "./TodoCreate";

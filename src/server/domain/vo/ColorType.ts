@@ -42,5 +42,5 @@ export const getColor = (type: string) => {
   else if (type === "PERIWINKLE") return "#CCCCFF";
   else if (type === "LIGHT_LAVENDER") return "#E6E6FA";
   else if (type === "PASTEL_TEAL") return "#A0E7E5";
-  else return "#ffffff";
+  else return "#FFD1DC";
 };

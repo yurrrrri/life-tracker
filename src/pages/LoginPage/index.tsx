@@ -6,7 +6,7 @@ import {
   lastPasswordAttemptAtom,
   passwordAttemptsAtom,
 } from "@/utils/atoms";
-import { handleError } from "@/utils/errors";
+import { getErrorMessage } from "@/utils/errors";
 import { ROUTES } from "@/utils/routes";
 import {
   Box,
@@ -147,7 +147,7 @@ export const LoginPage = () => {
         throw new Error(response.message || "로그인에 실패했습니다.");
       }
     } catch (error) {
-      const errorMessage = handleError(error);
+      const errorMessage = getErrorMessage(error);
 
       // Increment password attempts
       const newAttempts = passwordAttempts + 1;

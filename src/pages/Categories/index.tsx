@@ -1,8 +1,8 @@
 import { Loader } from "@/commons";
-import { Category } from "@/server";
-import api from "@/services/api";
-import { categoriesAtom } from "@/utils/atoms";
-import { APP_CONSTANTS, CATEGORY_COLORS } from "@/utils/constants";
+import { Category, ColorType, getColor } from "@/server";
+import { CategoryFlow } from "@/server/api/flow/CategoryFlow";
+import CategorySeek from "@/server/api/flow/CategorySeek";
+import { APP_CONSTANTS, COLOR_NAMES } from "@/utils/constants";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -30,9 +30,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAtom } from "jotai";
-import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -41,91 +40,46 @@ const categorySchema = z.object({
     .string()
     .min(1, "카테고리명을 입력해주세요")
     .max(20, "카테고리명은 20자 이내로 입력해주세요"),
-  color: z.string().min(1, "색상을 선택해주세요"),
+  colorType: z.nativeEnum(ColorType),
+  orderNo: z.number().default(1),
 });
-
-type CategoryFormData = z.infer<typeof categorySchema>;
 
 export const Categories = () => {
   const toast = useToast();
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [categories, setCategories] = useAtom(categoriesAtom);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch categories
-  const { data: categoriesData, isLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => api.get("/categories"),
-  });
-
-  React.useEffect(() => {
-    if (categoriesData?.data) {
-      setCategories(categoriesData.data);
-    }
-  }, [categoriesData]);
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CategoryFormData>({
+  const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
-      color: CATEGORY_COLORS[0],
+      colorType: ColorType.PASTEL_PINK,
     },
   });
+  const control = form.control;
+  const errors = form.formState.errors;
 
-  // Create/Update category mutation
-  const saveCategoryMutation = useMutation({
-    mutationFn: (data: CategoryFormData) => {
-      if (editingCategory) {
-        return api.put(`/categories/${editingCategory.id}`, data);
-      } else {
-        return api.post("/categories", data);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast({
-        title: editingCategory
-          ? "카테고리가 수정되었습니다."
-          : "카테고리가 생성되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-      handleCloseModal();
-    },
-    onError: () => {
-      toast({
-        title: "카테고리 저장에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
-    },
-  });
+  // *** QUERY ***
+  const { create, remove } = CategoryFlow;
 
-  // Delete category mutation
-  const deleteCategoryMutation = useMutation({
-    mutationFn: (categoryId: string) => api.delete(`/categories/${categoryId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast({
-        title: "카테고리가 삭제되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-  });
+  const findCategories = CategorySeek.query.findCategories();
+  const { data: categoryData, isLoading } = useQuery(findCategories);
+  const categories = useMemo(() => categoryData || [], [categoryData]);
 
-  const onSubmit = async (data: CategoryFormData) => {
+  const handleSubmit = async (data: z.infer<typeof categorySchema>) => {
     setIsSubmitting(true);
     try {
-      await saveCategoryMutation.mutateAsync(data);
+      create(data).then((e) => {
+        if (e.status === 200) {
+          toast({
+            status: "success",
+            description: "저장되었습니다.",
+            isClosable: true,
+          });
+        }
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -133,29 +87,34 @@ export const Categories = () => {
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    reset({
+    form.reset({
       name: category.name,
-      color: category.colorType,
+      colorType: category.colorType,
     });
     onOpen();
   };
 
   const handleDelete = (categoryId: string) => {
-    if (window.confirm("정말로 이 카테고리를 삭제하시겠습니까?")) {
-      deleteCategoryMutation.mutate(categoryId);
+    try {
+      remove({ id: categoryId }).then((e) => {
+        if (e.status === 200) {
+          toast({
+            status: "success",
+            description: "저장되었습니다.",
+            isClosable: true,
+          });
+        }
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCloseModal = () => {
     setEditingCategory(null);
-    reset({
-      name: "",
-      color: CATEGORY_COLORS[0],
-    });
+    form.reset();
     onClose();
   };
-
-  const activeCategories = categories.filter((cat) => !cat.removed);
 
   if (isLoading) return <Loader />;
 
@@ -168,7 +127,7 @@ export const Categories = () => {
           <Button
             leftIcon={<AddIcon />}
             onClick={onOpen}
-            isDisabled={activeCategories.length >= APP_CONSTANTS.MAX_CATEGORIES}
+            isDisabled={categories.length >= APP_CONSTANTS.MAX_CATEGORIES}
           >
             새 카테고리 추가
           </Button>
@@ -176,7 +135,7 @@ export const Categories = () => {
 
         {/* Categories Grid */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {activeCategories.map((category) => (
+          {categories.map((category) => (
             <Card key={category.id}>
               <CardHeader>
                 <HStack justify="space-between">
@@ -210,7 +169,7 @@ export const Categories = () => {
           ))}
         </SimpleGrid>
 
-        {activeCategories.length === 0 && (
+        {categories.length === 0 && (
           <Center py={10}>
             <Text color="gray.500">카테고리가 없습니다.</Text>
           </Center>
@@ -225,7 +184,7 @@ export const Categories = () => {
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <VStack spacing={4}>
                   <FormControl isInvalid={!!errors.name}>
                     <FormLabel>카테고리명</FormLabel>
@@ -246,20 +205,20 @@ export const Categories = () => {
                     )}
                   </FormControl>
 
-                  <FormControl isInvalid={!!errors.color}>
+                  <FormControl isInvalid={!!errors.colorType}>
                     <FormLabel>색상</FormLabel>
                     <Controller
-                      name="color"
+                      name="colorType"
                       control={control}
                       render={({ field }) => (
                         <SimpleGrid columns={5} spacing={2} ml={10}>
-                          {CATEGORY_COLORS.map((color) => (
+                          {COLOR_NAMES.map((color) => (
                             <Box
                               key={color}
                               w={8}
                               h={8}
                               borderRadius="full"
-                              bg={color}
+                              bg={getColor(color)}
                               cursor="pointer"
                               border={
                                 field.value === color
@@ -275,9 +234,9 @@ export const Categories = () => {
                         </SimpleGrid>
                       )}
                     />
-                    {errors.color && (
+                    {errors.colorType && (
                       <Text color="red.500" fontSize="sm">
-                        {errors.color.message}
+                        {errors.colorType.message}
                       </Text>
                     )}
                   </FormControl>
@@ -286,11 +245,7 @@ export const Categories = () => {
                     <Button variant="outline" onClick={handleCloseModal}>
                       취소
                     </Button>
-                    <Button
-                      type="submit"
-                      isLoading={isSubmitting}
-                      loadingText="저장 중..."
-                    >
+                    <Button type="submit" isLoading={isSubmitting}>
                       저장
                     </Button>
                   </HStack>

@@ -142,24 +142,47 @@ export const FEELING_LABELS = {
 
 // Category colors
 export const CATEGORY_COLORS = [
-  "#E53E3E", // red
-  "#DD6B20", // orange
-  "#D69E2E", // yellow
-  "#38A169", // green
-  "#319795", // teal
-  "#3182CE", // blue
-  "#805AD5", // purple
-  "#D53F8C", // pink
-  "#718096", // gray
-  "#2D3748", // dark gray
-  "#48BB78", // light green
-  "#F6AD55", // light orange
-  "#F6E05E", // light yellow
-  "#9F7AEA", // light purple
-  "#FC8181", // light red
-  "#81C784", // light green
-  "#64B5F6", // light blue
-  "#F06292", // light pink
-  "#A1887F", // brown
-  "#90A4AE", // blue gray
+  "#FFD1DC",
+  "#AEDFF7",
+  "#BFFCC6",
+  "#E3D1FF",
+  "#FFE0B2",
+  "#C2F0FF",
+  "#FFFACD",
+  "#D8B7DD",
+  "#FFD8B1",
+  "#B0E0E6",
+  "#F8C8C8",
+  "#D5F4E6",
+  "#FFFDD0",
+  "#FFE4E1",
+  "#E0FFFF",
+  "#CFFFE5",
+  "#F9D5D3",
+  "#CCCCFF",
+  "#E6E6FA",
+  "#A0E7E5",
+];
+
+export const COLOR_NAMES = [
+  "PASTEL_PINK",
+  "BABY_BLUE",
+  "MINT_GREEN",
+  "LAVENDER",
+  "PEACH",
+  "SKY_BLUE",
+  "PALE_YELLOW",
+  "SOFT_LILAC",
+  "PASTEL_ORANGE",
+  "POWDER_BLUE",
+  "LIGHT_CORAL",
+  "PALE_GREEN",
+  "CREAM",
+  "MISTY_ROSE",
+  "LIGHT_CYAN",
+  "PALE_AQUA",
+  "BLUSH_PINK",
+  "PERIWINKLE",
+  "LIGHT_LAVENDER",
+  "PASTEL_TEAL",
 ];

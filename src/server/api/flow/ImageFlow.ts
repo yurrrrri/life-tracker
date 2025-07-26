@@ -1,1 +1,1 @@
-export function ImageFlow() {}
+export const ImageFlow = {};

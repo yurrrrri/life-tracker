@@ -1,1 +1,1 @@
-export function HistorySeek() {}
+export const HistorySeek = {};

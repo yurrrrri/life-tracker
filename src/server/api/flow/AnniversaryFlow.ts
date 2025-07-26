@@ -3,22 +3,15 @@ import axios from "axios";
 
 const url = (path: string) => `/anniversaries${path}`;
 
-export function AnniversaryFlow() {
-  const create = (params: AnniversaryCdo) =>
-    axios.post<string>(url(""), params);
+export const AnniversaryFlow = {
+  create: (params: AnniversaryCdo) => axios.post(url(""), params),
 
-  const update = (params: {
+  update: (params: {
     id: string;
     date: string;
     name: string;
     weight: keyof typeof Weight;
-  }) => axios.patch(url(""), params);
+  }) => axios.patch(url(""), params),
 
-  const remove = ({ id }: { id: string }) => axios.delete(url(`/${id}`));
-
-  return {
-    create,
-    update,
-    remove,
-  };
-}
+  remove: ({ id }: { id: string }) => axios.delete(url(`/${id}`)),
+};

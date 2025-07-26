@@ -1,22 +1,16 @@
 import { CategoryCdo, ColorType } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/categories${path}`;
+const url = (path: string) => `/api/categories${path}`;
 
-export function CategoryFlow() {
-  const create = (params: CategoryCdo) => axios.post(url(""), params);
+export const CategoryFlow = {
+  create: (params: CategoryCdo) => axios.post(url(""), params),
 
-  const update = (params: {
+  update: (params: {
     id: string;
     name: string;
     colorType: keyof typeof ColorType;
-  }) => axios.patch(url(""), params);
+  }) => axios.patch(url(""), params),
 
-  const remove = ({ id }: { id: string }) => axios.patch(url(`/${id}`));
-
-  return {
-    create,
-    update,
-    remove,
-  };
-}
+  remove: ({ id }: { id: string }) => axios.patch(url(`/${id}`)),
+};

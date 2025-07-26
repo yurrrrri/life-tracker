@@ -1,5 +1,5 @@
 // Error handling
-export const handleError = (error: any): string => {
+export const getErrorMessage = (error: any): string => {
   if (error.response?.data?.message) {
     return error.response.data.message;
   }

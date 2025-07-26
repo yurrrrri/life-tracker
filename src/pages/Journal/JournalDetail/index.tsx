@@ -166,7 +166,7 @@ export const JournalDetail = () => {
                   <HStack spacing={4}>
                     {journalData.imageId1 && (
                       <Image
-                        src={`/api/images/${journalData.imageId1}`}
+                        src={`/images/${journalData.imageId1}`}
                         alt="첨부 이미지 1"
                         borderRadius="md"
                         maxH="300px"
@@ -175,7 +175,7 @@ export const JournalDetail = () => {
                     )}
                     {journalData.imageId2 && (
                       <Image
-                        src={`/api/images/${journalData.imageId2}`}
+                        src={`/images/${journalData.imageId2}`}
                         alt="첨부 이미지 2"
                         borderRadius="md"
                         maxH="300px"

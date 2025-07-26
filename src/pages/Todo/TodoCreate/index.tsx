@@ -1,7 +1,8 @@
-import { Status, Todo } from "@/server";
-import api from "@/services/api";
+import { Status } from "@/server";
+import { TodoFlow } from "@/server/api/flow/TodoFlow";
 import { categoriesAtom } from "@/utils/atoms";
 import { APP_CONSTANTS } from "@/utils/constants";
+import { getErrorMessage } from "@/utils/errors";
 import { ROUTES } from "@/utils/routes";
 import {
   Box,
@@ -22,11 +23,11 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const todoSchema = z.object({
@@ -51,119 +52,84 @@ type TodoFormData = z.infer<typeof todoSchema>;
 
 export const TodoCreate = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const toast = useToast();
-  const queryClient = useQueryClient();
 
   const [categories] = useAtom(categoriesAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const editingTodo = location.state?.todo as Todo | undefined;
-
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors, isDirty },
-  } = useForm<TodoFormData>({
+  const form = useForm<TodoFormData>({
     resolver: zodResolver(todoSchema),
-    defaultValues: editingTodo
-      ? {
-          categoryId: editingTodo.categoryId,
-          contents: editingTodo.contents,
-          memo: editingTodo.memo || "",
-          isPeriod: editingTodo.isPeriod,
-          startDateTime: editingTodo.startDateTime.toISOString().slice(0, 16),
-          endDateTime: editingTodo.endDateTime.toISOString().slice(0, 16),
-          status: editingTodo.status,
-        }
-      : {
-          categoryId: "",
-          contents: "",
-          memo: "",
-          isPeriod: false,
-          startDateTime: new Date().toISOString().slice(0, 16),
-          endDateTime: new Date().toISOString().slice(0, 16),
-          status: "NOT_STARTED" as keyof typeof Status,
-        },
-  });
-
-  const watchedValues = watch();
-
-  // Save todo mutation
-  const saveMutation = useMutation({
-    mutationFn: (data: TodoFormData) => {
-      if (editingTodo) {
-        return api.put(`/todos/${editingTodo.id}`, data);
-      } else {
-        return api.post("/todos", data);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      toast({
-        title: editingTodo
-          ? "할일이 수정되었습니다."
-          : "할일이 저장되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-      navigate(ROUTES.TODO);
-    },
-    onError: () => {
-      toast({
-        title: "할일 저장에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
+    defaultValues: {
+      categoryId: "",
+      contents: "",
+      memo: "",
+      isPeriod: false,
+      startDateTime: new Date().toISOString().slice(0, 16),
+      endDateTime: new Date().toISOString().slice(0, 16),
+      status: "NOT_STARTED" as keyof typeof Status,
     },
   });
+  const watchedValues = form.watch();
+  const control = form.control;
+  const errors = form.formState.errors;
 
-  const onSubmit = async (data: TodoFormData) => {
+  const create = TodoFlow.create;
+
+  const handleSubmit = (data: z.infer<typeof todoSchema>) => {
     setIsSubmitting(true);
     try {
-      await saveMutation.mutateAsync(data);
+      create({
+        ...data,
+        startDateTime: dayjs(data.startDateTime).toDate(),
+        endDateTime: dayjs(data.endDateTime).toDate(),
+      })
+        .then((e) => {
+          if (e.status === 200) {
+            toast({
+              status: "success",
+              description: "저장되었습니다.",
+              isClosable: true,
+            });
+          }
+        })
+        .catch((e) =>
+          toast({
+            status: "error",
+            description: getErrorMessage(e),
+            isClosable: true,
+          })
+        );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCancel = () => {
-    if (isDirty) {
-      if (
-        window.confirm("저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?")
-      ) {
-        navigate(ROUTES.TODO);
-      }
-    } else {
-      navigate(ROUTES.TODO);
-    }
+  const handleBackToList = () => {
+    navigate(ROUTES.TODO);
   };
 
   return (
     <Box p={6}>
-      <VStack spacing={6} align="stretch">
-        {/* Header */}
-        <Flex justify="space-between" align="center">
-          <Heading size="md">
-            {editingTodo ? "할일 수정" : "새 할일 추가"}
-          </Heading>
-          <HStack spacing={3}>
-            <Button variant="outline" onClick={handleCancel}>
-              취소
-            </Button>
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              isLoading={isSubmitting}
-              loadingText="저장 중..."
-            >
-              저장
-            </Button>
-          </HStack>
-        </Flex>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <VStack spacing={6} align="stretch">
+          {/* Header */}
+          <Flex justify="space-between" align="center">
+            <Heading size="md">새 할일 추가</Heading>
+            <HStack spacing={3}>
+              <Button variant="outline" onClick={handleBackToList}>
+                취소
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                loadingText="저장 중..."
+              >
+                저장
+              </Button>
+            </HStack>
+          </Flex>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Form */}
           <VStack spacing={6} align="stretch">
             {/* Category and Contents */}
             <Card>
@@ -313,8 +279,8 @@ export const TodoCreate = () => {
               </CardBody>
             </Card>
           </VStack>
-        </form>
-      </VStack>
+        </VStack>
+      </form>
     </Box>
   );
 };

@@ -1,5 +1,5 @@
 import { Loader } from "@/commons";
-import { Status, Todo } from "@/server";
+import { getStatusColor, getStatusName, Status, Todo } from "@/server";
 import api from "@/services/api";
 import {
   categoriesAtom,
@@ -34,8 +34,8 @@ import {
 } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useAtom } from "jotai";
-import React, { useState } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -47,7 +47,7 @@ export const TodoList = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const [todos, setTodos] = useAtom(todosAtom);
+  const todos = useAtomValue(todosAtom);
   const [categories] = useAtom(categoriesAtom);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<keyof typeof Status | "">(
@@ -56,7 +56,7 @@ export const TodoList = () => {
   const [filterCategory, setFilterCategory] = useState<string>("");
 
   // Fetch todos
-  const { data: todosData, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["todos"],
     queryFn: () => api.get("/todos"),
   });
@@ -160,11 +160,11 @@ export const TodoList = () => {
     );
   };
 
-  React.useEffect(() => {
-    if (todosData?.data) {
-      setTodos(todosData.data);
-    }
-  }, [todosData]);
+  // React.useEffect(() => {
+  //   if (todosData?.data) {
+  //     setTodos(todosData.data);
+  //   }
+  // }, [todosData]);
 
   // Update todo status mutation
   const updateStatusMutation = useMutation({
@@ -233,44 +233,6 @@ export const TodoList = () => {
     navigate(ROUTES.TODO_CREATE, { state: { todo } });
   };
 
-  const getStatusColor = (status: keyof typeof Status) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "gray";
-      case "JUST_STARTED":
-        return "blue";
-      case "IN_PROGRESS":
-        return "yellow";
-      case "PENDING":
-        return "orange";
-      case "ONEDAY":
-        return "purple";
-      case "DONE":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
-
-  const getStatusLabel = (status: keyof typeof Status) => {
-    switch (status) {
-      case "NOT_STARTED":
-        return "시작 전";
-      case "JUST_STARTED":
-        return "시작함";
-      case "IN_PROGRESS":
-        return "진행 중";
-      case "PENDING":
-        return "보류";
-      case "ONEDAY":
-        return "언젠가";
-      case "DONE":
-        return "완료";
-      default:
-        return status;
-    }
-  };
-
   if (isLoading) return <Loader />;
 
   return (
@@ -311,7 +273,7 @@ export const TodoList = () => {
                 >
                   {Object.values(Status).map((status) => (
                     <option key={status} value={status}>
-                      {getStatusLabel(status)}
+                      {getStatusName(status)}
                     </option>
                   ))}
                 </Select>
@@ -414,7 +376,7 @@ export const TodoList = () => {
                       {todo.contents}
                     </Text>
                     <Badge colorScheme={getStatusColor(todo.status)}>
-                      {getStatusLabel(todo.status)}
+                      {getStatusName(todo.status)}
                     </Badge>
                   </HStack>
                 </CardHeader>
@@ -465,7 +427,7 @@ export const TodoList = () => {
                       >
                         {Object.values(Status).map((status) => (
                           <option key={status} value={status}>
-                            {getStatusLabel(status)}
+                            {getStatusName(status)}
                           </option>
                         ))}
                       </Select>

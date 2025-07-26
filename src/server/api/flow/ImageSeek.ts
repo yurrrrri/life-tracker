@@ -1,1 +1,1 @@
-export function ImageSeek() {}
+export const ImageSeek = {};

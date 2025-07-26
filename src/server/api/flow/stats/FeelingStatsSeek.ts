@@ -1,1 +1,1 @@
-export function FeelingStatsSeek() {}
+export const FeelingStatsSeek = {};

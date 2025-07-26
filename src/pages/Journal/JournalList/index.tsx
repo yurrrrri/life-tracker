@@ -1,7 +1,6 @@
 import { Feeling, Weather } from "@/server";
 import {
   categoriesAtom,
-  currentDateAtom,
   journalsAtom,
   selectedDateAtom,
   todosAtom,
@@ -43,7 +42,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export const JournalList = () => {
-  const [currentDate, setCurrentDate] = useAtom(currentDateAtom);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
   const [journals] = useAtom(journalsAtom);
   const [todos] = useAtom(todosAtom);

@@ -84,7 +84,7 @@ export const Gallery = () => {
 
   const handleDownload = (image: Image) => {
     const link = document.createElement("a");
-    link.href = `/api/images/${image.id}`;
+    link.href = `/images/${image.id}`;
     link.download = image.fileName;
     document.body.appendChild(link);
     link.click();
@@ -127,7 +127,7 @@ export const Gallery = () => {
               transition="transform 0.2s"
             >
               <CKImage
-                src={`/api/images/${image.id}`}
+                src={`/images/${image.id}`}
                 alt={image.filename}
                 borderRadius="md"
                 w="full"
@@ -205,7 +205,7 @@ export const Gallery = () => {
               {selectedImage && (
                 <VStack spacing={4} p={4}>
                   <CKImage
-                    src={`/api/images/${selectedImage.id}`}
+                    src={`/images/${selectedImage.id}`}
                     alt={selectedImage.filename}
                     maxH="70vh"
                     objectFit="contain"

@@ -3,10 +3,10 @@ import axios from "axios";
 
 const url = (path: string) => `/todos${path}`;
 
-export function TodoFlow() {
-  const create = (params: TodoCdo) => axios.post(url(""), params);
+export const TodoFlow = {
+  create: (params: TodoCdo) => axios.post(url(""), params),
 
-  const update = (params: {
+  update: (params: {
     id: string;
     categoryId: string;
     contents: string;
@@ -15,19 +15,10 @@ export function TodoFlow() {
     startDateTime: Date;
     endDateTime: Date;
     status: keyof typeof Status;
-  }) => axios.put(url(""), params);
+  }) => axios.put(url(""), params),
 
-  const changeTodoStatus = (params: {
-    id: string;
-    status: keyof typeof Status;
-  }) => axios.patch(url(""), params);
+  changeTodoStatus: (params: { id: string; status: keyof typeof Status }) =>
+    axios.patch(url(""), params),
 
-  const remove = ({ id }: { id: string }) => axios.patch(url(`/${id}`));
-
-  return {
-    create,
-    update,
-    changeTodoStatus,
-    remove,
-  };
-}
+  remove: ({ id }: { id: string }) => axios.patch(url(`/${id}`)),
+};

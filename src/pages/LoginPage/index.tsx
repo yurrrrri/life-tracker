@@ -1,5 +1,5 @@
 import { APP_CONSTANTS } from "@/utils/constants";
-import apiService from "@/services/api";
+// import { ProfileFlow } from "@/server/api/flow/ProfileFlow"; // TODO: 로그인용 API 구현 필요
 import {
   authTokenAtom,
   isAuthenticatedAtom,
@@ -102,7 +102,7 @@ export const LoginPage = () => {
     setLastPasswordAttempt,
   ]);
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (_data: LoginFormData) => {
     const now = Date.now();
     const timeWindow = APP_CONSTANTS.PASSWORD_ATTEMPT_WINDOW;
 
@@ -126,10 +126,12 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiService.login(data.password);
+      // TODO: 로그인 API 구현 필요
+      const response = { success: false, message: "로그인 API가 구현되지 않았습니다." };
 
       if (response.success) {
-        setAuthToken(response.data.token);
+        // TODO: 실제 토큰 설정
+        setAuthToken("dummy-token");
         setIsAuthenticated(true);
         setPasswordAttempts(0);
         setLastPasswordAttempt(0);

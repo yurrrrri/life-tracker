@@ -1,5 +1,6 @@
 import { Loader } from "@/commons";
-import api from "@/services/api";
+import { ProfileFlow } from "@/server/api/flow/ProfileFlow";
+import ProfileSeek from "@/server/api/flow/ProfileSeek";
 import { profileAtom } from "@/utils/atoms";
 import { formatDate } from "@/utils/dates";
 import {
@@ -20,7 +21,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -42,15 +43,15 @@ export const Profile = () => {
   const [profile, setProfile] = useAtom(profileAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch profile
-  const { data: profileData, isLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: () => api.get("/profile"),
-  });
+  // *** QUERY ***
+  const { changeName } = ProfileFlow;
+
+  const findProfile = ProfileSeek.query.findProfile({ id: "current" });
+  const { data: profileData, isLoading } = useQuery(findProfile);
 
   React.useEffect(() => {
-    if (profileData?.data) {
-      setProfile(profileData.data);
+    if (profileData && profileData.length > 0) {
+      setProfile(profileData[0]);
     }
   }, [profileData]);
 
@@ -75,30 +76,21 @@ export const Profile = () => {
         },
   });
 
-  // Update profile mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: (data: ProfileFormData) => api.put("/profile", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      toast({
-        title: "프로필이 업데이트되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-    onError: () => {
-      toast({
-        title: "프로필 업데이트에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
-    },
-  });
-
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
     try {
-      await updateProfileMutation.mutateAsync(data);
+      if (!profile) return;
+      
+      changeName({ id: profile.id, name: data.name }).then((e) => {
+        if (e.status === 200) {
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+          toast({
+            title: "프로필이 업데이트되었습니다.",
+            status: "success",
+            duration: 3000,
+          });
+        }
+      });
     } finally {
       setIsSubmitting(false);
     }

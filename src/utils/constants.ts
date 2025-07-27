@@ -81,7 +81,7 @@ export const WEATHER_ICONS = {
 };
 
 // Weather labels
-export const WEATHER_LABELS = {
+export const WEATHER_NAME = {
   [Weather.CLOUDY]: "뭉게구름",
   [Weather.CLOUDY_WINDY]: "흐리고 바람",
   [Weather.DAY_CLOUDY]: "조금 흐림",
@@ -121,7 +121,7 @@ export const FEELING_ICONS = {
 };
 
 // Feeling labels
-export const FEELING_LABELS = {
+export const FEELING_NAME = {
   [Feeling.ANGRY]: "화남",
   [Feeling.ASTONISHED]: "당황",
   [Feeling.DIZZY]: "피곤",

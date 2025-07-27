@@ -1,11 +1,12 @@
 import { Loader } from "@/commons";
 import { getStatusColor, getStatusName, Status, Todo } from "@/server";
-import api from "@/services/api";
+import { TodoFlow } from "@/server/api/flow/TodoFlow";
+import TodoSeek from "@/server/api/flow/TodoSeek";
+import { useConfirm } from "@/commons/ui";
 import {
   categoriesAtom,
   currentDateAtom,
   selectedDateAtom,
-  todosAtom,
 } from "@/utils/atoms";
 import { formatDate, formatDateTime, isFuture, isToday } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
@@ -32,10 +33,10 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useAtom, useAtomValue } from "jotai";
-import { useState } from "react";
+import { useAtom } from "jotai";
+import { useMemo, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -46,8 +47,8 @@ export const TodoList = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirm();
 
-  const todos = useAtomValue(todosAtom);
   const [categories] = useAtom(categoriesAtom);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<keyof typeof Status | "">(
@@ -55,11 +56,12 @@ export const TodoList = () => {
   );
   const [filterCategory, setFilterCategory] = useState<string>("");
 
-  // Fetch todos
-  const { isLoading } = useQuery({
-    queryKey: ["todos"],
-    queryFn: () => api.get("/todos"),
-  });
+  // *** QUERY ***
+  const { changeTodoStatus, remove } = TodoFlow;
+
+  const findDailyTodo = TodoSeek.query.findDailyTodo();
+  const { data: todosData, isLoading } = useQuery(findDailyTodo);
+  const todos = useMemo(() => todosData || [], [todosData]);
 
   const goToToday = () => {
     const today = new Date();
@@ -166,38 +168,6 @@ export const TodoList = () => {
   //   }
   // }, [todosData]);
 
-  // Update todo status mutation
-  const updateStatusMutation = useMutation({
-    mutationFn: ({
-      todoId,
-      status,
-    }: {
-      todoId: string;
-      status: keyof typeof Status;
-    }) => api.patch(`/todos/${todoId}/status`, { status }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      toast({
-        title: "할일 상태가 업데이트되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-  });
-
-  // Delete todo mutation
-  const deleteMutation = useMutation({
-    mutationFn: (todoId: string) => api.delete(`/todos/${todoId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      toast({
-        title: "할일이 삭제되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-  });
-
   // Filter and sort todos
   const filteredTodos = todos
     .filter((todo) => {
@@ -216,13 +186,35 @@ export const TodoList = () => {
     );
 
   const handleStatusChange = (todoId: string, status: keyof typeof Status) => {
-    updateStatusMutation.mutate({ todoId, status });
+    changeTodoStatus({ id: todoId, status }).then((e) => {
+      if (e.status === 200) {
+        queryClient.invalidateQueries({ queryKey: ["todos"] });
+        toast({
+          title: "할일 상태가 업데이트되었습니다.",
+          status: "success",
+          duration: 3000,
+        });
+      }
+    });
   };
 
   const handleDelete = (todoId: string) => {
-    if (window.confirm("정말로 이 할일을 삭제하시겠습니까?")) {
-      deleteMutation.mutate(todoId);
-    }
+    confirm({
+      type: 'warn',
+      message: "정말로 이 할일을 삭제하시겠습니까?",
+      onOk: () => {
+        remove({ id: todoId }).then((e) => {
+          if (e.status === 200) {
+            queryClient.invalidateQueries({ queryKey: ["todos"] });
+            toast({
+              title: "할일이 삭제되었습니다.",
+              status: "success",
+              duration: 3000,
+            });
+          }
+        });
+      },
+    });
   };
 
   const handleView = (todo: Todo) => {

@@ -1,6 +1,7 @@
 import { Loader } from "@/commons";
 import { Anniversary, DateType, Weight } from "@/server";
-import api from "@/services/api";
+import { AnniversaryFlow } from "@/server/api/flow/AnniversaryFlow";
+import AnniversarySeek from "@/server/api/flow/AnniversarySeek";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
@@ -31,114 +32,72 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const anniversarySchema = z.object({
-  type: z.nativeEnum(DateType),
+  dateType: z.nativeEnum(DateType),
   date: z.string().min(1, "날짜를 선택해주세요"),
   name: z.string().min(1, "기념일명을 입력해주세요"),
-  weight: z.nativeEnum(Weight).optional(),
+  weight: z.nativeEnum(Weight),
 });
-
-type AnniversaryFormData = z.infer<typeof anniversarySchema>;
 
 export const Anniversaries = () => {
   const toast = useToast();
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [anniversaries, setAnniversaries] = useState<Anniversary[]>([]);
-  const [editingAnniversary, setEditingAnniversary] =
-    useState<Anniversary | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch anniversaries
-  const { data: anniversariesData, isLoading } = useQuery({
-    queryKey: ["anniversaries"],
-    queryFn: () => api.get("/anniversaries"),
-  });
+  // *** QUERY ***
+  const { create, remove } = AnniversaryFlow;
+
+  const findDailyAnniversaries = AnniversarySeek.query.findDailyAnniversaries();
+  const { data: anniversariesData, isLoading } = useQuery(
+    findDailyAnniversaries
+  );
 
   React.useEffect(() => {
-    if (anniversariesData?.data) {
-      setAnniversaries(anniversariesData.data);
+    if (anniversariesData) {
+      setAnniversaries(anniversariesData);
     }
   }, [anniversariesData]);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<AnniversaryFormData>({
+  const form = useForm<z.infer<typeof anniversarySchema>>({
     resolver: zodResolver(anniversarySchema),
     defaultValues: {
-      type: "SPECIAL" as keyof typeof DateType,
+      dateType: "SPECIAL" as keyof typeof DateType,
       date: "",
       name: "",
       weight: "THIRD" as keyof typeof Weight,
     },
   });
+  const control = form.control;
+  const errors = form.formState.errors;
 
-  // Create/Update anniversary mutation
-  const saveAnniversaryMutation = useMutation({
-    mutationFn: (data: AnniversaryFormData) => {
-      if (editingAnniversary) {
-        return api.put(`/anniversaries/${editingAnniversary.id}`, data);
-      } else {
-        return api.post("/anniversaries", data);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["anniversaries"] });
-      toast({
-        title: editingAnniversary
-          ? "기념일이 수정되었습니다."
-          : "기념일이 추가되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-      handleCloseModal();
-    },
-    onError: () => {
-      toast({
-        title: "기념일 저장에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
-    },
-  });
-
-  // Delete anniversary mutation
-  const deleteAnniversaryMutation = useMutation({
-    mutationFn: (anniversaryId: string) =>
-      api.delete(`/anniversaries/${anniversaryId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["anniversaries"] });
-      toast({
-        title: "기념일이 삭제되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-  });
-
-  const onSubmit = async (data: AnniversaryFormData) => {
+  const handleSubmit = (data: z.infer<typeof anniversarySchema>) => {
     setIsSubmitting(true);
     try {
-      await saveAnniversaryMutation.mutateAsync(data);
+      create(data).then((e) => {
+        if (e.status === 200) {
+          toast({
+            status: "success",
+            description: "저장되었습니다.",
+            isClosable: true,
+          });
+        }
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleEdit = (anniversary: Anniversary) => {
-    setEditingAnniversary(anniversary);
-    reset({
-      type: anniversary.dateType,
+    form.reset({
+      dateType: anniversary.dateType,
       date: anniversary.date,
       name: anniversary.name,
       weight: anniversary.weight || ("THIRD" as keyof typeof Weight),
@@ -146,16 +105,25 @@ export const Anniversaries = () => {
     onOpen();
   };
 
-  const handleDelete = (anniversaryId: string) => {
-    if (window.confirm("정말로 이 기념일을 삭제하시겠습니까?")) {
-      deleteAnniversaryMutation.mutate(anniversaryId);
+  const handleRemove = (anniversaryId: string) => {
+    try {
+      remove({ id: anniversaryId }).then((e) => {
+        if (e.status === 200) {
+          toast({
+            status: "success",
+            description: "저장되었습니다.",
+            isClosable: true,
+          });
+        }
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCloseModal = () => {
-    setEditingAnniversary(null);
-    reset({
-      type: "SPECIAL" as keyof typeof DateType,
+    form.reset({
+      dateType: "SPECIAL" as keyof typeof DateType,
       date: "",
       name: "",
       weight: "THIRD" as keyof typeof Weight,
@@ -204,14 +172,12 @@ export const Anniversaries = () => {
     const today = new Date();
     const anniversaryDate = new Date(date);
 
-    // Set this year's anniversary date
     const thisYearAnniversary = new Date(
       today.getFullYear(),
       anniversaryDate.getMonth(),
       anniversaryDate.getDate()
     );
 
-    // If this year's anniversary has passed, calculate for next year
     if (thisYearAnniversary < today) {
       thisYearAnniversary.setFullYear(today.getFullYear() + 1);
     }
@@ -259,7 +225,7 @@ export const Anniversaries = () => {
                           aria-label="삭제"
                           icon={<DeleteIcon />}
                           colorScheme="red"
-                          onClick={() => handleDelete(anniversary.id)}
+                          onClick={() => handleRemove(anniversary.id)}
                         />
                       </HStack>
                     </HStack>
@@ -309,12 +275,10 @@ export const Anniversaries = () => {
         <Modal isOpen={isOpen} onClose={handleCloseModal}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>
-              {editingAnniversary ? "기념일 수정" : "새 기념일 추가"}
-            </ModalHeader>
+            <ModalHeader>새 기념일 추가</ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <VStack spacing={4}>
                   <FormControl isInvalid={!!errors.name}>
                     <FormLabel>기념일명</FormLabel>
@@ -349,7 +313,7 @@ export const Anniversaries = () => {
                   <FormControl>
                     <FormLabel>유형</FormLabel>
                     <Controller
-                      name="type"
+                      name="dateType"
                       control={control}
                       render={({ field }) => (
                         <Select {...field}>

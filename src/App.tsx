@@ -1,9 +1,7 @@
-// import React from "react";
 import { Box, useColorMode } from "@chakra-ui/react";
 import { Navigate, Route, Routes } from "react-router-dom";
-// import { useAtom } from "jotai";
-// import { isAuthenticatedAtom } from "./stores";
 import Layout from "./commons/Layout";
+import { ConfirmDialogProvider } from "./commons/ui";
 import {
   Anniversaries,
   Categories,
@@ -26,11 +24,7 @@ import { ROUTES } from "./utils/routes";
 // const ProtectedRoute<{ children: React.ReactNode }> = ({
 //   children,
 // }) => {
-//   const [isAuthenticated] = useAtom(isAuthenticatedAtom);
 
-//   if (!isAuthenticated) {
-//     return <Navigate to={ROUTES.LOGIN} replace />;
-//   }
 
 //   return <>{children}</>;
 // };
@@ -39,11 +33,12 @@ function App() {
   const { colorMode } = useColorMode();
 
   return (
-    <Box
-      minH="100vh"
-      bg={colorMode === "dark" ? "gray.900" : "gray.50"}
-      color={colorMode === "dark" ? "white" : "gray.800"}
-    >
+    <ConfirmDialogProvider>
+      <Box
+        minH="100vh"
+        bg={colorMode === "dark" ? "gray.900" : "gray.50"}
+        color={colorMode === "dark" ? "white" : "gray.800"}
+      >
       <Routes>
         {/* Public routes */}
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
@@ -195,7 +190,8 @@ function App() {
         {/* Default redirect */}
         <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
       </Routes>
-    </Box>
+      </Box>
+    </ConfirmDialogProvider>
   );
 }
 

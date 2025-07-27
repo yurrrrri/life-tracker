@@ -201,27 +201,6 @@ class ApiService {
     };
   }
 
-  async createTodo(data: TodoCdo): Promise<ApiResponse<Todo>> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const newTodo: Todo = {
-      id: String(Date.now()),
-      categoryId: data.categoryId,
-      contents: data.contents,
-      memo: data.memo,
-      isPeriod: data.isPeriod,
-      startDateTime: data.startDateTime,
-      endDateTime: data.endDateTime,
-      status: data.status,
-      registeredOn: Date.now(),
-    };
-    return {
-      success: true,
-      data: newTodo,
-      message: "할일 생성 성공",
-    };
-  }
-
   async updateTodo(
     id: string,
     data: Partial<TodoCdo>
@@ -234,17 +213,6 @@ class ApiService {
       success: true,
       data: updatedTodo as Todo,
       message: "할일 수정 성공",
-    };
-  }
-
-  async deleteTodo(id: string): Promise<ApiResponse<void>> {
-    console.log("deleteTodo id:", id);
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return {
-      success: true,
-      data: undefined,
-      message: "할일 삭제 성공",
     };
   }
 

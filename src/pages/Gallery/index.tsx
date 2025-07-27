@@ -1,6 +1,7 @@
 import { Loader } from "@/commons";
 import { Image } from "@/server";
-import api from "@/services/api";
+// import { ImageFlow } from "@/server/api/flow/ImageFlow"; // TODO: ImageFlow 구현 필요
+import { useConfirm } from "@/commons/ui";
 import { galleryImagesAtom, selectedImageAtom } from "@/utils/atoms";
 import { formatDateTime } from "@/utils/dates";
 import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
@@ -22,26 +23,28 @@ import {
   SimpleGrid,
   Text,
   useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
 
 export const Gallery = () => {
-  const toast = useToast();
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { confirm } = useConfirm();
 
   const [galleryImages, setGalleryImages] = useAtom(galleryImagesAtom);
   const [selectedImage, setSelectedImage] = useAtom(selectedImageAtom);
   const [filterType, setFilterType] = useState<"all" | "journal">("all");
 
+  // *** QUERY ***
+  // TODO: ImageFlow가 구현되면 사용
+  // const { remove } = ImageFlow;
+
   // Fetch gallery images
   const { data: galleryData, isLoading } = useQuery({
     queryKey: ["gallery"],
-    queryFn: () => api.get("/images"),
+    queryFn: () => Promise.resolve({ data: [] }), // 임시로 빈 배열 반환
   });
 
   React.useEffect(() => {
@@ -49,19 +52,6 @@ export const Gallery = () => {
       setGalleryImages(galleryData.data);
     }
   }, [galleryData]);
-
-  // Delete image mutation
-  const deleteMutation = useMutation({
-    mutationFn: (imageId: string) => api.delete(`/images/${imageId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["gallery"] });
-      toast({
-        title: "이미지가 삭제되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-    },
-  });
 
   // Filter images
   const filteredImages = galleryImages.filter((image) => {
@@ -77,9 +67,13 @@ export const Gallery = () => {
   };
 
   const handleDelete = (imageId: string) => {
-    if (window.confirm("정말로 이 이미지를 삭제하시겠습니까?")) {
-      deleteMutation.mutate(imageId);
-    }
+    confirm({
+      type: "warn",
+      message: "정말로 이 이미지를 삭제하시겠습니까?",
+      onOk: () => {
+        console.log("Delete image:", imageId);
+      },
+    });
   };
 
   const handleDownload = (image: Image) => {

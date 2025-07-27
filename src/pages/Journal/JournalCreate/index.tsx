@@ -1,10 +1,7 @@
-import { Feeling, Journal, Weather } from "@/server";
-import api from "@/services/api";
-import {
-  APP_CONSTANTS,
-  FEELING_LABELS,
-  WEATHER_LABELS,
-} from "@/utils/constants";
+import { useConfirm, Errors } from "@/commons/ui";
+import { Feeling, Weather } from "@/server";
+import { JournalFlow } from "@/server/api/flow/JournalFlow";
+import { APP_CONSTANTS, FEELING_NAME, WEATHER_NAME } from "@/utils/constants";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
@@ -29,29 +26,32 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const journalSchema = z.object({
   date: z.string().min(1, "날짜를 선택해주세요"),
-  weather: z.nativeEnum(Weather).optional(),
-  weatherComment: z
-    .string()
-    .max(
-      APP_CONSTANTS.MAX_WEATHER_COMMENT,
-      "날씨 코멘트는 20자 이내로 입력해주세요"
-    ),
-  feeling: z.nativeEnum(Feeling),
-  feelingComment: z
-    .string()
-    .max(
-      APP_CONSTANTS.MAX_FEELING_COMMENT,
-      "감정 코멘트는 30자 이내로 입력해주세요"
-    ),
+  weatherComment: z.object({
+    weather: z.nativeEnum(Weather),
+    comment: z
+      .string()
+      .max(
+        APP_CONSTANTS.MAX_WEATHER_COMMENT,
+        "날씨 코멘트는 20자 이내로 입력해주세요"
+      ),
+  }),
+  feelingComment: z.object({
+    feeling: z.nativeEnum(Feeling),
+    comment: z
+      .string()
+      .max(
+        APP_CONSTANTS.MAX_FEELING_COMMENT,
+        "감정 코멘트는 30자 이내로 입력해주세요"
+      ),
+  }),
   contents: z
     .string()
     .max(
@@ -61,6 +61,7 @@ const journalSchema = z.object({
   memo: z
     .string()
     .max(APP_CONSTANTS.MAX_JOURNAL_MEMO, "메모는 100자 이내로 입력해주세요"),
+  saved: z.boolean(),
   locked: z.boolean(),
 });
 
@@ -68,50 +69,34 @@ type JournalFormData = z.infer<typeof journalSchema>;
 
 export const JournalCreate = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { confirm } = useConfirm();
   const toast = useToast();
-  const queryClient = useQueryClient();
 
-  const [images, setImages] = useState<File[]>([]);
+  const [_, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const editingJournal = location.state?.journal as Journal | undefined;
-
-  const {
-    control,
-    handleSubmit,
-    watch,
-
-    formState: { errors, isDirty },
-  } = useForm<JournalFormData>({
+  const form = useForm<JournalFormData>({
     resolver: zodResolver(journalSchema),
-    defaultValues: editingJournal
-      ? {
-          date: editingJournal.date,
-          weather: editingJournal.weatherComment?.weather || "SUNNY",
-          weatherComment: editingJournal.weatherComment?.comment || "",
-          feeling: editingJournal.feelingComment?.feeling || "NEUTRAL",
-          feelingComment: editingJournal.feelingComment?.comment || "",
-          contents: editingJournal.contents || "",
-          memo: editingJournal.memo || "",
-          locked: editingJournal.locked,
-        }
-      : {
-          date: new Date().toISOString().split("T")[0],
-          weather: undefined,
-          weatherComment: "",
-          feeling: "NEUTRAL" as keyof typeof Feeling,
-          feelingComment: "",
-          contents: "",
-          memo: "",
-          locked: false,
-        },
+    defaultValues: {
+      date: new Date().toISOString().split("T")[0],
+      weatherComment: {
+        weather: "SUNNY",
+        comment: "",
+      },
+      feelingComment: {
+        feeling: "NEUTRAL",
+        comment: "",
+      },
+      contents: "",
+      memo: "",
+      saved: false,
+      locked: false,
+    },
   });
+  const control = form.control;
+  const { errors, isDirty } = form.formState;
 
-  const watchedValues = watch();
-
-  // Dropzone for image upload
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "image/*": APP_CONSTANTS.SUPPORTED_IMAGE_TYPES,
@@ -121,7 +106,6 @@ export const JournalCreate = () => {
     onDrop: (acceptedFiles) => {
       setImages((prev) => [...prev, ...acceptedFiles]);
 
-      // Create preview URLs
       acceptedFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -132,50 +116,30 @@ export const JournalCreate = () => {
     },
   });
 
-  // Save journal mutation
-  const saveMutation = useMutation({
-    mutationFn: (data: JournalFormData & { images: File[] }) => {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (key === "images" && Array.isArray(value)) {
-          value.forEach((file: File) => {
-            formData.append("images", file);
-          });
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
-        }
-      });
+  // *** QUERY ***
+  const { create } = JournalFlow;
 
-      if (editingJournal) {
-        return api.put(`/journals/${editingJournal.id}`, formData);
-      } else {
-        return api.post("/journals", formData);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journals"] });
-      toast({
-        title: editingJournal
-          ? "일기가 수정되었습니다."
-          : "일기가 저장되었습니다.",
-        status: "success",
-        duration: 3000,
-      });
-      navigate(ROUTES.JOURNAL);
-    },
-    onError: () => {
-      toast({
-        title: "일기 저장에 실패했습니다.",
-        status: "error",
-        duration: 3000,
-      });
-    },
-  });
-
-  const onSubmit = async (data: JournalFormData) => {
+  const handleSubmit = async (data: JournalFormData) => {
     setIsSubmitting(true);
     try {
-      await saveMutation.mutateAsync({ ...data, images });
+      create(data)
+        .then((e) => {
+          if (e.status === 200) {
+            toast({
+              title: "일기가 저장되었습니다.",
+              status: "success",
+              duration: 3000,
+            });
+            navigate(ROUTES.JOURNAL);
+          }
+        })
+        .catch(() => {
+          toast({
+            title: "일기 저장에 실패했습니다.",
+            status: "error",
+            duration: 3000,
+          });
+        });
     } finally {
       setIsSubmitting(false);
     }
@@ -188,11 +152,11 @@ export const JournalCreate = () => {
 
   const handleCancel = () => {
     if (isDirty) {
-      if (
-        window.confirm("저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?")
-      ) {
-        navigate(ROUTES.JOURNAL);
-      }
+      confirm({
+        type: "warn",
+        message: "저장하지 않은 내용이 있습니다. 정말로 나가시겠습니까?",
+        onOk: () => navigate(ROUTES.JOURNAL),
+      });
     } else {
       navigate(ROUTES.JOURNAL);
     }
@@ -203,15 +167,13 @@ export const JournalCreate = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">
-            {editingJournal ? "일기 수정" : "새 일기 작성"}
-          </Heading>
+          <Heading size="md">새 일기 작성</Heading>
           <HStack spacing={3}>
             <Button variant="outline" onClick={handleCancel}>
               취소
             </Button>
             <Button
-              onClick={handleSubmit(onSubmit)}
+              onClick={form.handleSubmit(handleSubmit)}
               isLoading={isSubmitting}
               loadingText="저장 중..."
             >
@@ -221,7 +183,7 @@ export const JournalCreate = () => {
         </Flex>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <VStack spacing={6} align="stretch">
             {/* Date and Weather */}
             <Card>
@@ -235,17 +197,13 @@ export const JournalCreate = () => {
                         control={control}
                         render={({ field }) => <Input type="date" {...field} />}
                       />
-                      {errors.date && (
-                        <Text color="red.500" fontSize="sm">
-                          {errors.date.message}
-                        </Text>
-                      )}
+                      <Errors name="date" errors={errors} />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isInvalid={!!errors.weatherComment?.weather}>
                       <FormLabel>날씨</FormLabel>
                       <Controller
-                        name="weather"
+                        name="weatherComment.weather"
                         control={control}
                         render={({ field }) => (
                           <Select
@@ -253,7 +211,7 @@ export const JournalCreate = () => {
                             {...field}
                             value={field.value || ""}
                           >
-                            {Object.entries(WEATHER_LABELS).map(
+                            {Object.entries(WEATHER_NAME).map(
                               ([key, label]) => (
                                 <option key={key} value={key}>
                                   {label}
@@ -266,21 +224,19 @@ export const JournalCreate = () => {
                     </FormControl>
                   </HStack>
 
-                  {watchedValues.weather && (
-                    <FormControl>
-                      <FormLabel>날씨 코멘트</FormLabel>
-                      <Controller
-                        name="weatherComment"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            placeholder="날씨에 대한 코멘트를 입력하세요"
-                            {...field}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  )}
+                  <FormControl isInvalid={!!errors.weatherComment?.comment}>
+                    <FormLabel>날씨 코멘트</FormLabel>
+                    <Controller
+                      name="weatherComment.comment"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="날씨에 대한 코멘트를 입력하세요"
+                          {...field}
+                        />
+                      )}
+                    />
+                  </FormControl>
                 </VStack>
               </CardBody>
             </Card>
@@ -289,34 +245,28 @@ export const JournalCreate = () => {
             <Card>
               <CardBody>
                 <VStack spacing={4}>
-                  <FormControl isInvalid={!!errors.feeling}>
+                  <FormControl isInvalid={!!errors.feelingComment?.feeling}>
                     <FormLabel>오늘의 감정</FormLabel>
                     <Controller
-                      name="feeling"
+                      name="feelingComment.feeling"
                       control={control}
                       render={({ field }) => (
                         <Select {...field}>
-                          {Object.entries(FEELING_LABELS).map(
-                            ([key, label]) => (
-                              <option key={key} value={key}>
-                                {label}
-                              </option>
-                            )
-                          )}
+                          {Object.entries(FEELING_NAME).map(([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          ))}
                         </Select>
                       )}
                     />
-                    {errors.feeling && (
-                      <Text color="red.500" fontSize="sm">
-                        {errors.feeling.message}
-                      </Text>
-                    )}
+                    <Errors name="feelingComment.feeling" errors={errors} />
                   </FormControl>
 
-                  <FormControl>
+                  <FormControl isInvalid={!!errors.feelingComment?.comment}>
                     <FormLabel>감정 코멘트</FormLabel>
                     <Controller
-                      name="feelingComment"
+                      name="feelingComment.comment"
                       control={control}
                       render={({ field }) => (
                         <Input
@@ -347,11 +297,23 @@ export const JournalCreate = () => {
                         />
                       )}
                     />
-                    {errors.contents && (
-                      <Text color="red.500" fontSize="sm">
-                        {errors.contents.message}
-                      </Text>
-                    )}
+                    <Errors name="contents" errors={errors} />
+                  </FormControl>
+
+                  <FormControl>
+                    <Controller
+                      name="saved"
+                      control={control}
+                      render={({ field }) => (
+                        <HStack>
+                          <Switch
+                            checked={field.value}
+                            onChange={field.onChange}
+                          />
+                          <Text>임시 저장</Text>
+                        </HStack>
+                      )}
+                    />
                   </FormControl>
 
                   <FormControl>

@@ -1,6 +1,6 @@
 import { Loader } from "@/commons";
 import { getStatusColor, getStatusName, Todo } from "@/server";
-import api from "@/services/api";
+// import TodoSeek from "@/server/api/flow/TodoSeek"; // TODO: TodoSeek.findTodo 구현 필요
 import { formatDateTime } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { ArrowBackIcon, EditIcon } from "@chakra-ui/icons";
@@ -32,7 +32,7 @@ export const TodoDetail = () => {
     error,
   } = useQuery({
     queryKey: ["todo", id],
-    queryFn: () => api.get(`/todos/${id}`),
+    queryFn: () => Promise.resolve({ data: null }), // TODO: TodoSeek.findTodo 구현 필요
     enabled: !!id,
   });
 

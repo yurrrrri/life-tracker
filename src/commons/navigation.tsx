@@ -67,7 +67,7 @@ export const navItems: NavItem[] = [
         path: ROUTES.CATEGORIES,
       },
       {
-        label: "특별한 날",
+        label: "기념일",
         icon: <FiCalendar />,
         path: ROUTES.ANNIVERSARIES,
       },

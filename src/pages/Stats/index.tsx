@@ -6,14 +6,15 @@ import {
   Status,
   Strategy,
 } from "@/server";
-import api from "@/services/api";
+// import { FeelingStatsFlow } from "@/server/api/flow/stats/FeelingStatsFlow"; // TODO: 구현 필요
+// import { TodoStatsFlow } from "@/server/api/flow/stats/TodoStatsFlow"; // TODO: 구현 필요
 import {
   feelingStatsAtom,
   journalsAtom,
   todosAtom,
   todoStatsAtom,
 } from "@/utils/atoms";
-import { FEELING_LABELS } from "@/utils/constants";
+import { FEELING_NAME } from "@/utils/constants";
 import {
   Badge,
   Box,
@@ -47,10 +48,15 @@ export const Stats = () => {
   const [journals] = useAtom(journalsAtom);
   const [todos] = useAtom(todosAtom);
 
-  // Fetch stats
+  // *** QUERY ***
+  // TODO: FeelingStatsFlow와 TodoStatsFlow 구현 필요
+  // const { findFeelingStats } = FeelingStatsFlow;
+  // const { findTodoStats } = TodoStatsFlow;
+
   const { data: statsData, isLoading } = useQuery({
     queryKey: ["stats", strategy],
-    queryFn: () => api.get(`/stats?strategy=${strategy}`),
+    queryFn: () =>
+      Promise.resolve({ data: { feelingStats: [], todoStats: [] } }), // TODO: 실제 API 구현 필요
   });
 
   React.useEffect(() => {
@@ -182,7 +188,7 @@ export const Stats = () => {
               {feelingDistribution.map(({ feeling, count, percentage }) => (
                 <Box key={feeling}>
                   <HStack justify="space-between" mb={2}>
-                    <Text>{FEELING_LABELS[feeling]}</Text>
+                    <Text>{FEELING_NAME[feeling]}</Text>
                     <HStack spacing={2}>
                       <Text fontSize="sm" color="gray.500">
                         {count}개 ({percentage.toFixed(1)}%)

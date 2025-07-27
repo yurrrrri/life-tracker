@@ -48,7 +48,6 @@ export const Categories = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof categorySchema>>({
@@ -86,7 +85,6 @@ export const Categories = () => {
   };
 
   const handleEdit = (category: Category) => {
-    setEditingCategory(category);
     form.reset({
       name: category.name,
       colorType: category.colorType,
@@ -111,7 +109,6 @@ export const Categories = () => {
   };
 
   const handleCloseModal = () => {
-    setEditingCategory(null);
     form.reset();
     onClose();
   };
@@ -179,9 +176,7 @@ export const Categories = () => {
         <Modal isOpen={isOpen} onClose={handleCloseModal}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>
-              {editingCategory ? "카테고리 수정" : "새 카테고리 추가"}
-            </ModalHeader>
+            <ModalHeader>새 카테고리 추가</ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
               <form onSubmit={form.handleSubmit(handleSubmit)}>

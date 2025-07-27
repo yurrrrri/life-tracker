@@ -5,7 +5,7 @@ import {
   selectedDateAtom,
   todosAtom,
 } from "@/utils/atoms";
-import { FEELING_LABELS, WEATHER_LABELS } from "@/utils/constants";
+import { FEELING_NAME, WEATHER_NAME } from "@/utils/constants";
 import { formatDate, isFuture, isToday } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon } from "@chakra-ui/icons";
@@ -321,7 +321,7 @@ export const JournalList = () => {
                   }
                 >
                   <option value="">전체</option>
-                  {Object.entries(WEATHER_LABELS).map(([key, label]) => (
+                  {Object.entries(WEATHER_NAME).map(([key, label]) => (
                     <option key={key} value={key}>
                       {label}
                     </option>
@@ -340,7 +340,7 @@ export const JournalList = () => {
                   }
                 >
                   <option value="">전체</option>
-                  {Object.entries(FEELING_LABELS).map(([key, label]) => (
+                  {Object.entries(FEELING_NAME).map(([key, label]) => (
                     <option key={key} value={key}>
                       {label}
                     </option>

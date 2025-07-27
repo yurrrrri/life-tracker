@@ -1,7 +1,7 @@
 import { FeelingComment, JournalCdo, WeatherComment } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/journals${path}`;
+const url = (path: string) => `/api/journals${path}`;
 
 export const JournalFlow = {
   create: (params: JournalCdo) => axios.post(url(""), params),

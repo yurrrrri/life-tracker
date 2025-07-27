@@ -1,7 +1,7 @@
 import { HistoryCdo } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/histories${path}`;
+const url = (path: string) => `/api/histories${path}`;
 
 export const HistoryFlow = {
   create: (params: HistoryCdo) => axios.post(url(""), params),

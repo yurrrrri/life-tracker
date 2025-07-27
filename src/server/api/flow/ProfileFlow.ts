@@ -1,7 +1,7 @@
 import { FontType, ProfileCdo } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/profiles${path}`;
+const url = (path: string) => `/api/profiles${path}`;
 
 export const ProfileFlow = {
   create: (params: ProfileCdo) => axios.post(url(""), params),

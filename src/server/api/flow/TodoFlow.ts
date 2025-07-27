@@ -1,7 +1,7 @@
 import { Status, TodoCdo } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/todos${path}`;
+const url = (path: string) => `/api/todos${path}`;
 
 export const TodoFlow = {
   create: (params: TodoCdo) => axios.post(url(""), params),

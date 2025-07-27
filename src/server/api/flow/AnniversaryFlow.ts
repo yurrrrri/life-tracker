@@ -1,7 +1,7 @@
 import { AnniversaryCdo, Weight } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/anniversaries${path}`;
+const url = (path: string) => `/api/anniversaries${path}`;
 
 export const AnniversaryFlow = {
   create: (params: AnniversaryCdo) => axios.post(url(""), params),

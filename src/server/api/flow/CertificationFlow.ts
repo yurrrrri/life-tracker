@@ -1,7 +1,7 @@
 import { CertificationCdo } from "@/server/domain";
 import axios from "axios";
 
-const url = (path: string) => `/certifications${path}`;
+const url = (path: string) => `/api/certifications${path}`;
 
 export const CertificationFlow = {
   create: (params: CertificationCdo) => axios.post(url(""), params),

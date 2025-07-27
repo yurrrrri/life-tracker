@@ -3,11 +3,11 @@ import axios from "axios";
 
 const url = (path: string) => `/api/categories${path}`;
 
-export const findCategory = ({ id }: { id: string }) => {
+const findCategory = ({ id }: { id: string }) => {
   return axios.get<Category>(url(`/${id}`));
 };
 
-export const findCategories = () => {
+const findCategories = () => {
   return axios.get<Category[]>(url(""));
 };
 
@@ -16,12 +16,12 @@ export default {
   findCategories,
   query: {
     findCategory: (params: { id: string }) => ({
-      queryKey: ["journal", "findCategory", params],
+      queryKey: ["category", "findCategory", params],
       queryFn: async ({ queryKey }: { queryKey: readonly any[] }) =>
         (await findCategory(queryKey.slice().pop()))?.data,
     }),
     findCategories: () => ({
-      queryKey: ["journal", "findCategories"],
+      queryKey: ["category", "findCategories"],
       queryFn: async ({}: { queryKey: readonly any[] }) =>
         (await findCategories())?.data,
     }),

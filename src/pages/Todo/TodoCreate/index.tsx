@@ -129,181 +129,181 @@ export const TodoCreate = () => {
         onOk: () => navigate(ROUTES.TODO),
       });
     }
+  };
 
-    return (
-      <Box p={6}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+  return (
+    <Box p={6}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <VStack spacing={6} align="stretch">
+          {/* Header */}
+          <Flex justify="space-between" align="center">
+            <Heading size="md">새 할일 추가</Heading>
+            <HStack spacing={3}>
+              <Button variant="outline" onClick={handleBackToList}>
+                취소
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                loadingText="저장 중..."
+              >
+                저장
+              </Button>
+            </HStack>
+          </Flex>
+
+          {/* Form */}
           <VStack spacing={6} align="stretch">
-            {/* Header */}
-            <Flex justify="space-between" align="center">
-              <Heading size="md">새 할일 추가</Heading>
-              <HStack spacing={3}>
-                <Button variant="outline" onClick={handleBackToList}>
-                  취소
-                </Button>
-                <Button
-                  type="submit"
-                  isLoading={isSubmitting}
-                  loadingText="저장 중..."
-                >
-                  저장
-                </Button>
-              </HStack>
-            </Flex>
+            {/* Category and Contents */}
+            <Card>
+              <CardBody>
+                <VStack spacing={4}>
+                  <FormControl isInvalid={!!errors.categoryId}>
+                    <FormLabel>카테고리</FormLabel>
+                    <Controller
+                      name="categoryId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select placeholder="카테고리 선택" {...field}>
+                          {categories
+                            .filter((cat) => !cat.removed)
+                            .map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
+                        </Select>
+                      )}
+                    />
+                    {errors.categoryId && (
+                      <Text color="red.500" fontSize="sm">
+                        {errors.categoryId.message}
+                      </Text>
+                    )}
+                  </FormControl>
 
-            {/* Form */}
-            <VStack spacing={6} align="stretch">
-              {/* Category and Contents */}
-              <Card>
-                <CardBody>
-                  <VStack spacing={4}>
-                    <FormControl isInvalid={!!errors.categoryId}>
-                      <FormLabel>카테고리</FormLabel>
+                  <FormControl isInvalid={!!errors.contents}>
+                    <FormLabel>할일 내용</FormLabel>
+                    <Controller
+                      name="contents"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="할일 내용을 입력하세요"
+                          {...field}
+                        />
+                      )}
+                    />
+                    {errors.contents && (
+                      <Text color="red.500" fontSize="sm">
+                        {errors.contents.message}
+                      </Text>
+                    )}
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>메모</FormLabel>
+                    <Controller
+                      name="memo"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          placeholder="추가 메모를 입력하세요"
+                          rows={3}
+                          {...field}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </VStack>
+              </CardBody>
+            </Card>
+
+            {/* Date and Time */}
+            <Card>
+              <CardBody>
+                <VStack spacing={4}>
+                  <FormControl>
+                    <FormLabel>기간 설정</FormLabel>
+                    <Controller
+                      name="isPeriod"
+                      control={control}
+                      render={({ field }) => (
+                        <HStack>
+                          <Switch
+                            checked={field.value}
+                            onChange={field.onChange}
+                          />
+                          <Text>시작과 종료 시간을 설정합니다</Text>
+                        </HStack>
+                      )}
+                    />
+                  </FormControl>
+
+                  <HStack w="full" spacing={4}>
+                    <FormControl isInvalid={!!errors.startDateTime}>
+                      <FormLabel>시작 시간</FormLabel>
                       <Controller
-                        name="categoryId"
+                        name="startDateTime"
                         control={control}
                         render={({ field }) => (
-                          <Select placeholder="카테고리 선택" {...field}>
-                            {categories
-                              .filter((cat) => !cat.removed)
-                              .map((category) => (
-                                <option key={category.id} value={category.id}>
-                                  {category.name}
-                                </option>
-                              ))}
-                          </Select>
+                          <Input type="datetime-local" {...field} />
                         )}
                       />
-                      {errors.categoryId && (
+                      {errors.startDateTime && (
                         <Text color="red.500" fontSize="sm">
-                          {errors.categoryId.message}
+                          {errors.startDateTime.message}
                         </Text>
                       )}
                     </FormControl>
 
-                    <FormControl isInvalid={!!errors.contents}>
-                      <FormLabel>할일 내용</FormLabel>
-                      <Controller
-                        name="contents"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            placeholder="할일 내용을 입력하세요"
-                            {...field}
-                          />
-                        )}
-                      />
-                      {errors.contents && (
-                        <Text color="red.500" fontSize="sm">
-                          {errors.contents.message}
-                        </Text>
-                      )}
-                    </FormControl>
-
-                    <FormControl>
-                      <FormLabel>메모</FormLabel>
-                      <Controller
-                        name="memo"
-                        control={control}
-                        render={({ field }) => (
-                          <Textarea
-                            placeholder="추가 메모를 입력하세요"
-                            rows={3}
-                            {...field}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </VStack>
-                </CardBody>
-              </Card>
-
-              {/* Date and Time */}
-              <Card>
-                <CardBody>
-                  <VStack spacing={4}>
-                    <FormControl>
-                      <FormLabel>기간 설정</FormLabel>
-                      <Controller
-                        name="isPeriod"
-                        control={control}
-                        render={({ field }) => (
-                          <HStack>
-                            <Switch
-                              checked={field.value}
-                              onChange={field.onChange}
-                            />
-                            <Text>시작과 종료 시간을 설정합니다</Text>
-                          </HStack>
-                        )}
-                      />
-                    </FormControl>
-
-                    <HStack w="full" spacing={4}>
-                      <FormControl isInvalid={!!errors.startDateTime}>
-                        <FormLabel>시작 시간</FormLabel>
+                    {watchedValues.isPeriod && (
+                      <FormControl isInvalid={!!errors.endDateTime}>
+                        <FormLabel>종료 시간</FormLabel>
                         <Controller
-                          name="startDateTime"
+                          name="endDateTime"
                           control={control}
                           render={({ field }) => (
                             <Input type="datetime-local" {...field} />
                           )}
                         />
-                        {errors.startDateTime && (
+                        {errors.endDateTime && (
                           <Text color="red.500" fontSize="sm">
-                            {errors.startDateTime.message}
+                            {errors.endDateTime.message}
                           </Text>
                         )}
                       </FormControl>
+                    )}
+                  </HStack>
+                </VStack>
+              </CardBody>
+            </Card>
 
-                      {watchedValues.isPeriod && (
-                        <FormControl isInvalid={!!errors.endDateTime}>
-                          <FormLabel>종료 시간</FormLabel>
-                          <Controller
-                            name="endDateTime"
-                            control={control}
-                            render={({ field }) => (
-                              <Input type="datetime-local" {...field} />
-                            )}
-                          />
-                          {errors.endDateTime && (
-                            <Text color="red.500" fontSize="sm">
-                              {errors.endDateTime.message}
-                            </Text>
-                          )}
-                        </FormControl>
-                      )}
-                    </HStack>
-                  </VStack>
-                </CardBody>
-              </Card>
-
-              {/* Status */}
-              <Card>
-                <CardBody>
-                  <FormControl>
-                    <FormLabel>상태</FormLabel>
-                    <Controller
-                      name="status"
-                      control={control}
-                      render={({ field }) => (
-                        <Select {...field}>
-                          <option value="NOT_STARTED">시작 전</option>
-                          <option value="JUST_STARTED">시작함</option>
-                          <option value="IN_PROGRESS">진행 중</option>
-                          <option value="PENDING">보류</option>
-                          <option value="ONEDAY">언젠가</option>
-                          <option value="DONE">완료</option>
-                        </Select>
-                      )}
-                    />
-                  </FormControl>
-                </CardBody>
-              </Card>
-            </VStack>
+            {/* Status */}
+            <Card>
+              <CardBody>
+                <FormControl>
+                  <FormLabel>상태</FormLabel>
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <Select {...field}>
+                        <option value="NOT_STARTED">시작 전</option>
+                        <option value="JUST_STARTED">시작함</option>
+                        <option value="IN_PROGRESS">진행 중</option>
+                        <option value="PENDING">보류</option>
+                        <option value="ONEDAY">언젠가</option>
+                        <option value="DONE">완료</option>
+                      </Select>
+                    )}
+                  />
+                </FormControl>
+              </CardBody>
+            </Card>
           </VStack>
-        </form>
-      </Box>
-    );
-  };
+        </VStack>
+      </form>
+    </Box>
+  );
 };

@@ -9,6 +9,7 @@ import { FEELING_NAME, WEATHER_NAME } from "@/utils/constants";
 import { formatDate, isFuture, isToday } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon } from "@chakra-ui/icons";
+import { NotFoundText } from "@/commons/ui";
 import {
   Badge,
   Box,
@@ -297,7 +298,9 @@ export const JournalList = () => {
             </Flex>
           </CardHeader>
           <CardBody>
-            <VStack w="full" spacing={4}></VStack>
+            <VStack w="full" spacing={4}>
+              <NotFoundText text="일기가 없습니다." />
+            </VStack>
           </CardBody>
         </Card>
       </VStack>

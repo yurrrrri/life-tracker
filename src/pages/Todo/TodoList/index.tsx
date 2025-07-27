@@ -2,7 +2,7 @@ import { Loader } from "@/commons";
 import { getStatusColor, getStatusName, Status, Todo } from "@/server";
 import { TodoFlow } from "@/server/api/flow/TodoFlow";
 import TodoSeek from "@/server/api/flow/TodoSeek";
-import { useConfirm } from "@/commons/ui";
+import { useConfirm, NotFoundText } from "@/commons/ui";
 import {
   categoriesAtom,
   currentDateAtom,
@@ -18,7 +18,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Center,
   Flex,
   Grid,
   GridItem,
@@ -454,9 +453,7 @@ export const TodoList = () => {
         </SimpleGrid>
 
         {filteredTodos.length === 0 && (
-          <Center py={10}>
-            <Text color="gray.500">할일이 없습니다.</Text>
-          </Center>
+          <NotFoundText text="할일이 없습니다." />
         )}
       </VStack>
     </Box>

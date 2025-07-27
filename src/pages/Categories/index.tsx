@@ -1,4 +1,5 @@
 import { Loader } from "@/commons";
+import { NotFoundText } from "@/commons/ui";
 import { Category, ColorType, getColor } from "@/server";
 import { CategoryFlow } from "@/server/api/flow/CategoryFlow";
 import CategorySeek from "@/server/api/flow/CategorySeek";
@@ -9,7 +10,6 @@ import {
   Button,
   Card,
   CardHeader,
-  Center,
   Flex,
   FormControl,
   FormLabel,
@@ -167,9 +167,7 @@ export const Categories = () => {
         </SimpleGrid>
 
         {categories.length === 0 && (
-          <Center py={10}>
-            <Text color="gray.500">카테고리가 없습니다.</Text>
-          </Center>
+          <NotFoundText text="카테고리가 없습니다." />
         )}
 
         {/* Category Form Modal */}

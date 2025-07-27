@@ -1,7 +1,7 @@
 import { Loader } from "@/commons";
 import { Image } from "@/server";
 // import { ImageFlow } from "@/server/api/flow/ImageFlow"; // TODO: ImageFlow 구현 필요
-import { useConfirm } from "@/commons/ui";
+import { useConfirm, NotFoundText } from "@/commons/ui";
 import { galleryImagesAtom, selectedImageAtom } from "@/utils/atoms";
 import { formatDateTime } from "@/utils/dates";
 import { DeleteIcon, DownloadIcon } from "@chakra-ui/icons";
@@ -9,7 +9,6 @@ import {
   Badge,
   Box,
   Button,
-  Center,
   Image as CKImage,
   Flex,
   Heading,
@@ -185,9 +184,7 @@ export const Gallery = () => {
         </SimpleGrid>
 
         {filteredImages.length === 0 && (
-          <Center py={10}>
-            <Text color="gray.500">이미지가 없습니다.</Text>
-          </Center>
+          <NotFoundText text="이미지가 없습니다." />
         )}
 
         {/* Image Modal */}

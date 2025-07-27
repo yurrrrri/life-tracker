@@ -1,4 +1,5 @@
 import { Loader } from "@/commons";
+import { NotFoundText } from "@/commons/ui";
 import { Anniversary, DateType, Weight } from "@/server";
 import { AnniversaryFlow } from "@/server/api/flow/AnniversaryFlow";
 import AnniversarySeek from "@/server/api/flow/AnniversarySeek";
@@ -10,7 +11,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Center,
   Flex,
   FormControl,
   FormLabel,
@@ -266,9 +266,7 @@ export const Anniversaries = () => {
         </SimpleGrid>
 
         {anniversaries.length === 0 && (
-          <Center py={10}>
-            <Text color="gray.500">기념일이 없습니다.</Text>
-          </Center>
+          <NotFoundText text="기념일이 없습니다." />
         )}
 
         {/* Anniversary Form Modal */}

@@ -1,21 +1,20 @@
+import { CategoryFlow } from "@/server/api";
+import { COLOR_NAMES } from "@/utils/constants";
+import { getErrorMessage } from "@/utils/errors";
+
 import { Loader } from "@/commons";
 import { NotFoundText } from "@/commons/ui";
 import { Category, ColorType, getColor } from "@/server";
-import { CategoryFlow } from "@/server/api/flow/CategoryFlow";
-import CategorySeek from "@/server/api/flow/CategorySeek";
-import { APP_CONSTANTS, COLOR_NAMES } from "@/utils/constants";
-import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { APP_CONSTANTS } from "@/utils/constants";
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Card,
-  CardHeader,
   Flex,
   FormControl,
   FormLabel,
   Heading,
   HStack,
-  IconButton,
   Input,
   Modal,
   ModalBody,
@@ -30,10 +29,11 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import z from "zod";
+import { CategoryGrid } from "./CategoryGrid";
+import { useCategories } from "./useCategories";
 
 const categorySchema = z.object({
   name: z
@@ -45,11 +45,11 @@ const categorySchema = z.object({
 });
 
 export const Categories = () => {
+  // *** CHAKRA ***
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  // *** FORM ***
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -60,15 +60,14 @@ export const Categories = () => {
   const control = form.control;
   const errors = form.formState.errors;
 
+  // *** HOOKS ***
+  const { categoryData, isLoading, refetch } = useCategories();
+
   // *** QUERY ***
-  const { create, remove } = CategoryFlow;
+  const { create, update, remove } = CategoryFlow;
 
-  const findCategories = CategorySeek.query.findCategories();
-  const { data: categoryData, isLoading } = useQuery(findCategories);
-  const categories = useMemo(() => categoryData || [], [categoryData]);
-
+  // *** HANDLER ***
   const handleSubmit = async (data: z.infer<typeof categorySchema>) => {
-    setIsSubmitting(true);
     try {
       create(data).then((e) => {
         if (e.status === 200) {
@@ -79,20 +78,42 @@ export const Categories = () => {
           });
         }
       });
+    } catch (e) {
+      toast({
+        status: "error",
+        description: getErrorMessage(e),
+      });
     } finally {
-      setIsSubmitting(false);
+      handleClose();
+      refetch();
     }
   };
 
-  const handleEdit = (category: Category) => {
-    form.reset({
-      name: category.name,
-      colorType: category.colorType,
-    });
-    onOpen();
+  const handleClose = () => {
+    form.reset();
+    onClose();
   };
 
-  const handleDelete = (categoryId: string) => {
+  const handleEdit = (category: Category) => {
+    try {
+      update({ ...category }).then((e) => {
+        if (e.status === 200) {
+          toast({
+            status: "success",
+            description: "저장되었습니다.",
+            isClosable: true,
+          });
+        }
+      });
+    } catch (e) {
+      toast({
+        status: "error",
+        description: getErrorMessage(e),
+      });
+    }
+  };
+
+  const handleRemove = (categoryId: string) => {
     try {
       remove({ id: categoryId }).then((e) => {
         if (e.status === 200) {
@@ -103,15 +124,16 @@ export const Categories = () => {
           });
         }
       });
-    } finally {
-      setIsSubmitting(false);
+    } catch (e) {
+      toast({
+        status: "error",
+        description: getErrorMessage(e),
+      });
     }
   };
 
-  const handleCloseModal = () => {
-    form.reset();
-    onClose();
-  };
+  // *** RENDER ***
+  const categories = useMemo(() => categoryData || [], [categoryData]);
 
   if (isLoading) return <Loader />;
 
@@ -130,48 +152,18 @@ export const Categories = () => {
           </Button>
         </Flex>
 
-        {/* Categories Grid */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {categories.map((category) => (
-            <Card key={category.id}>
-              <CardHeader>
-                <HStack justify="space-between">
-                  <HStack>
-                    <Box
-                      w={4}
-                      h={4}
-                      borderRadius="full"
-                      bg={category.colorType}
-                    />
-                    <Text fontWeight="bold">{category.name}</Text>
-                  </HStack>
-                  <HStack spacing={1}>
-                    <IconButton
-                      size="sm"
-                      aria-label="편집"
-                      icon={<EditIcon />}
-                      onClick={() => handleEdit(category)}
-                    />
-                    <IconButton
-                      size="sm"
-                      aria-label="삭제"
-                      icon={<DeleteIcon />}
-                      colorScheme="red"
-                      onClick={() => handleDelete(category.id)}
-                    />
-                  </HStack>
-                </HStack>
-              </CardHeader>
-            </Card>
-          ))}
-        </SimpleGrid>
-
-        {categories.length === 0 && (
+        {/* Categories */}
+        {categories.length === 0 ? (
           <NotFoundText text="카테고리가 없습니다." />
+        ) : (
+          <CategoryGrid
+            categories={categories}
+            handleEdit={handleEdit}
+            handleRemove={handleRemove}
+          />
         )}
-
         {/* Category Form Modal */}
-        <Modal isOpen={isOpen} onClose={handleCloseModal}>
+        <Modal isOpen={isOpen} onClose={handleClose}>
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>새 카테고리 추가</ModalHeader>
@@ -235,11 +227,9 @@ export const Categories = () => {
                   </FormControl>
 
                   <HStack justify="flex-end" w="full" spacing={3}>
-                    <Button variant="outline" onClick={handleCloseModal}>
-                      취소
-                    </Button>
-                    <Button type="submit" isLoading={isSubmitting}>
-                      저장
+                    <Button type="submit">저장</Button>
+                    <Button variant="outline" onClick={handleClose}>
+                      닫기
                     </Button>
                   </HStack>
                 </VStack>

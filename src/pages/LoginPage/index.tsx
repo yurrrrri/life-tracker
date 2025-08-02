@@ -1,11 +1,10 @@
-import { APP_CONSTANTS } from "@/utils/constants";
-// import { ProfileFlow } from "@/server/api/flow/ProfileFlow"; // TODO: 로그인용 API 구현 필요
 import {
   authTokenAtom,
   isAuthenticatedAtom,
   lastPasswordAttemptAtom,
   passwordAttemptsAtom,
 } from "@/utils/atoms";
+import { APP_CONSTANTS } from "@/utils/constants";
 import { getErrorMessage } from "@/utils/errors";
 import { ROUTES } from "@/utils/routes";
 import {
@@ -31,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { FiEye, FiEyeOff, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { generateToken, PASSWORD } from "./useToken";
 
 const loginSchema = z.object({
   password: z.string().min(4, "비밀번호는 최소 4자 이상이어야 합니다."),
@@ -65,8 +65,7 @@ export const LoginPage = () => {
 
   // Check if user is already authenticated
   React.useEffect(() => {
-    // if (isAuthenticated) {
-    if (true) {
+    if (isAuthenticated) {
       navigate(ROUTES.HOME);
     }
   }, [isAuthenticated, navigate]);
@@ -126,12 +125,13 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      // TODO: 로그인 API 구현 필요
-      const response = { success: false, message: "로그인 API가 구현되지 않았습니다." };
+      // 하드코딩된 비밀번호 검증
+      const isPasswordCorrect = _data.password === PASSWORD;
 
-      if (response.success) {
-        // TODO: 실제 토큰 설정
-        setAuthToken("dummy-token");
+      if (isPasswordCorrect) {
+        // 실제 토큰 생성 및 설정
+        const token = generateToken();
+        setAuthToken(token);
         setIsAuthenticated(true);
         setPasswordAttempts(0);
         setLastPasswordAttempt(0);
@@ -146,7 +146,7 @@ export const LoginPage = () => {
 
         navigate(ROUTES.HOME);
       } else {
-        throw new Error(response.message || "로그인에 실패했습니다.");
+        throw new Error("비밀번호가 올바르지 않습니다.");
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);

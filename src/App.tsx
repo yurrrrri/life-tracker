@@ -20,13 +20,13 @@ import {
 } from "./pages";
 import { ROUTES } from "./utils/routes";
 
-// Protected Route Component
-// const ProtectedRoute<{ children: React.ReactNode }> = ({
-//   children,
-// }) => {
+type ProtectedRouteProps = {
+  children: React.ReactNode;
+};
 
-//   return <>{children}</>;
-// };
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  return <>{children}</>;
+};
 
 function App() {
   const { colorMode } = useColorMode();
@@ -46,143 +46,143 @@ function App() {
           <Route
             path={ROUTES.HOME}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Dashboard />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.JOURNAL}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <JournalList />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.JOURNAL_CREATE}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <JournalCreate />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.JOURNAL_DETAIL}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <JournalDetail />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.TODO}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <TodoList />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.TODO_CREATE}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <TodoCreate />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.TODO_DETAIL}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <TodoDetail />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.GALLERY}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Gallery />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.STATS}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Stats />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.SETTINGS}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <GeneralSettings />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.PROFILE}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Profile />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.CATEGORIES}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Categories />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path={ROUTES.ANNIVERSARIES}
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Layout>
                 <Anniversaries />
               </Layout>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 

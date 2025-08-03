@@ -38,18 +38,19 @@ export const ConfirmDialog = ({
     >
       <AlertDialogOverlay>
         <AlertDialogContent>
-          <AlertDialogBody>{message}</AlertDialogBody>
-
+          <AlertDialogBody mt={3} fontFamily="hahmlet" fontWeight={500}>
+            {message}
+          </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
-              닫기
-            </Button>
             <Button
               colorScheme={confirmColorScheme}
               onClick={handleConfirm}
-              ml={3}
+              mr={2}
             >
               확인
+            </Button>
+            <Button ref={cancelRef} variant="outline" onClick={onClose}>
+              닫기
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

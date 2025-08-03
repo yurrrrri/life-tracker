@@ -1,14 +1,14 @@
 import { Loader } from "@/commons";
+import { NotFoundText, useConfirm } from "@/commons/ui";
 import { getStatusColor, getStatusName, Status, Todo } from "@/server";
 import { TodoFlow } from "@/server/api/flow/TodoFlow";
 import TodoSeek from "@/server/api/flow/TodoSeek";
-import { useConfirm, NotFoundText } from "@/commons/ui";
 import {
   categoriesAtom,
   currentDateAtom,
   selectedDateAtom,
 } from "@/utils/atoms";
-import { formatDate, formatDateTime, isFuture, isToday } from "@/utils/dates";
+import { formatDateTime, isFuture, isToday } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
@@ -65,7 +65,7 @@ export const TodoList = () => {
   const goToToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    setSelectedDate(formatDate(today));
+    setSelectedDate(today);
   };
 
   const goToPreviousMonth = () => {
@@ -77,7 +77,7 @@ export const TodoList = () => {
   };
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(formatDate(date));
+    setSelectedDate(date);
   };
 
   const getCalendarDays = () => {
@@ -98,7 +98,7 @@ export const TodoList = () => {
 
   const renderCalendarDay = (date: Date, index: number) => {
     const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
-    const isSelected = selectedDate === formatDate(date);
+    const isSelected = dayjs(selectedDate).isSame(date, "d");
     const isTodayDate = isToday(date);
     const isFutureDate = isFuture(date);
 
@@ -199,7 +199,7 @@ export const TodoList = () => {
 
   const handleDelete = (todoId: string) => {
     confirm({
-      type: 'warn',
+      type: "warn",
       message: "정말로 이 할일을 삭제하시겠습니까?",
       onOk: () => {
         remove({ id: todoId }).then((e) => {
@@ -452,9 +452,7 @@ export const TodoList = () => {
           })}
         </SimpleGrid>
 
-        {filteredTodos.length === 0 && (
-          <NotFoundText text="할일이 없습니다." />
-        )}
+        {filteredTodos.length === 0 && <NotFoundText text="할일이 없습니다." />}
       </VStack>
     </Box>
   );

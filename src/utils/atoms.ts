@@ -41,9 +41,7 @@ export const selectedTodoAtom = atom<Todo | null>(null);
 // Journals state
 export const journalsAtom = atom<Journal[]>([]);
 export const selectedJournalAtom = atom<Journal | null>(null);
-export const selectedDateAtom = atom<string>(
-  new Date().toISOString().split("T")[0]
-);
+export const selectedDateAtom = atom<Date>(new Date());
 
 // Calendar view state
 export const calendarViewAtom = atom<"daily" | "weekly" | "monthly">("monthly");
@@ -85,7 +83,7 @@ export const filteredTodosAtom = atom((get) => {
 
   return todos.filter((todo) => {
     const todoDate = formatDate(todo.startDateTime);
-    return todoDate === selectedDate;
+    return todoDate === formatDate(selectedDate);
   });
 });
 
@@ -93,7 +91,9 @@ export const filteredJournalsAtom = atom((get) => {
   const journals = get(journalsAtom);
   const selectedDate = get(selectedDateAtom);
 
-  return journals.filter((journal) => journal.date === selectedDate);
+  return journals.filter(
+    (journal) => journal.date === formatDate(selectedDate)
+  );
 });
 
 export const categoriesByDateAtom = atom((get) => {
@@ -104,7 +104,7 @@ export const categoriesByDateAtom = atom((get) => {
   const todoCategories = todos
     .filter((todo) => {
       const todoDate = formatDate(todo.startDateTime);
-      return todoDate === selectedDate;
+      return todoDate === formatDate(selectedDate);
     })
     .map((todo) => todo.categoryId);
 

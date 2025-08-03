@@ -1,3 +1,4 @@
+import { NotFoundText } from "@/commons/ui";
 import { Feeling, Weather } from "@/server";
 import {
   categoriesAtom,
@@ -9,7 +10,6 @@ import { FEELING_NAME, WEATHER_NAME } from "@/utils/constants";
 import { formatDate, isFuture, isToday } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon } from "@chakra-ui/icons";
-import { NotFoundText } from "@/commons/ui";
 import {
   Badge,
   Box,
@@ -43,7 +43,9 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export const JournalList = () => {
+  const [isCalendar, setIsCalendar] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
+
   const [selectedDate, setSelectedDate] = useAtom(selectedDateAtom);
   const [journals] = useAtom(journalsAtom);
   const [todos] = useAtom(todosAtom);
@@ -66,7 +68,7 @@ export const JournalList = () => {
   const goToToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    setSelectedDate(formatDate(today));
+    setSelectedDate(today);
   };
 
   const goToPreviousMonth = () => {
@@ -75,10 +77,6 @@ export const JournalList = () => {
 
   const goToNextMonth = () => {
     setCurrentDate(dayjs(currentDate).add(1, "month").toDate());
-  };
-
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(formatDate(date));
   };
 
   const getCalendarDays = () => {
@@ -111,8 +109,7 @@ export const JournalList = () => {
   };
 
   const renderCalendarDay = (date: Date, index: number) => {
-    const isCurrentMonth = dayjs(date).isSame(currentDate, "month");
-    const isSelected = selectedDate === formatDate(date);
+    const isSelected = dayjs(selectedDate).isSame(date);
     const isTodayDate = isToday(date);
     const isFutureDate = isFuture(date);
 
@@ -125,25 +122,31 @@ export const JournalList = () => {
     );
 
     const dayColor = useColorModeValue(
-      isCurrentMonth ? "gray.800" : "gray.400",
-      isCurrentMonth ? "white" : "gray.500"
+      isFutureDate ? "gray.400" : "gray.800",
+      isFutureDate ? "gray.500" : "white"
     );
 
     return (
       <Box
         key={index}
-        p={3}
+        px={3}
+        py={1}
         h="100px"
         bg={dayBg}
         border="1px"
         borderColor={borderColor}
-        cursor="pointer"
-        onClick={() => handleDateClick(date)}
+        cursor={!isFutureDate ? "pointer" : "default"}
+        onClick={() => {
+          if (!isFutureDate) {
+            setSelectedDate(date);
+            navigate(ROUTES.JOURNAL_CREATE);
+          }
+        }}
         position="relative"
         _hover={
-          isCurrentMonth && !isFutureDate
-            ? { bg: useColorModeValue("gray.50", "gray.700") }
-            : {}
+          isTodayDate
+            ? { bg: useColorModeValue("brand.100", "brand.300") }
+            : { bg: useColorModeValue("gray.50", "gray.700") }
         }
       >
         <Text fontSize="md" color={dayColor} mb={2}>
@@ -195,9 +198,23 @@ export const JournalList = () => {
             >
               새 일기 작성
             </Button>
-            <Button size="md" variant="outline">
-              타임라인으로 보기
-            </Button>
+            {isCalendar ? (
+              <Button
+                size="md"
+                variant="outline"
+                onClick={() => setIsCalendar(false)}
+              >
+                타임라인으로 보기
+              </Button>
+            ) : (
+              <Button
+                size="md"
+                variant="outline"
+                onClick={() => setIsCalendar(true)}
+              >
+                캘린더로 보기
+              </Button>
+            )}
           </Box>
         </Flex>
 
@@ -219,90 +236,88 @@ export const JournalList = () => {
         </Card>
 
         {/* Calendar View */}
-        <Card>
-          <CardHeader>
-            <Flex justify="space-between" align="center">
-              <Heading size="md">캘린더</Heading>
-              <HStack spacing={3} marginLeft={12}>
-                <IconButton
-                  aria-label="Previous month"
-                  icon={<FiChevronLeft />}
-                  onClick={goToPreviousMonth}
-                  size="md"
-                  variant="ghost"
-                />
-                <Text
-                  fontWeight="bold"
-                  minW="150px"
-                  textAlign="center"
-                  fontSize="lg"
-                >
-                  {dayjs(currentDate).format("YYYY년 M월")}
-                </Text>
-                <IconButton
-                  aria-label="Next month"
-                  icon={<FiChevronRight />}
-                  onClick={goToNextMonth}
-                  size="md"
-                  variant="ghost"
-                />
-              </HStack>
-              <Button onClick={goToToday} variant="outline">
-                오늘
-              </Button>
-            </Flex>
-          </CardHeader>
-          <CardBody>
-            {/* Calendar Header */}
-            <Grid templateColumns="repeat(7, 1fr)" gap={2} mb={3}>
-              {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
-                <GridItem key={day}>
+        {isCalendar ? (
+          <Card>
+            <CardHeader>
+              <Flex justify="space-between" align="center">
+                <Heading size="md">캘린더</Heading>
+                <HStack spacing={3} marginLeft={12}>
+                  <IconButton
+                    aria-label="Previous month"
+                    icon={<FiChevronLeft />}
+                    onClick={goToPreviousMonth}
+                    size="md"
+                    variant="ghost"
+                  />
                   <Text
-                    textAlign="center"
                     fontWeight="bold"
-                    fontSize="md"
-                    color="gray.500"
-                    py={2}
+                    minW="150px"
+                    textAlign="center"
+                    fontSize="lg"
                   >
-                    {day}
+                    {dayjs(currentDate).format("YYYY년 M월")}
                   </Text>
-                </GridItem>
-              ))}
-            </Grid>
+                  <IconButton
+                    aria-label="Next month"
+                    icon={<FiChevronRight />}
+                    onClick={goToNextMonth}
+                    size="md"
+                    variant="ghost"
+                  />
+                </HStack>
+                <Button onClick={goToToday} variant="outline">
+                  오늘
+                </Button>
+              </Flex>
+            </CardHeader>
+            <CardBody>
+              {/* Calendar Header */}
+              <Grid templateColumns="repeat(7, 1fr)" gap={2} mb={3}>
+                {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+                  <GridItem key={day}>
+                    <Text textAlign="center" color="gray.500">
+                      {day}
+                    </Text>
+                  </GridItem>
+                ))}
+              </Grid>
 
-            {/* Calendar Days */}
-            <Grid templateColumns="repeat(7, 1fr)" gap={2}>
-              {getCalendarDays().map((date, index) =>
-                renderCalendarDay(date, index)
-              )}
-            </Grid>
-          </CardBody>
-        </Card>
-
-        {/* Timeline View */}
-        <Card>
-          <CardHeader>
-            <Flex justify="space-between">
-              <Heading size="md">타임라인</Heading>
-              <HStack spacing={2}>
-                <Select
-                  w={120}
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as "desc" | "asc")}
-                >
-                  <option value="desc">내림차순</option>
-                  <option value="asc">오름차순</option>
-                </Select>
-                <Button onClick={onOpen}>필터</Button>
-              </HStack>
-            </Flex>
-          </CardHeader>
-          <CardBody>
-            <VStack w="full" spacing={4}>
-              <NotFoundText text="일기가 없습니다." />
-            </VStack>
-          </CardBody>
-        </Card>
+              {/* Calendar Days */}
+              <Grid templateColumns="repeat(7, 1fr)" gap={2}>
+                {getCalendarDays().map((date, index) =>
+                  renderCalendarDay(date, index)
+                )}
+              </Grid>
+            </CardBody>
+          </Card>
+        ) : (
+          <Card>
+            {/* Timeline View */}
+            <CardHeader>
+              <Flex justify="space-between">
+                <Heading size="md">타임라인</Heading>
+                <HStack spacing={2}>
+                  <Select
+                    w={120}
+                    value={sortBy}
+                    onChange={(e) =>
+                      setSortBy(e.target.value as "desc" | "asc")
+                    }
+                  >
+                    <option value="desc">내림차순</option>
+                    <option value="asc">오름차순</option>
+                  </Select>
+                  <Button onClick={onOpen}>필터</Button>
+                </HStack>
+              </Flex>
+            </CardHeader>
+            <CardBody>
+              <VStack w="full" spacing={4}>
+                <NotFoundText text="일기가 없습니다." />
+              </VStack>
+            </CardBody>
+          </Card>
+        )}
       </VStack>
 
       {/* Filter Modal */}

@@ -3,7 +3,7 @@ import {
   BsEmojiAstonishedFill,
   BsEmojiExpressionlessFill,
   BsEmojiNeutralFill,
-  BsSunglasses,
+  BsEmojiSunglassesFill,
 } from "react-icons/bs";
 import {
   FaAngry,
@@ -82,13 +82,13 @@ export const WEATHER_ICONS = {
 
 // Weather labels
 export const WEATHER_NAME = {
-  [Weather.CLOUDY]: "뭉게구름",
-  [Weather.CLOUDY_WINDY]: "흐리고 바람",
-  [Weather.DAY_CLOUDY]: "조금 흐림",
-  [Weather.DAY_FOG]: "흐림",
-  [Weather.DAY_LIGHT_WIND]: "바람 조금",
   [Weather.SUNNY]: "햇빛 쨍쨍",
   [Weather.SUNNY_OVERCAST]: "맑음",
+  [Weather.CLOUDY]: "뭉게구름",
+  [Weather.DAY_CLOUDY]: "조금 흐림",
+  [Weather.DAY_FOG]: "흐림",
+  [Weather.CLOUDY_WINDY]: "흐리고 바람",
+  [Weather.DAY_LIGHT_WIND]: "바람 조금",
   [Weather.FOG]: "안개",
   [Weather.RAIN]: "보슬비",
   [Weather.RAIN_MIX]: "진눈깨비",
@@ -114,7 +114,7 @@ export const FEELING_ICONS = {
   [Feeling.LAUGHING]: FaLaughBeam,
   [Feeling.NEUTRAL]: BsEmojiNeutralFill,
   [Feeling.SMILE]: FaSmile,
-  [Feeling.SUNGLASSES]: BsSunglasses,
+  [Feeling.SUNGLASSES]: BsEmojiSunglassesFill,
   [Feeling.SURPRISE]: FaSurprise,
   [Feeling.TEAR]: FaSadTear,
   [Feeling.WINK]: FaGrinWink,

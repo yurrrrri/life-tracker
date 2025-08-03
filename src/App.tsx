@@ -47,9 +47,9 @@ function App() {
             path={ROUTES.HOME}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
+                <Layout>
+                  <Dashboard />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -58,9 +58,9 @@ function App() {
             path={ROUTES.JOURNAL}
             element={
               <ProtectedRoute>
-              <Layout>
-                <JournalList />
-              </Layout>
+                <Layout>
+                  <JournalList />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -69,9 +69,9 @@ function App() {
             path={ROUTES.JOURNAL_CREATE}
             element={
               <ProtectedRoute>
-              <Layout>
-                <JournalCreate />
-              </Layout>
+                <Layout>
+                  <JournalCreate />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -80,9 +80,9 @@ function App() {
             path={ROUTES.JOURNAL_DETAIL}
             element={
               <ProtectedRoute>
-              <Layout>
-                <JournalDetail />
-              </Layout>
+                <Layout>
+                  <JournalDetail />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -91,9 +91,9 @@ function App() {
             path={ROUTES.TODO}
             element={
               <ProtectedRoute>
-              <Layout>
-                <TodoList />
-              </Layout>
+                <Layout>
+                  <TodoList />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -102,9 +102,9 @@ function App() {
             path={ROUTES.TODO_CREATE}
             element={
               <ProtectedRoute>
-              <Layout>
-                <TodoCreate />
-              </Layout>
+                <Layout>
+                  <TodoCreate />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -113,9 +113,9 @@ function App() {
             path={ROUTES.TODO_DETAIL}
             element={
               <ProtectedRoute>
-              <Layout>
-                <TodoDetail />
-              </Layout>
+                <Layout>
+                  <TodoDetail />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -124,9 +124,9 @@ function App() {
             path={ROUTES.GALLERY}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Gallery />
-              </Layout>
+                <Layout>
+                  <Gallery />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -135,9 +135,9 @@ function App() {
             path={ROUTES.STATS}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Stats />
-              </Layout>
+                <Layout>
+                  <Stats />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -146,9 +146,9 @@ function App() {
             path={ROUTES.SETTINGS}
             element={
               <ProtectedRoute>
-              <Layout>
-                <GeneralSettings />
-              </Layout>
+                <Layout>
+                  <GeneralSettings />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -157,9 +157,9 @@ function App() {
             path={ROUTES.PROFILE}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Profile />
-              </Layout>
+                <Layout>
+                  <Profile />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -168,9 +168,9 @@ function App() {
             path={ROUTES.CATEGORIES}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Categories />
-              </Layout>
+                <Layout>
+                  <Categories />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -179,9 +179,9 @@ function App() {
             path={ROUTES.ANNIVERSARIES}
             element={
               <ProtectedRoute>
-              <Layout>
-                <Anniversaries />
-              </Layout>
+                <Layout>
+                  <Anniversaries />
+                </Layout>
               </ProtectedRoute>
             }
           />

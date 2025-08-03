@@ -93,9 +93,9 @@ select {
   .bar-now {
     position: absolute;
     margin-left: 92px;
-    width: 16px;
+    width: 60vw;
     height: 0px;
-    border-top: 6px solid rgb(255, 0, 102);
+    border-top: 2px solid rgb(255, 0, 102);
     z-index: 1000;
   }
 
@@ -108,7 +108,7 @@ select {
       position: absolute;
 
       .todo-btn {
-        z-index: 1000;
+        z-index: 3;
       }
     }
   }

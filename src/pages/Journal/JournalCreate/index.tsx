@@ -1,7 +1,15 @@
-import { useConfirm, Errors } from "@/commons/ui";
+import { Errors, useConfirm } from "@/commons/ui";
 import { Feeling, Weather } from "@/server";
 import { JournalFlow } from "@/server/api/flow/JournalFlow";
-import { APP_CONSTANTS, FEELING_NAME, WEATHER_NAME } from "@/utils/constants";
+import { selectedDateAtom } from "@/utils/atoms";
+import {
+  APP_CONSTANTS,
+  FEELING_NAME,
+  WEATHER_NAME,
+  WEATHER_ICONS,
+  FEELING_ICONS,
+} from "@/utils/constants";
+import { format } from "@/utils/dates";
 import { ROUTES } from "@/utils/routes";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import {
@@ -17,7 +25,10 @@ import {
   IconButton,
   Image,
   Input,
-  Select,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   SimpleGrid,
   Switch,
   Text,
@@ -26,6 +37,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
@@ -72,14 +85,16 @@ export const JournalCreate = () => {
   const { confirm } = useConfirm();
   const toast = useToast();
 
+  const selectedDate = useAtomValue(selectedDateAtom);
   const [_, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // *** FORM ***
   const form = useForm<JournalFormData>({
     resolver: zodResolver(journalSchema),
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
+      date: format(selectedDate || dayjs().startOf("d").toDate(), "YYYY-MM-DD"),
       weatherComment: {
         weather: "SUNNY",
         comment: "",
@@ -206,19 +221,61 @@ export const JournalCreate = () => {
                         name="weatherComment.weather"
                         control={control}
                         render={({ field }) => (
-                          <Select
-                            placeholder="날씨 선택"
-                            {...field}
-                            value={field.value || ""}
-                          >
-                            {Object.entries(WEATHER_NAME).map(
-                              ([key, label]) => (
-                                <option key={key} value={key}>
-                                  {label}
-                                </option>
-                              )
-                            )}
-                          </Select>
+                          <Menu>
+                            <MenuButton
+                              as={Button}
+                              variant="outline"
+                              w="full"
+                              textAlign="left"
+                              justifyContent="flex-start"
+                            >
+                              {field.value ? (
+                                <HStack>
+                                  {(() => {
+                                    const WeatherIcon =
+                                      WEATHER_ICONS[
+                                        field.value as keyof typeof WEATHER_ICONS
+                                      ];
+                                    return WeatherIcon ? (
+                                      <WeatherIcon size={26} />
+                                    ) : null;
+                                  })()}
+                                  <Text>
+                                    {
+                                      WEATHER_NAME[
+                                        field.value as keyof typeof WEATHER_NAME
+                                      ]
+                                    }
+                                  </Text>
+                                </HStack>
+                              ) : (
+                                "날씨 선택"
+                              )}
+                            </MenuButton>
+                            <MenuList>
+                              {Object.entries(WEATHER_NAME).map(
+                                ([key, label]) => {
+                                  const WeatherIcon =
+                                    WEATHER_ICONS[
+                                      key as keyof typeof WEATHER_ICONS
+                                    ];
+                                  return (
+                                    <MenuItem
+                                      key={key}
+                                      onClick={() => field.onChange(key)}
+                                      icon={
+                                        WeatherIcon ? (
+                                          <WeatherIcon size={26} />
+                                        ) : undefined
+                                      }
+                                    >
+                                      {label}
+                                    </MenuItem>
+                                  );
+                                }
+                              )}
+                            </MenuList>
+                          </Menu>
                         )}
                       />
                     </FormControl>
@@ -251,13 +308,61 @@ export const JournalCreate = () => {
                       name="feelingComment.feeling"
                       control={control}
                       render={({ field }) => (
-                        <Select {...field}>
-                          {Object.entries(FEELING_NAME).map(([key, label]) => (
-                            <option key={key} value={key}>
-                              {label}
-                            </option>
-                          ))}
-                        </Select>
+                        <Menu>
+                          <MenuButton
+                            as={Button}
+                            variant="outline"
+                            w="full"
+                            textAlign="left"
+                            justifyContent="flex-start"
+                          >
+                            {field.value ? (
+                              <HStack>
+                                {(() => {
+                                  const FeelingIcon =
+                                    FEELING_ICONS[
+                                      field.value as keyof typeof FEELING_ICONS
+                                    ];
+                                  return FeelingIcon ? (
+                                    <FeelingIcon size={20} />
+                                  ) : null;
+                                })()}
+                                <Text>
+                                  {
+                                    FEELING_NAME[
+                                      field.value as keyof typeof FEELING_NAME
+                                    ]
+                                  }
+                                </Text>
+                              </HStack>
+                            ) : (
+                              "감정 선택"
+                            )}
+                          </MenuButton>
+                          <MenuList>
+                            {Object.entries(FEELING_NAME).map(
+                              ([key, label]) => {
+                                const FeelingIcon =
+                                  FEELING_ICONS[
+                                    key as keyof typeof FEELING_ICONS
+                                  ];
+                                return (
+                                  <MenuItem
+                                    key={key}
+                                    onClick={() => field.onChange(key)}
+                                    icon={
+                                      FeelingIcon ? (
+                                        <FeelingIcon size={20} />
+                                      ) : undefined
+                                    }
+                                  >
+                                    {label}
+                                  </MenuItem>
+                                );
+                              }
+                            )}
+                          </MenuList>
+                        </Menu>
                       )}
                     />
                     <Errors name="feelingComment.feeling" errors={errors} />

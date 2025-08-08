@@ -87,11 +87,11 @@ export const Gallery = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">갤러리</Heading>
+          <Heading size="md" fontFamily="nanum-gothic-bold">갤러리</Heading>
           <HStack spacing={3}>
             <Button
               variant={filterType === "all" ? "solid" : "outline"}

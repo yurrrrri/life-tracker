@@ -99,10 +99,10 @@ export const Profile = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <Heading size="md">프로필</Heading>
+        <Heading size="md" fontFamily="nanum-gothic-bold">프로필</Heading>
 
         {/* Profile Info */}
         {profile && (

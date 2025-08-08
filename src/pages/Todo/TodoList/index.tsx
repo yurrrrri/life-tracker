@@ -26,7 +26,6 @@ import {
   IconButton,
   Input,
   Select,
-  SimpleGrid,
   Text,
   useColorModeValue,
   useToast,
@@ -231,7 +230,9 @@ export const TodoList = () => {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">할일 목록</Heading>
+          <Heading size="md" fontFamily="nanum-gothic-bold">
+            할일 목록
+          </Heading>
           <Button
             leftIcon={<AddIcon />}
             onClick={() => navigate(ROUTES.TODO_CREATE)}
@@ -348,109 +349,129 @@ export const TodoList = () => {
           </CardBody>
         </Card>
 
-        {/* Todos Grid */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {filteredTodos.map((todo) => {
-            const category = categories.find(
-              (cat) => cat.id === todo.categoryId
-            );
+        <Card>
+          <CardHeader>
+            <Heading size="md">할일 목록</Heading>
+          </CardHeader>
+          <CardBody>
+            <VStack w="full" spacing={4}>
+              {filteredTodos.length > 0 ? (
+                <VStack w="full" spacing={4}>
+                  {filteredTodos.map((todo) => {
+                    const category = categories.find(
+                      (cat) => cat.id === todo.categoryId
+                    );
 
-            return (
-              <Card
-                key={todo.id}
-                cursor="pointer"
-                onClick={() => handleView(todo)}
-              >
-                <CardHeader>
-                  <HStack justify="space-between">
-                    <Text fontWeight="bold" fontSize="lg" noOfLines={1}>
-                      {todo.contents}
-                    </Text>
-                    <Badge colorScheme={getStatusColor(todo.status)}>
-                      {getStatusName(todo.status)}
-                    </Badge>
-                  </HStack>
-                </CardHeader>
-
-                <CardBody>
-                  <VStack align="stretch" spacing={3}>
-                    {/* Category */}
-                    {category && (
-                      <HStack>
-                        <Box
-                          w={3}
-                          h={3}
-                          borderRadius="full"
-                          bg={category.colorType}
-                        />
-                        <Text fontSize="sm">{category.name}</Text>
-                      </HStack>
-                    )}
-
-                    {/* Date */}
-                    <Text fontSize="sm" color="gray.600">
-                      {formatDateTime(new Date(todo.startDateTime))}
-                      {todo.isPeriod && (
-                        <> ~ {formatDateTime(new Date(todo.endDateTime))}</>
-                      )}
-                    </Text>
-
-                    {/* Memo */}
-                    {todo.memo && (
-                      <Text fontSize="sm" color="gray.500" noOfLines={2}>
-                        {todo.memo}
-                      </Text>
-                    )}
-
-                    {/* Actions */}
-                    <HStack justify="space-between">
-                      <Select
-                        size="sm"
-                        value={todo.status}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleStatusChange(
-                            todo.id,
-                            e.target.value as keyof typeof Status
-                          );
-                        }}
-                        onClick={(e) => e.stopPropagation()}
+                    return (
+                      <Card
+                        key={todo.id}
+                        cursor="pointer"
+                        onClick={() => handleView(todo)}
+                        w="full"
                       >
-                        {Object.values(Status).map((status) => (
-                          <option key={status} value={status}>
-                            {getStatusName(status)}
-                          </option>
-                        ))}
-                      </Select>
+                        <CardHeader>
+                          <HStack justify="space-between">
+                            <Text fontWeight="bold" fontSize="lg" noOfLines={1}>
+                              {todo.contents}
+                            </Text>
+                            <Badge colorScheme={getStatusColor(todo.status)}>
+                              {getStatusName(todo.status)}
+                            </Badge>
+                          </HStack>
+                        </CardHeader>
 
-                      <HStack spacing={1}>
-                        <IconButton
-                          size="sm"
-                          aria-label="편집"
-                          icon={<EditIcon />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(todo);
-                          }}
-                        />
-                        <IconButton
-                          size="sm"
-                          aria-label="삭제"
-                          icon={<DeleteIcon />}
-                          colorScheme="red"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(todo.id);
-                          }}
-                        />
-                      </HStack>
-                    </HStack>
-                  </VStack>
-                </CardBody>
-              </Card>
-            );
-          })}
-        </SimpleGrid>
+                        <CardBody>
+                          <VStack align="stretch" spacing={3}>
+                            {/* Category */}
+                            {category && (
+                              <HStack>
+                                <Box
+                                  w={3}
+                                  h={3}
+                                  borderRadius="full"
+                                  bg={category.colorType}
+                                />
+                                <Text fontSize="sm">{category.name}</Text>
+                              </HStack>
+                            )}
+
+                            {/* Date */}
+                            <Text fontSize="sm" color="gray.600">
+                              {formatDateTime(new Date(todo.startDateTime))}
+                              {todo.isPeriod && (
+                                <>
+                                  {" "}
+                                  ~ {formatDateTime(new Date(todo.endDateTime))}
+                                </>
+                              )}
+                            </Text>
+
+                            {/* Memo */}
+                            {todo.memo && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.500"
+                                noOfLines={2}
+                              >
+                                {todo.memo}
+                              </Text>
+                            )}
+
+                            {/* Actions */}
+                            <HStack justify="space-between">
+                              <Select
+                                size="sm"
+                                value={todo.status}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(
+                                    todo.id,
+                                    e.target.value as keyof typeof Status
+                                  );
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {Object.values(Status).map((status) => (
+                                  <option key={status} value={status}>
+                                    {getStatusName(status)}
+                                  </option>
+                                ))}
+                              </Select>
+
+                              <HStack spacing={1}>
+                                <IconButton
+                                  size="sm"
+                                  aria-label="편집"
+                                  icon={<EditIcon />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit(todo);
+                                  }}
+                                />
+                                <IconButton
+                                  size="sm"
+                                  aria-label="삭제"
+                                  icon={<DeleteIcon />}
+                                  colorScheme="red"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(todo.id);
+                                  }}
+                                />
+                              </HStack>
+                            </HStack>
+                          </VStack>
+                        </CardBody>
+                      </Card>
+                    );
+                  })}
+                </VStack>
+              ) : (
+                <NotFoundText text="할일이 없습니다." />
+              )}
+            </VStack>
+          </CardBody>
+        </Card>
 
         {filteredTodos.length === 0 && <NotFoundText text="할일이 없습니다." />}
       </VStack>

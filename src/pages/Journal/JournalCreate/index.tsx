@@ -35,6 +35,8 @@ import {
   Textarea,
   VStack,
   useToast,
+  Container,
+  Divider,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
@@ -178,47 +180,238 @@ export const JournalCreate = () => {
   };
 
   return (
-    <Box p={6}>
-      <VStack spacing={6} align="stretch">
-        {/* Header */}
-        <Flex justify="space-between" align="center">
-          <Heading size="md">새 일기 작성</Heading>
-          <HStack spacing={3}>
-            <Button variant="outline" onClick={handleCancel}>
-              취소
-            </Button>
-            <Button
-              onClick={form.handleSubmit(handleSubmit)}
-              isLoading={isSubmitting}
-              loadingText="저장 중..."
-            >
-              저장
-            </Button>
-          </HStack>
-        </Flex>
+    <Box 
+      bg="gray.50" 
+      minH="100vh" 
+      py={8}
+    >
+      <Container maxW="4xl" px={6}>
+        <VStack spacing={8} align="stretch">
+          {/* Header */}
+          <Card 
+            bg="white" 
+            shadow="sm" 
+            border="1px solid" 
+            borderColor="gray.100"
+            borderRadius="xl"
+          >
+            <CardBody p={8}>
+              <Flex justify="space-between" align="center">
+                <VStack align="start" spacing={1}>
+                  <Heading size="lg" color="gray.800" fontWeight="600">
+                    새 일기 작성
+                  </Heading>
+                  <Text color="gray.500" fontSize="sm">
+                    오늘의 하루를 기록해보세요
+                  </Text>
+                </VStack>
+                <HStack spacing={4}>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleCancel}
+                    size="lg"
+                    px={8}
+                    borderRadius="lg"
+                    borderColor="gray.200"
+                    color="gray.600"
+                    _hover={{
+                      bg: "gray.50",
+                      borderColor: "gray.300"
+                    }}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    onClick={form.handleSubmit(handleSubmit)}
+                    isLoading={isSubmitting}
+                    loadingText="저장 중..."
+                    size="lg"
+                    px={8}
+                    borderRadius="lg"
+                    bg="blue.500"
+                    color="white"
+                    _hover={{
+                      bg: "blue.600"
+                    }}
+                    _active={{
+                      bg: "blue.700"
+                    }}
+                  >
+                    저장
+                  </Button>
+                </HStack>
+              </Flex>
+            </CardBody>
+          </Card>
 
-        {/* Form */}
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <VStack spacing={6} align="stretch">
-            {/* Date and Weather */}
-            <Card>
-              <CardBody>
-                <VStack spacing={4}>
-                  <HStack w="full" spacing={4}>
-                    <FormControl isInvalid={!!errors.date}>
-                      <FormLabel>날짜</FormLabel>
+          {/* Form */}
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <VStack spacing={6} align="stretch">
+              {/* Date and Weather */}
+              <Card 
+                bg="white" 
+                shadow="sm" 
+                border="1px solid" 
+                borderColor="gray.100"
+                borderRadius="xl"
+                _hover={{
+                  shadow: "md",
+                  transform: "translateY(-1px)",
+                  transition: "all 0.2s"
+                }}
+              >
+                <CardBody p={8}>
+                  <VStack spacing={6}>
+                    <HStack w="full" spacing={6}>
+                      <FormControl isInvalid={!!errors.date}>
+                        <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                          날짜
+                        </FormLabel>
+                        <Controller
+                          name="date"
+                          control={control}
+                          render={({ field }) => (
+                            <Input 
+                              type="date" 
+                              {...field}
+                              borderRadius="lg"
+                              borderColor="gray.200"
+                              _focus={{
+                                borderColor: "blue.400",
+                                boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                              }}
+                            />
+                          )}
+                        />
+                        <Errors name="date" errors={errors} />
+                      </FormControl>
+
+                      <FormControl isInvalid={!!errors.weatherComment?.weather}>
+                        <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                          날씨
+                        </FormLabel>
+                        <Controller
+                          name="weatherComment.weather"
+                          control={control}
+                          render={({ field }) => (
+                            <Menu>
+                              <MenuButton
+                                as={Button}
+                                variant="outline"
+                                w="full"
+                                textAlign="left"
+                                justifyContent="flex-start"
+                                borderRadius="lg"
+                                borderColor="gray.200"
+                                _hover={{
+                                  borderColor: "blue.400"
+                                }}
+                                _focus={{
+                                  borderColor: "blue.400",
+                                  boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                                }}
+                              >
+                                {field.value ? (
+                                  <HStack>
+                                    {(() => {
+                                      const WeatherIcon =
+                                        WEATHER_ICONS[
+                                          field.value as keyof typeof WEATHER_ICONS
+                                        ];
+                                      return WeatherIcon ? (
+                                        <WeatherIcon size={24} />
+                                      ) : null;
+                                    })()}
+                                    <Text fontWeight="500">
+                                      {
+                                        WEATHER_NAME[
+                                          field.value as keyof typeof WEATHER_NAME
+                                        ]
+                                      }
+                                    </Text>
+                                  </HStack>
+                                ) : (
+                                  "날씨 선택"
+                                )}
+                              </MenuButton>
+                              <MenuList borderRadius="lg" shadow="lg">
+                                {Object.entries(WEATHER_NAME).map(
+                                  ([key, label]) => {
+                                    const WeatherIcon =
+                                      WEATHER_ICONS[
+                                        key as keyof typeof WEATHER_ICONS
+                                      ];
+                                    return (
+                                      <MenuItem
+                                        key={key}
+                                        onClick={() => field.onChange(key)}
+                                        icon={
+                                          WeatherIcon ? (
+                                            <WeatherIcon size={24} />
+                                          ) : undefined
+                                        }
+                                        _hover={{
+                                          bg: "blue.50"
+                                        }}
+                                      >
+                                        {label}
+                                      </MenuItem>
+                                    );
+                                  }
+                                )}
+                              </MenuList>
+                            </Menu>
+                          )}
+                        />
+                      </FormControl>
+                    </HStack>
+
+                    <FormControl isInvalid={!!errors.weatherComment?.comment}>
+                      <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                        날씨 코멘트
+                      </FormLabel>
                       <Controller
-                        name="date"
+                        name="weatherComment.comment"
                         control={control}
-                        render={({ field }) => <Input type="date" {...field} />}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="날씨에 대한 코멘트를 입력하세요"
+                            {...field}
+                            borderRadius="lg"
+                            borderColor="gray.200"
+                            _focus={{
+                              borderColor: "blue.400",
+                              boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                            }}
+                          />
+                        )}
                       />
-                      <Errors name="date" errors={errors} />
                     </FormControl>
+                  </VStack>
+                </CardBody>
+              </Card>
 
-                    <FormControl isInvalid={!!errors.weatherComment?.weather}>
-                      <FormLabel>날씨</FormLabel>
+              {/* Feeling */}
+              <Card 
+                bg="white" 
+                shadow="sm" 
+                border="1px solid" 
+                borderColor="gray.100"
+                borderRadius="xl"
+                _hover={{
+                  shadow: "md",
+                  transform: "translateY(-1px)",
+                  transition: "all 0.2s"
+                }}
+              >
+                <CardBody p={8}>
+                  <VStack spacing={6}>
+                    <FormControl isInvalid={!!errors.feelingComment?.feeling}>
+                      <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                        오늘의 감정
+                      </FormLabel>
                       <Controller
-                        name="weatherComment.weather"
+                        name="feelingComment.feeling"
                         control={control}
                         render={({ field }) => (
                           <Menu>
@@ -228,46 +421,58 @@ export const JournalCreate = () => {
                               w="full"
                               textAlign="left"
                               justifyContent="flex-start"
+                              borderRadius="lg"
+                              borderColor="gray.200"
+                              _hover={{
+                                borderColor: "blue.400"
+                              }}
+                              _focus={{
+                                borderColor: "blue.400",
+                                boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                              }}
                             >
                               {field.value ? (
                                 <HStack>
                                   {(() => {
-                                    const WeatherIcon =
-                                      WEATHER_ICONS[
-                                        field.value as keyof typeof WEATHER_ICONS
+                                    const FeelingIcon =
+                                      FEELING_ICONS[
+                                        field.value as keyof typeof FEELING_ICONS
                                       ];
-                                    return WeatherIcon ? (
-                                      <WeatherIcon size={26} />
+                                    return FeelingIcon ? (
+                                      <FeelingIcon size={20} />
                                     ) : null;
                                   })()}
-                                  <Text>
+                                  <Text fontWeight="500">
                                     {
-                                      WEATHER_NAME[
-                                        field.value as keyof typeof WEATHER_NAME
+                                      FEELING_NAME[
+                                        field.value as keyof typeof FEELING_NAME
                                       ]
                                     }
                                   </Text>
                                 </HStack>
                               ) : (
-                                "날씨 선택"
+                                "감정 선택"
                               )}
                             </MenuButton>
-                            <MenuList>
-                              {Object.entries(WEATHER_NAME).map(
+                            <MenuList borderRadius="lg" shadow="lg">
+                              {Object.entries(FEELING_NAME).map(
                                 ([key, label]) => {
-                                  const WeatherIcon =
-                                    WEATHER_ICONS[
-                                      key as keyof typeof WEATHER_ICONS
+                                  const FeelingIcon =
+                                    FEELING_ICONS[
+                                      key as keyof typeof FEELING_ICONS
                                     ];
                                   return (
                                     <MenuItem
                                       key={key}
                                       onClick={() => field.onChange(key)}
                                       icon={
-                                        WeatherIcon ? (
-                                          <WeatherIcon size={26} />
+                                        FeelingIcon ? (
+                                          <FeelingIcon size={20} />
                                         ) : undefined
                                       }
+                                      _hover={{
+                                        bg: "blue.50"
+                                      }}
                                     >
                                       {label}
                                     </MenuItem>
@@ -278,255 +483,250 @@ export const JournalCreate = () => {
                           </Menu>
                         )}
                       />
+                      <Errors name="feelingComment.feeling" errors={errors} />
                     </FormControl>
-                  </HStack>
 
-                  <FormControl isInvalid={!!errors.weatherComment?.comment}>
-                    <FormLabel>날씨 코멘트</FormLabel>
-                    <Controller
-                      name="weatherComment.comment"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="날씨에 대한 코멘트를 입력하세요"
-                          {...field}
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </VStack>
-              </CardBody>
-            </Card>
-
-            {/* Feeling */}
-            <Card>
-              <CardBody>
-                <VStack spacing={4}>
-                  <FormControl isInvalid={!!errors.feelingComment?.feeling}>
-                    <FormLabel>오늘의 감정</FormLabel>
-                    <Controller
-                      name="feelingComment.feeling"
-                      control={control}
-                      render={({ field }) => (
-                        <Menu>
-                          <MenuButton
-                            as={Button}
-                            variant="outline"
-                            w="full"
-                            textAlign="left"
-                            justifyContent="flex-start"
-                          >
-                            {field.value ? (
-                              <HStack>
-                                {(() => {
-                                  const FeelingIcon =
-                                    FEELING_ICONS[
-                                      field.value as keyof typeof FEELING_ICONS
-                                    ];
-                                  return FeelingIcon ? (
-                                    <FeelingIcon size={20} />
-                                  ) : null;
-                                })()}
-                                <Text>
-                                  {
-                                    FEELING_NAME[
-                                      field.value as keyof typeof FEELING_NAME
-                                    ]
-                                  }
-                                </Text>
-                              </HStack>
-                            ) : (
-                              "감정 선택"
-                            )}
-                          </MenuButton>
-                          <MenuList>
-                            {Object.entries(FEELING_NAME).map(
-                              ([key, label]) => {
-                                const FeelingIcon =
-                                  FEELING_ICONS[
-                                    key as keyof typeof FEELING_ICONS
-                                  ];
-                                return (
-                                  <MenuItem
-                                    key={key}
-                                    onClick={() => field.onChange(key)}
-                                    icon={
-                                      FeelingIcon ? (
-                                        <FeelingIcon size={20} />
-                                      ) : undefined
-                                    }
-                                  >
-                                    {label}
-                                  </MenuItem>
-                                );
-                              }
-                            )}
-                          </MenuList>
-                        </Menu>
-                      )}
-                    />
-                    <Errors name="feelingComment.feeling" errors={errors} />
-                  </FormControl>
-
-                  <FormControl isInvalid={!!errors.feelingComment?.comment}>
-                    <FormLabel>감정 코멘트</FormLabel>
-                    <Controller
-                      name="feelingComment.comment"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="감정에 대한 코멘트를 입력하세요"
-                          {...field}
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </VStack>
-              </CardBody>
-            </Card>
-
-            {/* Contents */}
-            <Card>
-              <CardBody>
-                <VStack>
-                  <FormControl isInvalid={!!errors.contents}>
-                    <FormLabel>일기 내용</FormLabel>
-                    <Controller
-                      name="contents"
-                      control={control}
-                      render={({ field }) => (
-                        <Textarea
-                          placeholder="오늘 하루를 기록해보세요..."
-                          rows={10}
-                          {...field}
-                        />
-                      )}
-                    />
-                    <Errors name="contents" errors={errors} />
-                  </FormControl>
-
-                  <FormControl>
-                    <Controller
-                      name="saved"
-                      control={control}
-                      render={({ field }) => (
-                        <HStack>
-                          <Switch
-                            checked={field.value}
-                            onChange={field.onChange}
+                    <FormControl isInvalid={!!errors.feelingComment?.comment}>
+                      <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                        감정 코멘트
+                      </FormLabel>
+                      <Controller
+                        name="feelingComment.comment"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="감정에 대한 코멘트를 입력하세요"
+                            {...field}
+                            borderRadius="lg"
+                            borderColor="gray.200"
+                            _focus={{
+                              borderColor: "blue.400",
+                              boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                            }}
                           />
-                          <Text>임시 저장</Text>
-                        </HStack>
-                      )}
-                    />
-                  </FormControl>
+                        )}
+                      />
+                    </FormControl>
+                  </VStack>
+                </CardBody>
+              </Card>
 
-                  <FormControl>
-                    <Controller
-                      name="locked"
-                      control={control}
-                      render={({ field }) => (
-                        <HStack>
-                          <Switch
-                            checked={field.value}
-                            onChange={field.onChange}
+              {/* Contents */}
+              <Card 
+                bg="white" 
+                shadow="sm" 
+                border="1px solid" 
+                borderColor="gray.100"
+                borderRadius="xl"
+                _hover={{
+                  shadow: "md",
+                  transform: "translateY(-1px)",
+                  transition: "all 0.2s"
+                }}
+              >
+                <CardBody p={8}>
+                  <VStack spacing={6}>
+                    <FormControl isInvalid={!!errors.contents}>
+                      <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                        일기 내용
+                      </FormLabel>
+                      <Controller
+                        name="contents"
+                        control={control}
+                        render={({ field }) => (
+                          <Textarea
+                            placeholder="오늘 하루를 기록해보세요..."
+                            rows={12}
+                            {...field}
+                            borderRadius="lg"
+                            borderColor="gray.200"
+                            resize="vertical"
+                            _focus={{
+                              borderColor: "blue.400",
+                              boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                            }}
                           />
-                          <Text>비공개로 설정</Text>
-                        </HStack>
-                      )}
-                    />
-                  </FormControl>
-                </VStack>
-              </CardBody>
-            </Card>
+                        )}
+                      />
+                      <Errors name="contents" errors={errors} />
+                    </FormControl>
 
-            {/* Images */}
-            <Card>
-              <CardBody>
-                <VStack spacing={4}>
-                  <FormLabel>사진 첨부</FormLabel>
+                    <Divider />
 
-                  {/* Image Preview */}
-                  {previewImages.length > 0 && (
-                    <SimpleGrid columns={2} spacing={4} w="full">
-                      {previewImages.map((preview, index) => (
-                        <Box key={index} position="relative">
-                          <Image
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            borderRadius="md"
-                            w="full"
-                            h="200px"
-                            objectFit="cover"
-                          />
-                          <IconButton
-                            position="absolute"
-                            top={2}
-                            right={2}
-                            size="sm"
-                            aria-label="Remove image"
-                            icon={<CloseIcon />}
-                            colorScheme="red"
-                            onClick={() => handleRemoveImage(index)}
-                          />
-                        </Box>
-                      ))}
-                    </SimpleGrid>
-                  )}
-
-                  {/* Dropzone */}
-                  {previewImages.length <
-                    APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
-                    <Box
-                      {...getRootProps()}
-                      border="2px dashed"
-                      borderColor={isDragActive ? "purple.400" : "gray.300"}
-                      borderRadius="md"
-                      p={6}
-                      textAlign="center"
-                      cursor="pointer"
-                      _hover={{ borderColor: "purple.400" }}
-                    >
-                      <input {...getInputProps()} />
-                      <AddIcon boxSize={6} mb={2} />
-                      <Text>
-                        {isDragActive
-                          ? "파일을 여기에 놓으세요"
-                          : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
-                      </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
-                        {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
-                      </Text>
-                    </Box>
-                  )}
-                </VStack>
-              </CardBody>
-            </Card>
-
-            {/* Memo and Settings */}
-            <Card>
-              <CardBody>
-                <VStack spacing={4}>
-                  <FormControl>
-                    <FormLabel>메모</FormLabel>
-                    <Controller
-                      name="memo"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="메모할 내용을 적어 보세요."
-                          {...field}
+                    <VStack spacing={4} align="start" w="full">
+                      <FormControl>
+                        <Controller
+                          name="saved"
+                          control={control}
+                          render={({ field }) => (
+                            <HStack spacing={3}>
+                              <Switch
+                                checked={field.value}
+                                onChange={field.onChange}
+                                colorScheme="blue"
+                                size="lg"
+                              />
+                              <Text fontWeight="500" color="gray.700">
+                                임시 저장
+                              </Text>
+                            </HStack>
+                          )}
                         />
-                      )}
-                    />
-                  </FormControl>
-                </VStack>
-              </CardBody>
-            </Card>
-          </VStack>
-        </form>
-      </VStack>
+                      </FormControl>
+
+                      <FormControl>
+                        <Controller
+                          name="locked"
+                          control={control}
+                          render={({ field }) => (
+                            <HStack spacing={3}>
+                              <Switch
+                                checked={field.value}
+                                onChange={field.onChange}
+                                colorScheme="blue"
+                                size="lg"
+                              />
+                              <Text fontWeight="500" color="gray.700">
+                                비공개로 설정
+                              </Text>
+                            </HStack>
+                          )}
+                        />
+                      </FormControl>
+                    </VStack>
+                  </VStack>
+                </CardBody>
+              </Card>
+
+              {/* Images */}
+              <Card 
+                bg="white" 
+                shadow="sm" 
+                border="1px solid" 
+                borderColor="gray.100"
+                borderRadius="xl"
+                _hover={{
+                  shadow: "md",
+                  transform: "translateY(-1px)",
+                  transition: "all 0.2s"
+                }}
+              >
+                <CardBody p={8}>
+                  <VStack spacing={6}>
+                    <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                      사진 첨부
+                    </FormLabel>
+
+                    {/* Image Preview */}
+                    {previewImages.length > 0 && (
+                      <SimpleGrid columns={[1, 2]} spacing={4} w="full">
+                        {previewImages.map((preview, index) => (
+                          <Box key={index} position="relative" borderRadius="xl" overflow="hidden">
+                            <Image
+                              src={preview}
+                              alt={`Preview ${index + 1}`}
+                              w="full"
+                              h="240px"
+                              objectFit="cover"
+                            />
+                            <IconButton
+                              position="absolute"
+                              top={3}
+                              right={3}
+                              size="sm"
+                              aria-label="Remove image"
+                              icon={<CloseIcon />}
+                              colorScheme="red"
+                              borderRadius="full"
+                              onClick={() => handleRemoveImage(index)}
+                              _hover={{
+                                transform: "scale(1.1)"
+                              }}
+                            />
+                          </Box>
+                        ))}
+                      </SimpleGrid>
+                    )}
+
+                    {/* Dropzone */}
+                    {previewImages.length <
+                      APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL && (
+                      <Box
+                        {...getRootProps()}
+                        border="2px dashed"
+                        borderColor={isDragActive ? "blue.400" : "gray.300"}
+                        borderRadius="xl"
+                        p={12}
+                        textAlign="center"
+                        cursor="pointer"
+                        bg={isDragActive ? "blue.50" : "gray.50"}
+                        _hover={{ 
+                          borderColor: "blue.400",
+                          bg: "blue.50",
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        <input {...getInputProps()} />
+                        <AddIcon boxSize={8} mb={4} color="blue.500" />
+                        <Text fontWeight="600" color="gray.700" mb={2}>
+                          {isDragActive
+                            ? "파일을 여기에 놓으세요"
+                            : "클릭하거나 파일을 드래그하여 이미지를 추가하세요"}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500">
+                          최대 {APP_CONSTANTS.MAX_IMAGES_PER_JOURNAL}개,{" "}
+                          {APP_CONSTANTS.MAX_IMAGE_SIZE / (1024 * 1024)}MB 이하
+                        </Text>
+                      </Box>
+                    )}
+                  </VStack>
+                </CardBody>
+              </Card>
+
+              {/* Memo and Settings */}
+              <Card 
+                bg="white" 
+                shadow="sm" 
+                border="1px solid" 
+                borderColor="gray.100"
+                borderRadius="xl"
+                _hover={{
+                  shadow: "md",
+                  transform: "translateY(-1px)",
+                  transition: "all 0.2s"
+                }}
+              >
+                <CardBody p={8}>
+                  <VStack spacing={4}>
+                    <FormControl>
+                      <FormLabel fontWeight="600" color="gray.700" mb={3}>
+                        메모
+                      </FormLabel>
+                      <Controller
+                        name="memo"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="메모할 내용을 적어 보세요."
+                            {...field}
+                            borderRadius="lg"
+                            borderColor="gray.200"
+                            _focus={{
+                              borderColor: "blue.400",
+                              boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                            }}
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  </VStack>
+                </CardBody>
+              </Card>
+            </VStack>
+          </form>
+        </VStack>
+      </Container>
     </Box>
   );
 };

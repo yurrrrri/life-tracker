@@ -116,10 +116,10 @@ export const GeneralSettings = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <Heading size="md">설정</Heading>
+        <Heading size="md" fontFamily="nanum-gothic-bold">설정</Heading>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)}>

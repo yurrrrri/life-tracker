@@ -185,11 +185,13 @@ export const JournalList = () => {
   };
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">일기 목록</Heading>
+          <Heading size="md" fontFamily="nanum-gothic-bold">
+            일기 목록
+          </Heading>
           <Box>
             <Button
               style={{ marginRight: 8 }}
@@ -292,7 +294,6 @@ export const JournalList = () => {
           </Card>
         ) : (
           <Card>
-            {/* Timeline View */}
             <CardHeader>
               <Flex justify="space-between">
                 <Heading size="md">타임라인</Heading>
@@ -313,7 +314,30 @@ export const JournalList = () => {
             </CardHeader>
             <CardBody>
               <VStack w="full" spacing={4}>
-                <NotFoundText text="일기가 없습니다." />
+                {journals.length > 0 ? (
+                  <>
+                    {journals.map((journal) => (
+                      <Card
+                        key={journal.id}
+                        cursor="pointer"
+                        onClick={() =>
+                          navigate(
+                            ROUTES.JOURNAL_DETAIL.replace(":id", journal.id)
+                          )
+                        }
+                      >
+                        <CardHeader>
+                          <Heading size="sm">{journal.date}</Heading>
+                        </CardHeader>
+                        <CardBody>
+                          <Text noOfLines={3}>{journal.contents}</Text>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </>
+                ) : (
+                  <NotFoundText text="일기가 없습니다." />
+                )}
               </VStack>
             </CardBody>
           </Card>

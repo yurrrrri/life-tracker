@@ -189,11 +189,11 @@ export const Anniversaries = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">기념일 관리</Heading>
+          <Heading size="md" fontFamily="nanum-gothic-bold">기념일 관리</Heading>
           <Button leftIcon={<AddIcon />} onClick={onOpen}>
             새 기념일 추가
           </Button>

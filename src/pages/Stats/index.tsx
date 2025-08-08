@@ -102,11 +102,11 @@ export const Stats = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <Box p={6}>
+    <Box>
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Flex justify="space-between" align="center">
-          <Heading size="md">통계</Heading>
+          <Heading size="md" fontFamily="nanum-gothic-bold">통계</Heading>
           <Select
             value={strategy}
             onChange={(e) =>
@@ -181,7 +181,7 @@ export const Stats = () => {
         {/* Feeling Distribution */}
         <Card>
           <CardHeader>
-            <Heading size="md">감정 분포</Heading>
+            <Heading size="md" fontFamily="nanum-gothic-bold">감정 분포</Heading>
           </CardHeader>
           <CardBody>
             <VStack spacing={4} align="stretch">
@@ -205,7 +205,7 @@ export const Stats = () => {
         {/* Todo Status Distribution */}
         <Card>
           <CardHeader>
-            <Heading size="md">할일 상태 분포</Heading>
+            <Heading size="md" fontFamily="nanum-gothic-bold">할일 상태 분포</Heading>
           </CardHeader>
           <CardBody>
             <VStack spacing={4} align="stretch">
@@ -237,7 +237,7 @@ export const Stats = () => {
         {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <Heading size="md">최근 활동</Heading>
+            <Heading size="md" fontFamily="nanum-gothic-bold">최근 활동</Heading>
           </CardHeader>
           <CardBody>
             <VStack spacing={3} align="stretch">

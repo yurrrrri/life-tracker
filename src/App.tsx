@@ -37,6 +37,7 @@ function App() {
         minH="100vh"
         bg={colorMode === "dark" ? "gray.900" : "gray.50"}
         color={colorMode === "dark" ? "white" : "gray.800"}
+        fontFamily="Inter, system-ui, sans-serif"
       >
         <Routes>
           {/* Public routes */}

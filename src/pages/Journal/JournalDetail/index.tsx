@@ -53,7 +53,7 @@ export const JournalDetail = () => {
   }
 
   return (
-    <Box p={6}>
+    <Box>
       {journal.map((data) => (
         <VStack spacing={6} align="stretch">
           {/* Header */}
@@ -66,7 +66,7 @@ export const JournalDetail = () => {
               >
                 목록으로
               </Button>
-              <Heading size="md">일기 상세</Heading>
+              <Heading size="md" fontFamily="nanum-gothic-bold">일기 상세</Heading>
             </HStack>
             <Button
               leftIcon={<EditIcon />}
